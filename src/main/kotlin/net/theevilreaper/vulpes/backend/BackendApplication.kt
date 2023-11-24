@@ -26,7 +26,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
         Spec::class,
     ]
 )
-open class BackendApplication
+class BackendApplication
 
 @Bean
 fun objectMapperBuilder(): Jackson2ObjectMapperBuilder = Jackson2ObjectMapperBuilder().modulesToInstall(KotlinModule())
