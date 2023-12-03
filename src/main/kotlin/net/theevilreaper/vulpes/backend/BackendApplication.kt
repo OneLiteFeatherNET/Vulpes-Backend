@@ -24,6 +24,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
     scanBasePackageClasses = [
         BackendApplication::class,
         Spec::class,
+        RepoSpec::class
     ]
 )
 class BackendApplication
