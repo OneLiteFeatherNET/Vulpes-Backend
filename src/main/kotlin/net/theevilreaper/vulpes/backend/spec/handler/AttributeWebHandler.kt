@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
+/**
+ * The [AttributeWebHandler] contains the endpoints to handle requests to perform operations on [AttributeModel].
+ * @since 1.0.0
+ * @author theEvilReaper
+ */
 @CrossOrigin(
     origins = ["*"],
     maxAge = 4800,
@@ -25,6 +30,10 @@ class AttributeWebHandler {
     @Autowired
     private lateinit var attributeRepository: AttributeRepository
 
+    /**
+     * Add a new [AttributeModel] to the database.
+     * @return the added [AttributeModel] mapped in a [ResponseEntity]
+     */
     @PostMapping("/attribute")
     fun add(@RequestBody model: AttributeModel): ResponseEntity<AttributeModel> {
         return ResponseEntity.ok(attributeRepository.save(model))
@@ -52,6 +61,10 @@ class AttributeWebHandler {
         return ResponseEntity.ok(listOf())
     }
 
+    /**
+     * Returns all [AttributeModel] which are currently persists in the database.
+     * @return a list with all [AttributeModel] mapped in a [ResponseEntity]
+     */
     @GetMapping("/attribute/getAll")
     fun getAll(): ResponseEntity<List<AttributeModel>> {
         return ResponseEntity.ok(attributeRepository.findAll())
