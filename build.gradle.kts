@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.spring.starter.web)
     implementation(libs.spring.starter.data.mongodb)
     implementation(libs.jackson)
+    implementation(libs.annotation)
 
     testImplementation(libs.embed.mongo)
     testImplementation(libs.spring.starter.test)
