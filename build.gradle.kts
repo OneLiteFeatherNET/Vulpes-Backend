@@ -62,7 +62,7 @@ tasks {
     compileKotlin {
         compilerOptions {
             freeCompilerArgs = listOf("-Xjsr305=strict")
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget.set(JvmTarget.JVM_21)
         }
     }
     bootBuildImage {
