@@ -12,7 +12,7 @@ dependencyResolutionManagement {
                 "vulpes.api",
                 "net.theevilreaper.vulpes.api",
                 "vulpes-spring-api"
-            ).version("0.0.3-SNAPSHOT+b6928369")
+            ).version("0.1.0-SNAPSHOT+2597aca4")
 
             library("spring.starter.web", "org.springframework.boot", "spring-boot-starter-web").withoutVersion()
             library(
