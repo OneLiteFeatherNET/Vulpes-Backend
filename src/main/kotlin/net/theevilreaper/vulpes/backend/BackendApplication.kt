@@ -1,5 +1,6 @@
 package net.theevilreaper.vulpes.backend
 
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import net.theevilreaper.vulpes.api.RepoSpec
 import net.theevilreaper.vulpes.backend.spec.Spec
@@ -30,7 +31,13 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 class BackendApplication
 
 @Bean
-fun objectMapperBuilder(): Jackson2ObjectMapperBuilder = Jackson2ObjectMapperBuilder().modulesToInstall(KotlinModule())
+fun objectMapperBuilder(): Jackson2ObjectMapperBuilder = Jackson2ObjectMapperBuilder()
+    .modulesToInstall(
+        KotlinModule.Builder()
+            .enable(KotlinFeature.NullToEmptyMap)
+            .enable(KotlinFeature.NullToEmptyCollection)
+            .build()
+    )
 
 fun main(args: Array<String>) {
     // https://stackoverflow.com/a/48988779
