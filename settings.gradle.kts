@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("kotlin", "1.9.23")
+            version("kotlin", "2.0.0")
 
             library("jackson", "com.fasterxml.jackson.module", "jackson-module-kotlin").version("2.17.0")
             library("annotation", "org.jetbrains", "annotations").version("24.1.0")
@@ -43,8 +43,8 @@ dependencyResolutionManagement {
 
             library("embed.mongo", "de.flapdoodle.embed", "de.flapdoodle.embed.mongo.spring30x").version("4.11.0")
 
-            plugin("spring", "org.springframework.boot").version("3.2.4")
-            plugin("spring.dependency", "io.spring.dependency-management").version("1.1.4")
+            plugin("spring", "org.springframework.boot").version("3.3.0")
+            plugin("spring.dependency", "io.spring.dependency-management").version("1.1.5")
             plugin("kotlin.jvm", "org.jetbrains.kotlin.jvm").versionRef("kotlin")
             plugin("kotlin.spring", "org.jetbrains.kotlin.plugin.spring").versionRef("kotlin")
         }
