@@ -1,8 +1,10 @@
-package net.theevilreaper.vulpes.backend.handler
+package net.theevilreaper.vulpes.backend.service.dao
 
 import net.theevilreaper.vulpes.api.model.NotificationModel
 import net.theevilreaper.vulpes.api.repository.NotificationRepository
-import net.theevilreaper.vulpes.backend.spec.database.NotificationDatabaseHandler
+import net.theevilreaper.vulpes.backend.dao.DatabaseAccessObject
+import net.theevilreaper.vulpes.backend.exception.ResourceNotFoundException
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -14,7 +16,8 @@ import org.springframework.web.server.ResponseStatusException
  * @since
  **/
 @Service
-class NotificationHandlerImpl(val notificationRepository: NotificationRepository) : NotificationDatabaseHandler {
+class NotificationServiceImpl(val notificationRepository: NotificationRepository) :
+    DatabaseAccessObject<NotificationModel> {
 
     override fun getAll(): ResponseEntity<List<NotificationModel>> {
         notificationRepository.findAll().let {
@@ -28,10 +31,11 @@ class NotificationHandlerImpl(val notificationRepository: NotificationRepository
     }
 
     override fun delete(id: String): ResponseEntity<NotificationModel> {
-        if (id.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "The id value can't be empty")
+        val notificationModel = notificationRepository.findById(id)
+        if (notificationModel.isEmpty) {
+            throw ResourceNotFoundException(HttpMethod.DELETE, id)
         }
-        val model = notificationRepository.findById(id).orElseThrow()
+        val model = notificationModel.get()
         notificationRepository.deleteById(model.id ?: id)
         return ResponseEntity.ok(model)
     }
@@ -45,14 +49,9 @@ class NotificationHandlerImpl(val notificationRepository: NotificationRepository
     }
 
     override fun getByID(id: String): ResponseEntity<NotificationModel> {
-        if (id.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "The id value can't be empty")
-        }
         val value = notificationRepository.findById(id)
-
-        return if (value.isEmpty) throw ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "The requested object does not exists"
+        return if (value.isEmpty) throw ResourceNotFoundException(
+            HttpMethod.GET, id
         ) else ResponseEntity.ok(value.get())
     }
 }

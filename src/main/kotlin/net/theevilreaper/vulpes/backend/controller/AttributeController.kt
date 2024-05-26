@@ -1,8 +1,9 @@
-package net.theevilreaper.vulpes.backend.spec.handler
+package net.theevilreaper.vulpes.backend.controller
 
 import net.theevilreaper.vulpes.api.model.AttributeModel
 import net.theevilreaper.vulpes.api.repository.AttributeRepository
-import org.springframework.beans.factory.annotation.Autowired
+import net.theevilreaper.vulpes.backend.exception.ResourceNotFoundException
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * The [AttributeWebHandler] contains the endpoints to handle requests to perform operations on [AttributeModel].
+ * The [AttributeController] contains the endpoints to handle requests to perform operations on [AttributeModel].
  * @since 1.0.0
  * @author theEvilReaper
  */
@@ -25,10 +26,9 @@ import org.springframework.web.bind.annotation.RestController
     methods = [RequestMethod.POST, RequestMethod.DELETE, RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS]
 )
 @RestController
-class AttributeWebHandler {
-
-    @Autowired
-    private lateinit var attributeRepository: AttributeRepository
+class AttributeController(
+    private val attributeRepository: AttributeRepository
+) {
 
     /**
      * Add a new [AttributeModel] to the database.
@@ -51,8 +51,7 @@ class AttributeWebHandler {
             attributeRepository.deleteById(id)
             return ResponseEntity.ok(attributeModel.get())
         }
-
-        return ResponseEntity.notFound().build()
+        throw ResourceNotFoundException(HttpMethod.DELETE, id)
     }
 
     @DeleteMapping("/attribute/deleteAll")

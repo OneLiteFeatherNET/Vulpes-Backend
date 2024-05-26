@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend.spec.database
+package net.theevilreaper.vulpes.backend.dao
 
 import org.springframework.http.ResponseEntity
 
@@ -8,12 +8,12 @@ import org.springframework.http.ResponseEntity
  * @version 1.0.0
  * @since
  **/
-interface DatabaseBaseHandler<T> {
+interface DatabaseAccessObject<T> {
 
     /**
      * Get an entry from the database by a given id.
      * @param id the id as string
-     * @return the fetched value
+     * @return the fetched value^
      */
     fun getByID(id: String): ResponseEntity<T>
 

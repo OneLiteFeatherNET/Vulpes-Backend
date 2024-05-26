@@ -1,8 +1,7 @@
-package net.theevilreaper.vulpes.backend.spec.handler
+package net.theevilreaper.vulpes.backend.controller
 
 import net.theevilreaper.vulpes.api.model.FontModel
-import net.theevilreaper.vulpes.backend.spec.database.FontDatabaseHandler
-import org.springframework.beans.factory.annotation.Autowired
+import net.theevilreaper.vulpes.backend.dao.DatabaseAccessObject
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -20,11 +19,9 @@ import org.springframework.web.bind.annotation.*
     methods = [RequestMethod.POST, RequestMethod.DELETE, RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS]
 )
 @RestController
-class FontHandler {
-
-    @Autowired
-    lateinit var fontDatabaseHandler: FontDatabaseHandler
-
+class FontController(
+    private val fontDatabaseHandler: DatabaseAccessObject<FontModel>
+) {
 
     @RequestMapping("/font", method = [RequestMethod.POST], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun add(@RequestBody item: FontModel): ResponseEntity<FontModel> {

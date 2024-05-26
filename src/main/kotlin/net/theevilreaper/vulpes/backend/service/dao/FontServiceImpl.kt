@@ -1,12 +1,12 @@
-package net.theevilreaper.vulpes.backend.handler
+package net.theevilreaper.vulpes.backend.service.dao
 
 import net.theevilreaper.vulpes.api.model.FontModel
 import net.theevilreaper.vulpes.api.repository.FontRepository
-import net.theevilreaper.vulpes.backend.spec.database.FontDatabaseHandler
-import org.springframework.http.HttpStatus
+import net.theevilreaper.vulpes.backend.dao.DatabaseAccessObject
+import net.theevilreaper.vulpes.backend.exception.ResourceNotFoundException
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 
 /**
  * @author theEvilReaper
@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException
  * @since
  **/
 @Service
-class FontHandlerImpl(val fontRepository: FontRepository) : FontDatabaseHandler {
+class FontServiceImpl(val fontRepository: FontRepository) : DatabaseAccessObject<FontModel> {
     override fun getAll(): ResponseEntity<List<FontModel>> {
         fontRepository.findAll().let {
             return ResponseEntity.ok(it)
@@ -28,11 +28,9 @@ class FontHandlerImpl(val fontRepository: FontRepository) : FontDatabaseHandler 
 
     override fun delete(id: String): ResponseEntity<FontModel> {
         val fontModel = this.fontRepository.findById(id)
-
         if (fontModel.isEmpty) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "The given id doesn't match any entry")
+            throw ResourceNotFoundException(HttpMethod.DELETE, id)
         }
-
         fontRepository.delete(fontModel.get())
         return ResponseEntity.ok(fontModel.get())
     }
@@ -46,14 +44,11 @@ class FontHandlerImpl(val fontRepository: FontRepository) : FontDatabaseHandler 
     }
 
     override fun getByID(id: String): ResponseEntity<FontModel> {
-        if (id.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "The id value can't be empty")
-        }
         val value = fontRepository.findById(id);
 
-        return if (value.isEmpty) throw ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "The requested object does not exists"
+        return if (value.isEmpty) throw ResourceNotFoundException(
+            HttpMethod.GET,
+            id,
         ) else ResponseEntity.ok(value.get())
     }
 }

@@ -1,13 +1,12 @@
-package net.theevilreaper.vulpes.backend.handler
+package net.theevilreaper.vulpes.backend.service.dao
 
 import net.theevilreaper.vulpes.api.model.ItemModel
 import net.theevilreaper.vulpes.api.repository.ItemRepository
-import net.theevilreaper.vulpes.backend.spec.database.ItemDatabaseHandler
-import net.theevilreaper.vulpes.backend.util.INVALID_ID_MESSAGE
-import org.springframework.http.HttpStatus
+import net.theevilreaper.vulpes.backend.dao.DatabaseAccessObject
+import net.theevilreaper.vulpes.backend.exception.ResourceNotFoundException
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 
 /**
  * @author theEvilReaper
@@ -16,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException
  **/
 
 @Service
-class ItemHandlerImpl(val itemRepository: ItemRepository) : ItemDatabaseHandler {
+class ItemServiceImpl(val itemRepository: ItemRepository) : DatabaseAccessObject<ItemModel> {
     override fun getAll(): ResponseEntity<List<ItemModel>> {
         itemRepository.findAll().let {
             return ResponseEntity.ok(it)
@@ -29,18 +28,16 @@ class ItemHandlerImpl(val itemRepository: ItemRepository) : ItemDatabaseHandler 
     }
 
     override fun delete(id: String): ResponseEntity<ItemModel> {
-        if (id.trim().isEmpty()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_ID_MESSAGE)
+        itemRepository.findById(id).let {
+            if (it.isEmpty) {
+                throw ResourceNotFoundException(HttpMethod.DELETE, id)
+            }
+            itemRepository.deleteById(id)
+            return ResponseEntity.ok(it.get())
         }
-        val model = itemRepository.findById(id).orElseThrow()
-        itemRepository.deleteById(id)
-        return ResponseEntity.ok(model)
     }
 
     override fun add(model: ItemModel): ResponseEntity<ItemModel> {
-       /* if (model.id.orEmpty().trim().isEmpty()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_ID_MESSAGE)
-        }*/
         return ResponseEntity.ok(itemRepository.save(model))
     }
 
@@ -49,14 +46,11 @@ class ItemHandlerImpl(val itemRepository: ItemRepository) : ItemDatabaseHandler 
     }
 
     override fun getByID(id: String): ResponseEntity<ItemModel> {
-        if (id.trim().isEmpty()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, INVALID_ID_MESSAGE)
-        }
         val value = itemRepository.findById(id);
 
-        return if (value.isEmpty) throw ResponseStatusException(
-            HttpStatus.NOT_FOUND,
-            "The requested object does not exists"
+        return if (value.isEmpty) throw ResourceNotFoundException(
+            HttpMethod.GET,
+            id
         ) else ResponseEntity.ok(value.get())
     }
 }

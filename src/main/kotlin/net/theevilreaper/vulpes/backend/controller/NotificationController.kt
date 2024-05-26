@@ -1,8 +1,7 @@
-package net.theevilreaper.vulpes.backend.spec.handler
+package net.theevilreaper.vulpes.backend.controller
 
 import net.theevilreaper.vulpes.api.model.NotificationModel
-import net.theevilreaper.vulpes.backend.spec.database.NotificationDatabaseHandler
-import org.springframework.beans.factory.annotation.Autowired
+import net.theevilreaper.vulpes.backend.dao.DatabaseAccessObject
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -19,32 +18,30 @@ import org.springframework.web.bind.annotation.*
     methods = [RequestMethod.POST, RequestMethod.DELETE, RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS]
 )
 @RestController
-class NotificationHandler {
+class NotificationController(
+    private val notificationHandler: DatabaseAccessObject<NotificationModel>
+) {
 
-    @Autowired
-    lateinit var notificationHandler: NotificationDatabaseHandler
-
-    @RequestMapping("/notification", method = [RequestMethod.POST], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping("/notification", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun add(@RequestBody model: NotificationModel): ResponseEntity<NotificationModel> {
         // Validation
         return notificationHandler.add(model)
     }
 
-    @RequestMapping("/notification/{id}", method = [RequestMethod.GET], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/notification/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getByID(@PathVariable("id") id: String): ResponseEntity<NotificationModel> {
         return notificationHandler.getByID(id);
     }
 
-    @RequestMapping(
+    @DeleteMapping(
         "/notification/remove/{id}",
-        method = [RequestMethod.DELETE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun remove(@PathVariable("id") id: String): ResponseEntity<NotificationModel> {
         return notificationHandler.delete(id)
     }
 
-    @RequestMapping("/notification/getAll", method = [RequestMethod.GET], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/notification/getAll", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAll(): ResponseEntity<List<NotificationModel>> {
         return notificationHandler.getAll()
     }
@@ -54,9 +51,8 @@ class NotificationHandler {
         return notificationHandler.deleteAll()
     }
 
-    @RequestMapping(
+    @PostMapping(
         "/notification/update",
-        method = [RequestMethod.POST],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun update(@RequestBody model: NotificationModel): ResponseEntity<NotificationModel> {

@@ -3,7 +3,6 @@ package net.theevilreaper.vulpes.backend
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import net.theevilreaper.vulpes.api.RepoSpec
-import net.theevilreaper.vulpes.backend.spec.Spec
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -24,7 +23,6 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 @SpringBootApplication(
     scanBasePackageClasses = [
         BackendApplication::class,
-        Spec::class,
         RepoSpec::class
     ]
 )

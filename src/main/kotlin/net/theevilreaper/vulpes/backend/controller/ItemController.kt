@@ -1,8 +1,7 @@
-package net.theevilreaper.vulpes.backend.spec.handler
+package net.theevilreaper.vulpes.backend.controller
 
 import net.theevilreaper.vulpes.api.model.ItemModel
-import net.theevilreaper.vulpes.backend.spec.database.ItemDatabaseHandler
-import org.springframework.beans.factory.annotation.Autowired
+import net.theevilreaper.vulpes.backend.dao.DatabaseAccessObject
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -20,11 +19,9 @@ import org.springframework.web.bind.annotation.*
     methods = [RequestMethod.POST, RequestMethod.DELETE, RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS]
 )
 @RestController
-class ItemHandler {
-
-    @Autowired
-    lateinit var itemDatabaseHandler: ItemDatabaseHandler
-
+class ItemController(
+    private val itemDatabaseHandler: DatabaseAccessObject<ItemModel>
+) {
     @RequestMapping("/item", method = [RequestMethod.POST], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun add(@RequestBody item: ItemModel): ResponseEntity<ItemModel> {
         // Validation

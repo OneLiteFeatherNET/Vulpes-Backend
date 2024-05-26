@@ -1,12 +1,12 @@
-package net.theevilreaper.vulpes.backend.handler
+package net.theevilreaper.vulpes.backend.service.dao
 
 import net.theevilreaper.vulpes.api.model.BlockModel
 import net.theevilreaper.vulpes.api.repository.BlocKRepository
-import net.theevilreaper.vulpes.backend.spec.database.BlockDatabaseHandler
-import org.springframework.http.HttpStatus
+import net.theevilreaper.vulpes.backend.dao.DatabaseAccessObject
+import net.theevilreaper.vulpes.backend.exception.ResourceNotFoundException
+import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 
 /**
  * @author theEvilReaper
@@ -14,10 +14,8 @@ import org.springframework.web.server.ResponseStatusException
  * @since
  **/
 
-const val ENTRY_NOT_FOUND = "The request entry not found"
-
 @Service
-class BlockHandlerImpl(val blocKRepository: BlocKRepository) : BlockDatabaseHandler {
+class BlockServiceImpl(val blocKRepository: BlocKRepository) : DatabaseAccessObject<BlockModel> {
     override fun getAll(): ResponseEntity<List<BlockModel>> {
         blocKRepository.findAll().let {
             return ResponseEntity.ok(it)
@@ -30,9 +28,6 @@ class BlockHandlerImpl(val blocKRepository: BlocKRepository) : BlockDatabaseHand
     }
 
     override fun delete(id: String): ResponseEntity<BlockModel> {
-        if (id.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "The id value can't be empty")
-        }
         blocKRepository.deleteById(id)
         return ResponseEntity.ok().build()
     }
@@ -46,15 +41,11 @@ class BlockHandlerImpl(val blocKRepository: BlocKRepository) : BlockDatabaseHand
     }
 
     override fun getByID(id: String): ResponseEntity<BlockModel> {
-        if (id.isEmpty()) {
-            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "The id value can't be empty")
-        }
-
         blocKRepository.findById(id).let {
             return if (it.isPresent) {
                 ResponseEntity.ok(it.get());
             } else {
-                throw ResponseStatusException(HttpStatus.NOT_FOUND, ENTRY_NOT_FOUND)
+                throw ResourceNotFoundException(HttpMethod.GET, id)
             }
         }
     }

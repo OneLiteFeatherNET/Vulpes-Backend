@@ -1,8 +1,7 @@
-package net.theevilreaper.vulpes.backend.spec.handler
+package net.theevilreaper.vulpes.backend.controller
 
 import net.theevilreaper.vulpes.api.model.BlockModel
-import net.theevilreaper.vulpes.backend.spec.database.BlockDatabaseHandler
-import org.springframework.beans.factory.annotation.Autowired
+import net.theevilreaper.vulpes.backend.dao.DatabaseAccessObject
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -20,21 +19,20 @@ import org.springframework.web.bind.annotation.*
     methods = [RequestMethod.POST, RequestMethod.DELETE, RequestMethod.GET, RequestMethod.HEAD, RequestMethod.OPTIONS]
 )
 @RestController
-class BlockHandler {
-
-    @Autowired
-    lateinit var blockDatabaseHandler: BlockDatabaseHandler
+class BlockController(
+    private val blockDatabaseHandler: DatabaseAccessObject<BlockModel>
+) {
 
     /**
      * Add a new [BlockModel] entry to the database.
      * @param model the model which should be added
      */
-    @RequestMapping("/block", method = [RequestMethod.POST], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping("/block", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun add(@RequestBody model: BlockModel): ResponseEntity<BlockModel> {
         return blockDatabaseHandler.add(model)
     }
 
-    @RequestMapping("/block/{id}", method = [RequestMethod.GET], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/block/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getByID(@PathVariable("id") id: String): ResponseEntity<BlockModel> {
         return blockDatabaseHandler.getByID(id);
     }
@@ -44,7 +42,10 @@ class BlockHandler {
      * @param id the id from the model string
      * @return the deleted [BlockModel] in a [ResponseEntity] object.
      */
-    @RequestMapping("/block/remove/{id}", method = [RequestMethod.DELETE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @DeleteMapping(
+        "/block/remove/{id}",
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
     fun remove(@PathVariable("id") id: String): ResponseEntity<BlockModel> {
         return blockDatabaseHandler.delete(id)
     }
@@ -53,7 +54,7 @@ class BlockHandler {
      * Get all [BlockModel] entries which are currently in the database
      * @return a [ResponseEntity] which contains a list with a [BlockModel] entries
      */
-    @RequestMapping("/block/getAll", method = [RequestMethod.GET], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/block/getAll", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAll(): ResponseEntity<List<BlockModel>> {
         return blockDatabaseHandler.getAll()
     }
@@ -66,7 +67,7 @@ class BlockHandler {
         return blockDatabaseHandler.deleteAll()
     }
 
-    @RequestMapping("/block/update", method = [RequestMethod.POST], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping("/block/update", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun update(@RequestBody model: BlockModel): ResponseEntity<BlockModel> {
         return blockDatabaseHandler.update(model)
     }
