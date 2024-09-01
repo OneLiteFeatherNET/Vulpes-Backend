@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("kotlin", "2.0.0")
+            version("kotlin", "2.0.20")
 
             library("jackson", "com.fasterxml.jackson.module", "jackson-module-kotlin").version("2.17.1")
             library("annotation", "org.jetbrains", "annotations").version("24.1.0")
