@@ -13,38 +13,8 @@ group = "net.theevilreaper"
 version = "0.0.1-SNAPSHOT"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven {
-        val groupdId = 28 // Gitlab Group
-        url = if (System.getenv().containsKey("CI")) {
-            val ciApiv4Url = System.getenv("CI_API_V4_URL")
-            uri("$ciApiv4Url/groups/$groupdId/-/packages/maven")
-        } else {
-            uri("https://gitlab.onelitefeather.dev/api/v4/groups/$groupdId/-/packages/maven")
-        }
-        name = "GitLab"
-        credentials(HttpHeaderCredentials::class.java) {
-            name = if (System.getenv().containsKey("CI")) {
-                "Job-Token"
-            } else {
-                "Private-Token"
-            }
-            value = if (System.getenv().containsKey("CI")) {
-                System.getenv("CI_JOB_TOKEN")
-            } else {
-                val gitLabPrivateToken: String? by project
-                gitLabPrivateToken
-            }
-        }
-        authentication {
-            create<HttpHeaderAuthentication>("header")
-        }
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
