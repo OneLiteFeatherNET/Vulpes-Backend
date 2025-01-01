@@ -44,7 +44,7 @@ dependencyResolutionManagement {
             version("annotation", "26.0.1")
             version("spring", "3.4.0")
             version("spring.management", "1.1.6")
-            version("jackson", "2.17.1")
+            version("jackson", "2.18.2")
             version("embed.mongo", "4.11.0")
 
             library("jackson", "com.fasterxml.jackson.module", "jackson-module-kotlin").versionRef("jackson")
