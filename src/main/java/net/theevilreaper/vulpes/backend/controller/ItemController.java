@@ -1,5 +1,6 @@
 package net.theevilreaper.vulpes.backend.controller;
 
+import io.micronaut.core.annotation.NonNull;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
@@ -9,6 +10,7 @@ import net.theevilreaper.vulpes.api.repository.ItemRepository;
 import jakarta.inject.Inject;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author theEvilReaper
@@ -28,36 +30,46 @@ public class ItemController {
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ItemModel> add(@Body ItemModel item) {
-        return itemRepository.add(item);
+        return HttpResponse.ok(itemRepository.save(item));
     }
 
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ItemModel> getById(@PathVariable String id) {
-        return itemRepository.getByID(id);
+        Optional<ItemModel> model = itemRepository.findById(id);
+        if (model.isPresent()) {
+            return HttpResponse.ok(model.get());
+        }
+        return HttpResponse.notFound();
     }
 
     @Delete("/remove/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ItemModel> remove(@PathVariable String id) {
-        return itemRepository.delete(id);
+        Optional<ItemModel> model = itemRepository.findById(id);
+        if (model.isPresent()) {
+            itemRepository.deleteById(id);
+            return HttpResponse.ok(model.get());
+        }
+        return HttpResponse.notFound();
     }
 
     @Get("/getAll")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<ItemModel>> getAll() {
-        return itemRepository.getAll();
+        return HttpResponse.ok(itemRepository.findAll());
     }
 
     @Delete("/deleteAll")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<ItemModel>> deleteAll() {
-        return itemRepository.deleteAll();
+        itemRepository.deleteAll();
+        return HttpResponse.ok(List.of());
     }
 
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ItemModel> update(@Body ItemModel model) {
-        return itemRepository.update(model);
+        return HttpResponse.ok(itemRepository.update(model));
     }
 }

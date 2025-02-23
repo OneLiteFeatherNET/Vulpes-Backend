@@ -14,51 +14,61 @@ import net.theevilreaper.vulpes.api.model.FontModel;
 import net.theevilreaper.vulpes.api.repository.FontRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller("/font")
 public class FontController {
 
-    private final FontRepository fontDatabaseHandler;
+    private final FontRepository fontRepository;
 
     @Inject
-    public FontController(FontRepository fontDatabaseHandler) {
-        this.fontDatabaseHandler = fontDatabaseHandler;
+    public FontController(FontRepository fontRepository) {
+        this.fontRepository = fontRepository;
     }
 
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<FontModel> add(@Body FontModel item) {
-        return fontDatabaseHandler.save(item);
+        return HttpResponse.ok(fontRepository.save(item));
     }
 
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<FontModel> getById(@PathVariable String id) {
-        return fontDatabaseHandler.getByID(id);
+        Optional<FontModel> model = fontRepository.findById(id);
+        if (model.isPresent()) {
+            return HttpResponse.ok(model.get());
+        }
+        return HttpResponse.notFound();
     }
 
     @Delete("/remove/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<FontModel> remove(@PathVariable String id) {
-        return fontDatabaseHandler.delete(id);
+        Optional<FontModel> model = fontRepository.findById(id);
+        if (model.isPresent()) {
+            fontRepository.deleteById(id);
+            return HttpResponse.ok(model.get());
+        }
+        return HttpResponse.notFound();
     }
 
     @Get("/getAll")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<FontModel>> getAll() {
-        return fontDatabaseHandler.getAll();
+        return HttpResponse.ok(fontRepository.findAll());
     }
 
     @Delete("/deleteAll")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<FontModel>> deleteAll() {
-        return fontDatabaseHandler.deleteAll();
+        fontRepository.deleteAll();
+        return HttpResponse.ok(List.of());
     }
 
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<FontModel> update(@Body FontModel model) {
-        return fontDatabaseHandler.update(model);
+        return HttpResponse.ok(fontRepository.update(model));
     }
-
 }
