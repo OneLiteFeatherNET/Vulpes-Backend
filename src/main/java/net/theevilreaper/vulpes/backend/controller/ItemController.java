@@ -1,6 +1,5 @@
 package net.theevilreaper.vulpes.backend.controller;
 
-import io.micronaut.core.annotation.NonNull;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;

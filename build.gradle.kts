@@ -18,14 +18,14 @@ dependencies {
     annotationProcessor(mn.micronaut.serde.processor)
     annotationProcessor(mn.micronaut.http.validation)
     annotationProcessor(mn.micronaut.data.processor)
-    annotationProcessor("io.micronaut:micronaut-inject-java:4.7.10")
+    annotationProcessor(mn.micronaut.data.processor)
+    annotationProcessor(mn.micronaut.inject.java)
     annotationProcessor(mn.micronaut.openapi)
 
     compileOnly(mn.micronaut.openapi.annotations)
 
     implementation(libs.vulpes.api)
     //Micronaut
-    implementation(mn.micronaut.data.processor)
     implementation(mn.micronaut.runtime)
     implementation(mn.validation)
     implementation(mn.snakeyaml)

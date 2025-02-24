@@ -1,0 +1,75 @@
+### Important variables
+@server = http://localhost:8080
+@itemId = item_001
+
+### Add a new item
+POST {{server}}/item
+Content-Type: application/json
+
+{
+  "id": {{itemId}},
+  "modelName": "diamond_sword",
+  "name": "Excalibur",
+  "description": "A legendary sword",
+  "displayName": "§bExcalibur",
+  "material": "DIAMOND_SWORD",
+  "group": "weapons",
+  "customModelData": 123,
+  "amount": 1,
+  "enchantments": {
+    "DAMAGE_ALL": 5,
+    "UNBREAKING": 3
+  },
+  "lore": [
+    "§7A blade of legends",
+    "§eWielded by heroes"
+  ],
+  "flags": [
+    "HIDE_ATTRIBUTES",
+    "HIDE_ENCHANTS"
+  ]
+}
+
+### Update an item
+POST {{server}}/item/update
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": {{itemId}},
+  "modelName": "diamond_sword",
+  "name": "Excalibur",
+  "description": "A legendary sword",
+  "displayName": "§bExcalibur",
+  "material": "DIAMOND_SWORD",
+  "group": "weapons",
+  "customModelData": 123,
+  "amount": 10,
+  "enchantments": {
+    "DAMAGE_ALL": 5,
+    "UNBREAKING": 3
+  },
+  "lore": [
+    "§7A blade of legends",
+    "§eWielded by heroes"
+  ],
+  "flags": [
+    "HIDE_ATTRIBUTES",
+    "HIDE_ENCHANTS"
+  ]
+}
+
+
+### Get by id
+GET {{server}}/item/{{itemId}}
+
+### Remove by id
+DELETE {{server}}/item/remove/{{itemId}}
+
+### Get all items
+
+GET {{server}}/item/getAll
+Content-Type: application/json
+
+### Delete all
+DELETE {{server}}/item/deleteAll
