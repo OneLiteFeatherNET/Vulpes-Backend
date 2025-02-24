@@ -1,0 +1,14 @@
+micronaut:
+  application:
+    name: Vulpes Backend
+  server:
+    port: ${PORT:8080}
+  logger:
+    level:
+      io.micronaut: DEBUG
+mongodb:
+  uri: ${MONGODB_URL:mongodb://localhost:27017}
+  database: ${MONGODB_DATABASE:Vulpes}
+  credential:
+    username: ${MONGODB_USERNAME:vulpes}
+    password: ${MONGODB_PASSWORD:strongpassword}
