@@ -7,9 +7,9 @@ import io.micronaut.runtime.Micronaut;
         packages = "net.theevilreaper.vulpes.*",
         annotated = "*"
 )
-public class BackendApplication {
+public class VulpesBackend {
 
     public static void main(String[] args) {
-        Micronaut.run(BackendApplication.class, args);
+        Micronaut.run(VulpesBackend.class, args);
     }
 }

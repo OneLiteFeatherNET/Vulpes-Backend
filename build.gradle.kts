@@ -40,12 +40,13 @@ dependencies {
     implementation(mn.micronaut.mongo.core)
 
     testImplementation(mn.junit.jupiter.api)
+    testImplementation(mn.junit.jupiter.params)
     testRuntimeOnly(mn.junit.jupiter.engine)
 }
 
 
 application {
-    mainClass.set("net.theevilreaper.vulpes.backend.BackendApplication")
+    mainClass.set("net.theevilreaper.vulpes.backend.VulpesBackend")
 }
 
 graalvmNative.toolchainDetection = false
@@ -83,3 +84,4 @@ tasks {
         dependsOn("shadowJar")
     }
 }
+
