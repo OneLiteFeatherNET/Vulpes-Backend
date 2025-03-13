@@ -1,4 +1,4 @@
-rootProject.name = "vulpes-spring-backend"
+rootProject.name = "vulpes-backend"
 
 dependencyResolutionManagement {
     if (System.getenv("CI") != null) {
