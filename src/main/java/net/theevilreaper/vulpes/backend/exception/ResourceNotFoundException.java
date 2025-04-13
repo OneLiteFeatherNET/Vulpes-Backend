@@ -5,6 +5,8 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.UUID;
+
 /**
  * Thrown if a resource was not found in the database.
  * @author theEvilReaper
@@ -19,7 +21,7 @@ public class ResourceNotFoundException extends HttpStatusException {
      * @param httpMethod the HTTP method which was used to access the resource
      * @param resourceId the id of the resource which was not found
      */
-    public ResourceNotFoundException(@NotNull HttpMethod httpMethod, @NotNull String resourceId) {
+    public ResourceNotFoundException(@NotNull HttpMethod httpMethod, @NotNull UUID resourceId) {
         super(HttpStatus.NOT_FOUND, resourceId);
         this.httpMethod = httpMethod;
     }

@@ -14,6 +14,7 @@ plugins {
 
 dependencyResolutionManagement {
     repositories {
+        mavenLocal()
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
         mavenCentral()
         maven("https://jitpack.io")
@@ -36,8 +37,10 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("micronaut", "4.4.4")
-            version("vulpes.model", "1.0.0")
+            version("vulpes.model", "1.0.1")
+            version("uuid.creator", "6.1.0")
 
+            library("uuid.creator", "com.github.f4b6a3", "uuid-creator").versionRef("uuid.creator")
             library("vulpes.api", "net.theevilreaper.vulpes.api", "vulpes-model").versionRef("vulpes.model")
             library("jetbrains.annotation", "org.jetbrains", "annotations").version("26.0.2")
 

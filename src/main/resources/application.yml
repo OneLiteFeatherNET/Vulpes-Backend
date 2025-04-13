@@ -2,11 +2,19 @@ micronaut:
   application:
     name: Vulpes Backend
   server:
-    port: ${PORT:8080}
+    port: ${PORT:8085}
   logger:
     levels:
       io.micronaut.data: DEBUG
       io.micronaut.sql: DEBUG
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: /swagger-ui/**
 
 datasources:
   default:

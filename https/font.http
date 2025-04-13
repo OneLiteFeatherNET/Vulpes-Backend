@@ -1,0 +1,10 @@
+### Base config
+@server = http://localhost:8085
+@id =
+### Add a new font
+POST {{server}}/font
+Content-Type: application/json
+
+{
+
+}

@@ -1,5 +1,5 @@
 ### Important variables
-@server = http://localhost:8080
+@server = http://localhost:8085
 @itemId = item_001
 
 ### Add a new item
@@ -7,15 +7,14 @@ POST {{server}}/item
 Content-Type: application/json
 
 {
-  "id": {{itemId}},
-  "modelName": "diamond_sword",
+  "modelName": "test",
   "name": "Excalibur",
   "description": "A legendary sword",
   "displayName": "§bExcalibur",
   "material": "DIAMOND_SWORD",
   "group": "weapons",
   "customModelData": 123,
-  "amount": 1,
+  "amount": 0,
   "enchantments": {
     "DAMAGE_ALL": 5,
     "UNBREAKING": 3
@@ -36,7 +35,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "id": {{itemId}},
+  "id": "{{itemId}}",
   "modelName": "diamond_sword",
   "name": "Excalibur",
   "description": "A legendary sword",

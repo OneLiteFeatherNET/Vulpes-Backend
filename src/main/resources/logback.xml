@@ -1,0 +1,14 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="trace" />
+    </root>
+    <logger name="io.micronaut.core.reflect" level="trace" />
+    <logger name="io.micronaut.data.query" level="trace" />
+
+</configuration>
