@@ -3,6 +3,7 @@ package net.theevilreaper.vulpes.backend.domain.notification;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.theevilreaper.vulpes.api.model.NotificationModel;
+import net.theevilreaper.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.UUID;
 
@@ -38,6 +39,6 @@ public sealed interface NotificationModelResponseDTO {
     @Serdeable
     record NotificationModelErrorDTO(
             @Schema(description = "Error message") String errorMessage
-    ) implements NotificationModelResponseDTO {
+    ) implements NotificationModelResponseDTO, ErrorResponse {
     }
 }

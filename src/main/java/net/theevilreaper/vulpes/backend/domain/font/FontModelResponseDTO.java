@@ -3,6 +3,7 @@ package net.theevilreaper.vulpes.backend.domain.font;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.theevilreaper.vulpes.api.model.FontModel;
+import net.theevilreaper.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +39,6 @@ public sealed interface FontModelResponseDTO {
 
     @Schema(description = "Error message")
     @Serdeable
-    record FontModelErrorDTO(@Schema(description = "Error message") String errorMessage) implements FontModelResponseDTO {
+    record FontModelErrorDTO(@Schema(description = "Error message") String errorMessage) implements FontModelResponseDTO, ErrorResponse {
     }
 }

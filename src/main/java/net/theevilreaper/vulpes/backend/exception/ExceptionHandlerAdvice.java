@@ -7,6 +7,7 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.server.exceptions.ExceptionHandler;
 import jakarta.inject.Singleton;
+import net.theevilreaper.vulpes.backend.domain.error.ErrorResponse;
 
 /**
  * Handles each incoming exception and returns a response which contains a better overview of the exception.
@@ -16,17 +17,10 @@ import jakarta.inject.Singleton;
  */
 @Produces
 @Singleton
-@Requires(classes = {ResourceNotFoundException.class})
-public class ExceptionHandlerAdvice implements ExceptionHandler<ResourceNotFoundException, HttpResponse<ErrorResponse>> {
+public class ExceptionHandlerAdvice implements ExceptionHandler<Throwable, HttpResponse<ErrorResponse>> {
 
     @Override
-    public HttpResponse<ErrorResponse> handle(HttpRequest request, ResourceNotFoundException exception) {
-        String message = "The resource with the id " + exception.getMessage() + " was not found";
-        ErrorResponse error = new ErrorResponse(
-                exception.getHttpMethod().toString(),
-                HttpStatus.NOT_FOUND.getCode(),
-                message
-        );
-        return HttpResponse.notFound().body(error);
+    public HttpResponse<ErrorResponse> handle(HttpRequest request, Throwable exception) {
+        return HttpResponse.notFound().body(new ErrorResponse.ErrorResponseDTO(exception.getMessage()));
     }
 }

@@ -3,6 +3,7 @@ package net.theevilreaper.vulpes.backend.domain.item;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.theevilreaper.vulpes.api.model.ItemModel;
+import net.theevilreaper.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,6 @@ public sealed interface ItemModelResponseDTO {
     @Serdeable
     record ItemModelErrorDTO(
             @Schema(description = "Error message") String errorMessage
-    ) implements ItemModelResponseDTO {
+    ) implements ItemModelResponseDTO, ErrorResponse {
     }
 }

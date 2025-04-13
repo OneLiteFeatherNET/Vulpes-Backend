@@ -1,22 +1,20 @@
 package net.theevilreaper.vulpes.backend.controller;
 
-import io.micronaut.http.HttpMethod;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Post;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import net.theevilreaper.vulpes.api.model.AttributeModel;
 import net.theevilreaper.vulpes.api.repository.AttributeRepository;
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Post;
 import net.theevilreaper.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.theevilreaper.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
-import net.theevilreaper.vulpes.backend.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.Optional;

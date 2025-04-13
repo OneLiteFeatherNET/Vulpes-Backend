@@ -3,6 +3,7 @@ package net.theevilreaper.vulpes.backend.domain.attribute;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.theevilreaper.vulpes.api.model.AttributeModel;
+import net.theevilreaper.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.UUID;
 
@@ -35,6 +36,6 @@ public interface AttributeModelResponseDTO {
     @Serdeable
     record AttributeModelErrorDTO(
             @Schema(description = "Error message") String errorMessage
-    ) implements AttributeModelResponseDTO {
+    ) implements AttributeModelResponseDTO, ErrorResponse {
     }
 }
