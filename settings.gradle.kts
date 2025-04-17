@@ -9,7 +9,7 @@ pluginManagement {
 }
 
 plugins {
-    id("io.micronaut.platform.catalog") version "4.4.4"
+    id("io.micronaut.platform.catalog") version "4.5.3"
 }
 
 dependencyResolutionManagement {
@@ -35,7 +35,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("micronaut", "4.4.4")
+            version("micronaut", "4.5.3")
             version("vulpes.model", "1.1.0")
             version("uuid.creator", "6.1.0")
 

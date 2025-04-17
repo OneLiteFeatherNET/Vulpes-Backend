@@ -50,6 +50,9 @@ dependencies {
     testImplementation(mn.junit.jupiter.api)
     testImplementation(mn.junit.jupiter.params)
     testRuntimeOnly(mn.junit.jupiter.engine)
+    testImplementation(mn.testcontainers.core)
+    testImplementation(mn.testcontainers.mariadb)
+    testImplementation(mn.micronaut.test.rest.assured)
 }
 
 
@@ -71,7 +74,7 @@ micronaut {
         convertYamlToJava = false
         precomputeOperations = true
         cacheEnvironment = true
-        optimizeClassLoading = true
+        optimizeClassLoading = false
         deduceEnvironment = true
         optimizeNetty = true
         replaceLogbackXml = true
