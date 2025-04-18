@@ -1,9 +1,9 @@
-package net.theevilreaper.vulpes.backend.domain.item;
+package net.onelitefeather.vulpes.backend.domain.item;
 
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.theevilreaper.vulpes.api.model.ItemModel;
-import net.theevilreaper.vulpes.backend.domain.error.ErrorResponse;
+import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.List;
 import java.util.Map;

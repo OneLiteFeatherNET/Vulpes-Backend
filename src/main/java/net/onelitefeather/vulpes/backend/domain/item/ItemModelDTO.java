@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend.domain.item;
+package net.onelitefeather.vulpes.backend.domain.item;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;

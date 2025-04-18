@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend.domain.notification;
+package net.onelitefeather.vulpes.backend.domain.notification;
 
 import java.util.UUID;
 import io.micronaut.core.annotation.Introspected;

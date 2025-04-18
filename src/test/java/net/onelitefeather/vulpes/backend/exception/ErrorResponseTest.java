@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend.exception;
+package net.onelitefeather.vulpes.backend.exception;
 
 import io.micronaut.http.HttpMethod;
 import org.junit.jupiter.api.DisplayName;

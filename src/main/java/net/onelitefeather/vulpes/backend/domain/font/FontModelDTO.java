@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend.domain.font;
+package net.onelitefeather.vulpes.backend.domain.font;
 
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;

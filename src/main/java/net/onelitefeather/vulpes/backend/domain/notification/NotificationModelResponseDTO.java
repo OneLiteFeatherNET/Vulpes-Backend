@@ -1,9 +1,9 @@
-package net.theevilreaper.vulpes.backend.domain.notification;
+package net.onelitefeather.vulpes.backend.domain.notification;
 
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.theevilreaper.vulpes.api.model.NotificationModel;
-import net.theevilreaper.vulpes.backend.domain.error.ErrorResponse;
+import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.UUID;
 

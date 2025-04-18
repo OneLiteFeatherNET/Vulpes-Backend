@@ -1,9 +1,9 @@
-package net.theevilreaper.vulpes.backend.domain.font;
+package net.onelitefeather.vulpes.backend.domain.font;
 
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.theevilreaper.vulpes.api.model.FontModel;
-import net.theevilreaper.vulpes.backend.domain.error.ErrorResponse;
+import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.List;
 import java.util.UUID;

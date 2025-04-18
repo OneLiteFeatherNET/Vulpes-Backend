@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend.domain.attribute;
+package net.onelitefeather.vulpes.backend.domain.attribute;
 
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;

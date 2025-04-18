@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend.controller;
+package net.onelitefeather.vulpes.backend.controller;
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -11,8 +11,8 @@ import jakarta.validation.Valid;
 import net.theevilreaper.vulpes.api.model.NotificationModel;
 import net.theevilreaper.vulpes.api.repository.NotificationRepository;
 import jakarta.inject.Inject;
-import net.theevilreaper.vulpes.backend.domain.notification.NotificationModelDTO;
-import net.theevilreaper.vulpes.backend.domain.notification.NotificationModelResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelDTO;
+import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelResponseDTO;
 
 import java.util.List;
 import java.util.Optional;

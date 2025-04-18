@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend.domain.error;
+package net.onelitefeather.vulpes.backend.domain.error;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

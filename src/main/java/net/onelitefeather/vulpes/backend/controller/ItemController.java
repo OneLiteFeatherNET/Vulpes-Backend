@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend.controller;
+package net.onelitefeather.vulpes.backend.controller;
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -17,15 +17,15 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import net.theevilreaper.vulpes.api.model.ItemModel;
 import net.theevilreaper.vulpes.api.repository.ItemRepository;
-import net.theevilreaper.vulpes.backend.domain.item.ItemModelDTO;
-import net.theevilreaper.vulpes.backend.domain.item.ItemModelResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static net.theevilreaper.vulpes.backend.domain.item.ItemModelResponseDTO.ItemModelErrorDTO;
+import static net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO.ItemModelErrorDTO;
 
 /**
  * @author theEvilReaper

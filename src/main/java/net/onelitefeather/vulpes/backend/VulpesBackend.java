@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend;
+package net.onelitefeather.vulpes.backend;
 
 import io.micronaut.runtime.Micronaut;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;

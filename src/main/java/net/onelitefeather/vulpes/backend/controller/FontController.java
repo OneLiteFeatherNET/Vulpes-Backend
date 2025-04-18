@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend.controller;
+package net.onelitefeather.vulpes.backend.controller;
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -17,10 +17,8 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import net.theevilreaper.vulpes.api.model.FontModel;
 import net.theevilreaper.vulpes.api.repository.FontRepository;
-import net.theevilreaper.vulpes.backend.domain.font.FontModelDTO;
-import net.theevilreaper.vulpes.backend.domain.font.FontModelResponseDTO;
-import net.theevilreaper.vulpes.backend.domain.item.ItemModelDTO;
-import net.theevilreaper.vulpes.backend.domain.item.ItemModelResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
+import net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO;
 
 import java.util.List;
 import java.util.Optional;

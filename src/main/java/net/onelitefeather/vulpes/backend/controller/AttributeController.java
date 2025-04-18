@@ -1,4 +1,4 @@
-package net.theevilreaper.vulpes.backend.controller;
+package net.onelitefeather.vulpes.backend.controller;
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Body;
@@ -13,8 +13,8 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import net.theevilreaper.vulpes.api.model.AttributeModel;
 import net.theevilreaper.vulpes.api.repository.AttributeRepository;
-import net.theevilreaper.vulpes.backend.domain.attribute.AttributeModelDTO;
-import net.theevilreaper.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
+import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
 
 import java.util.List;
 import java.util.Optional;
