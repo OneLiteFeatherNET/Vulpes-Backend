@@ -45,7 +45,7 @@ dependencyResolutionManagement {
 
             plugin("micronaut.application", "io.micronaut.application").versionRef("micronaut")
             plugin("micronaut.aot", "io.micronaut.aot").versionRef("micronaut")
-            plugin("shadowJar", "com.gradleup.shadow").version("9.0.0-beta13")
+            plugin("shadowJar", "com.gradleup.shadow").version("9.0.0-beta15")
         }
     }
 }
