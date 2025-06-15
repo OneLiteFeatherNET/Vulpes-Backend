@@ -3,7 +3,6 @@ package net.onelitefeather.vulpes.backend.domain.sound;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
-import net.onelitefeather.vulpes.api.model.sound.SoundFileSource;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.UUID;
@@ -12,50 +11,7 @@ import java.util.UUID;
 @Serdeable
 public interface SoundResponseDTO {
 
-    @Schema(
-            name = "ResponseSoundFileSourceDTO",
-            description = "Data transfer object for Sound models"
-    )
-    @Serdeable
-    record SoundFileSourceDTO(
-            @Schema(description = "Id of the File Source") UUID id,
-            @Schema(description = "Name to display it in the ui") String name,
-            @Schema(description = "Volume") float volume,
-            @Schema(description = "Pitch") float pitch,
-            @Schema(description = "Weight") int weight,
-            @Schema(description = "Stream") boolean stream,
-            @Schema(description = "AttenuationDistance") int attenuationDistance,
-            @Schema(description = "preload") boolean preload,
-            @Schema(description = "type") String type
-    ) implements SoundResponseDTO {
-        public static SoundFileSourceDTO createDTO(SoundFileSource source) {
-            return new SoundFileSourceDTO(
-                    source.getId(),
-                    source.getName(),
-                    source.getVolume(),
-                    source.getPitch(),
-                    source.getWeight(),
-                    source.isStreamable(),
-                    source.getAttenuationDistance(),
-                    source.isStreamable(),
-                    source.getType()
-            );
-        }
-    }
-
-    /**
-     * The {@link SoundModelDTO} is used to represent a sound model in the system.
-     *
-     * @param id           the unique identifier of the sound model
-     * @param uiName       the name to display in the UI
-     * @param variableName the name used for variable generation
-     * @param keyName      the key of the sound
-     * @param subTitle     the subtitle displayed when the sound is played
-     */
-    @Schema(
-            name = "ResponseSoundModelDTO",
-            description = "Data transfer object for Sound models"
-    )
+    @Schema(description = "Notification Model Data")
     @Serdeable
     record SoundModelDTO(
             @Schema(description = "Id of the Model") UUID id,
@@ -63,14 +19,8 @@ public interface SoundResponseDTO {
             @Schema(description = "The name which is used for the variable generation") String variableName,
             @Schema(description = "They key of the sound") String keyName,
             @Schema(description = "The subtitle which is display when the sound is played") String subTitle
-    ) implements SoundResponseDTO {
 
-        /**
-         * Creates a new {@link SoundModelDTO} from a {@link SoundEventEntity}.
-         *
-         * @param event the SoundEventEntity to convert
-         * @return a new SoundModelDTO instance
-         */
+    ) implements SoundResponseDTO {
         public static SoundModelDTO createDTO(SoundEventEntity event) {
             return new SoundModelDTO(
                     event.getId(),
@@ -82,15 +32,7 @@ public interface SoundResponseDTO {
         }
     }
 
-    /**
-     * The {@link SoundErrorDTO} is used to represent an error response for sound events.
-     *
-     * @param errorMessage the error message describing the issue
-     */
-    @Schema(
-            name = "ResponseSoundErrorDTO",
-            description = "Error message for Sound model"
-    )
+    @Schema(description = "Error message for Sound model")
     @Serdeable
     record SoundErrorDTO(
             @Schema(description = "Error message") String errorMessage
