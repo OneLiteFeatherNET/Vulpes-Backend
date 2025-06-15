@@ -25,9 +25,9 @@ public sealed interface NotificationModelResponseDTO {
         public static NotificationModelDTO createDTO(NotificationEntity notificationModel) {
             return new NotificationModelDTO(
                     notificationModel.getId(),
-                    notificationModel.getModelName(),
-                    notificationModel.getName(),
-                    notificationModel.getDescription(),
+                    notificationModel.getUiName(),
+                    notificationModel.getVariableName(),
+                    notificationModel.getComment(),
                     notificationModel.getMaterial(),
                     notificationModel.getFrameType(),
                     notificationModel.getTitle()
