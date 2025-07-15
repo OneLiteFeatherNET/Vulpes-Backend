@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.micronaut.aot)
     jacoco
     `maven-publish`
+    id("org.openapi.generator") version "7.14.0"
 }
 
 java {
@@ -91,6 +92,89 @@ tasks {
             csv.required.set(false)
         }
     }
+    this.openApiGenerate {
+        dependsOn("compileJava")
+    }
+    register("pushDartClient") {
+        dependsOn("openApiGenerate")
+        doLast {
+            val clientDir = file("$buildDir/generated/dart-client")
+            val version = project.version as String
+
+            // Get GitHub credentials from environment variables
+            val githubToken = System.getenv("CLIENT_REPO_TOKEN") ?: System.getenv("GITHUB_TOKEN") ?: throw GradleException("CLIENT_REPO_TOKEN or GITHUB_TOKEN environment variable is required")
+
+            // Create a temporary directory for the Git repository
+            val tempDir = file("$buildDir/temp/vulpes-client")
+            tempDir.mkdirs()
+
+            // Configure Git user
+            exec {
+                commandLine("git", "config", "--global", "user.name", "GitHub Actions")
+            }
+
+            exec {
+                commandLine("git", "config", "--global", "user.email", "actions@github.com")
+            }
+
+            // Clone the repository using token authentication
+            exec {
+                workingDir = tempDir
+                commandLine("git", "clone", "https://${githubToken}@github.com/OneLiteFeatherNET/vulpes-backend-client-dart.git", ".")
+            }
+
+            // Copy the generated client to the repository
+            copy {
+                from(clientDir)
+                into(tempDir)
+            }
+
+            // Commit and push the changes
+            exec {
+                workingDir = tempDir
+                commandLine("git", "add", ".")
+            }
+
+            exec {
+                workingDir = tempDir
+                commandLine("git", "commit", "-m", "Update client to version $version")
+            }
+
+            exec {
+                workingDir = tempDir
+                commandLine("git", "tag", "-a", "v$version", "-m", "Version $version")
+            }
+
+            exec {
+                workingDir = tempDir
+                commandLine("git", "push", "origin", "main", "--tags")
+            }
+        }
+    }
+    named("publish") {
+        dependsOn("pushDartClient")
+    }
+}
+
+// OpenAPI Generator configuration
+openApiGenerate {
+    generatorName.set("dart-dio")
+    inputSpec.set("$projectDir/build/classes/java/main/META-INF/swagger/vulpes-backend-1.0.yml")
+    outputDir.set("$projectDir/build/generated/dart-client")
+    apiPackage.set("net.onelitefeather.vulpes.client.api")
+    invokerPackage.set("net.onelitefeather.vulpes.client.invoker")
+    modelPackage.set("net.onelitefeather.vulpes.client.model")
+    configOptions.set(mapOf(
+        "pubName" to "vulpes_client",
+        "pubVersion" to (project.version as String),
+        "pubDescription" to "Vulpes API Client",
+        "pubAuthor" to "OneLiteFeather",
+        "pubAuthorEmail" to "p.glanz@madfix.me",
+        "pubHomepage" to "https://github.com/OneLiteFeatherNET/vulpes-backend-client-dart",
+        "pubRepository" to "https://github.com/OneLiteFeatherNET/vulpes-backend-client-dart",
+        "dateLibrary" to "core",
+        "enumUnknownDefaultCase" to "true"
+    ))
 }
 
 publishing {
