@@ -109,7 +109,7 @@ tasks {
             tempDir.mkdirs()
 
             // Clone the repository using token authentication
-            providers.exec {
+            exec {
                 workingDir = tempDir
                 commandLine("git", "clone", "https://${githubToken}@github.com/OneLiteFeatherNET/vulpes-backend-client-dart.git", ".")
             }
@@ -121,22 +121,22 @@ tasks {
             }
 
             // Commit and push the changes
-            providers.exec {
+            exec {
                 workingDir = tempDir
                 commandLine("git", "add", ".")
             }
 
-            providers.exec {
+            exec {
                 workingDir = tempDir
                 commandLine("git", "commit", "-m", "Update client to version $version")
             }
 
-            providers.exec {
+            exec {
                 workingDir = tempDir
                 commandLine("git", "tag", "-a", "v$version", "-m", "Version $version")
             }
 
-            providers.exec {
+            exec {
                 workingDir = tempDir
                 commandLine("git", "push", "origin", "main", "--tags")
             }
