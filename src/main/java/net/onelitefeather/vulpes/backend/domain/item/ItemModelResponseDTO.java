@@ -109,9 +109,9 @@ public sealed interface ItemModelResponseDTO {
     @Schema(description = "Item Model Data")
     @Serdeable
     record ItemModelDTO(
-            @Schema(description = "The id of the Item Model") UUID id,
+            @Schema(description = "The id of the model") UUID id,
             @Schema(description = "Model Name for the UI") String uiName,
-            @Schema(description = "Name of the item in the UI") String variableName,
+            @Schema(description = "Variable name for the generation") String variableName,
             @Schema(description = "Description of the item") String comment,
             @Schema(description = "Display variableName of the item shown to users") String displayName,
             @Schema(description = "Material type of the item") String material,
