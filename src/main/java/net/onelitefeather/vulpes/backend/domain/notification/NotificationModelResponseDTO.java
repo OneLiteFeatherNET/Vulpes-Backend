@@ -14,9 +14,9 @@ public sealed interface NotificationModelResponseDTO {
     @Schema(description = "Notification Model Data")
     @Serdeable
     record NotificationModelDTO(
-            @Schema(description = "UUID of the Notification Model") UUID id,
-            @Schema(description = "Model Name for the UI") String modelName,
-            @Schema(description = "Name in the UI") String name,
+            @Schema(description = "The id of the model") UUID id,
+            @Schema(description = "Model Name for the UI") String uiName,
+            @Schema(description = "Variable name for the generation") String variableName,
             @Schema(description = "Description of the Notification") String description,
             @Schema(description = "Material type of the Notification") String material,
             @Schema(description = "Frame type of the Notification") String frameType,
