@@ -12,6 +12,8 @@ import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -34,23 +36,24 @@ public class AttributeController {
 
     @Operation(
             summary = "Add a new attribute",
+            operationId = "addAttribute",
             description = "Adds a new attribute to the database. The attribute is created with the given properties.",
             tags = {"Attribute"}
     )
     @ApiResponse(
             responseCode = "200",
             description = "The attribute was successfully added to the database.",
-            content = @io.swagger.v3.oas.annotations.media.Content(
+            content = @Content(
                     mediaType = "application/json",
-                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
+                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
             )
     )
     @ApiResponse(
             responseCode = "500",
             description = "The attribute could not be added to the database.",
-            content = @io.swagger.v3.oas.annotations.media.Content(
+            content = @Content(
                     mediaType = "application/json",
-                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
+                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
             )
     )
     @Post
@@ -60,24 +63,25 @@ public class AttributeController {
     }
 
     @Operation(
-            summary = "Get an attribute by ID",
+            summary = "Update an attribute",
+            operationId = "updateAttribute",
             description = "Returns the attribute with the given ID.",
             tags = {"Attribute"}
     )
     @ApiResponse(
             responseCode = "200",
             description = "The attribute was successfully found.",
-            content = @io.swagger.v3.oas.annotations.media.Content(
+            content = @Content(
                     mediaType = "application/json",
-                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
+                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
             )
     )
     @ApiResponse(
             responseCode = "404",
             description = "The attribute was not found.",
-            content = @io.swagger.v3.oas.annotations.media.Content(
+            content = @Content(
                     mediaType = "application/json",
-                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
+                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
             )
     )
     @Post("/update")
@@ -88,25 +92,27 @@ public class AttributeController {
         }
         return HttpResponse.ok(result);
     }
+
     @Operation(
             summary = "Delete an attribute by ID",
+            operationId = "deleteAttributeById",
             description = "Deletes the attribute with the given ID.",
             tags = {"Attribute"}
     )
     @ApiResponse(
             responseCode = "200",
             description = "The attribute was successfully deleted.",
-            content = @io.swagger.v3.oas.annotations.media.Content(
+            content = @Content(
                     mediaType = "application/json",
-                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
+                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
             )
     )
     @ApiResponse(
             responseCode = "404",
             description = "The attribute was not found.",
-            content = @io.swagger.v3.oas.annotations.media.Content(
+            content = @Content(
                     mediaType = "application/json",
-                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
+                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
             )
     )
     @Delete("/delete/{id}")
@@ -125,18 +131,19 @@ public class AttributeController {
      */
     @Operation(
             summary = "Delete all attributes",
+            operationId = "deleteAllAttributes",
             description = "Deletes all attributes from the database.",
             tags = {"Attribute"}
     )
     @ApiResponse(
             responseCode = "200",
             description = "All attributes were successfully deleted.",
-            content = @io.swagger.v3.oas.annotations.media.Content(
+            content = @Content(
                     mediaType = "application/json",
-                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
+                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
             )
     )
-    @Delete("/deleteAll")
+    @Delete("/delete/all")
     public HttpResponse<List<AttributeModelResponseDTO>> deleteAll() {
         List<AttributeModelResponseDTO> result = attributeService.deleteAllAttributes();
         return HttpResponse.ok(result);
@@ -149,19 +156,20 @@ public class AttributeController {
      */
     @Operation(
             summary = "Get all attributes",
+            operationId = "getAllAttributes",
             description = "Gets all attributes from the database.",
             tags = {"Attribute"}
     )
     @ApiResponse(
             responseCode = "200",
             description = "The attributes were successfully retrieved.",
-            content = @io.swagger.v3.oas.annotations.media.Content(
+            content = @Content(
                     mediaType = "application/json",
-                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
+                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
             )
     )
     @Produces(MediaType.APPLICATION_JSON)
-    @Get(uris = {"/getAll", "/all"})
+    @Get(uris = {"/all"})
     public HttpResponse<Page<AttributeModelResponseDTO.AttributeModelDTO>> getAll(Pageable pageable) {
         Page<AttributeModelResponseDTO.AttributeModelDTO> models = attributeService.getAllAttributes(pageable);
         return HttpResponse.ok(models);
