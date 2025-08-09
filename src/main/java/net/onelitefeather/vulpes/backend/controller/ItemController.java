@@ -47,6 +47,7 @@ public class ItemController {
 
     @Operation(
             summary = "Add a new item",
+            operationId = "addItem",
             description = "Adds a new item to the database. The item is created with the given properties.",
             tags = {"Item"}
     )
@@ -77,6 +78,7 @@ public class ItemController {
 
     @Operation(
             summary = "Get an item by ID",
+            operationId = "getItemById",
             description = "Retrieves an item from the database by its ID.",
             tags = {"Item"}
     )
@@ -111,6 +113,7 @@ public class ItemController {
 
     @Operation(
             summary = "Remove an item by ID",
+            operationId = "removeItemById",
             description = "Removes an item from the database by its ID.",
             tags = {"Item"}
     )
@@ -130,7 +133,7 @@ public class ItemController {
                     schema = @Schema(implementation = ItemModelErrorDTO.class)
             )
     )
-    @Delete("/remove/{id}")
+    @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ItemModelResponseDTO> remove(@PathVariable UUID id) {
         ItemModelResponseDTO result = itemService.deleteItem(id);
@@ -236,6 +239,7 @@ public class ItemController {
 
     @Operation(
             summary = "Get all items",
+            operationId = "getAllItems",
             description = "Retrieves all items from the database.",
             tags = {"Item"}
     )
@@ -247,7 +251,7 @@ public class ItemController {
                     schema = @Schema(implementation = ItemModelResponseDTO.ItemModelDTO.class)
             )
     )
-    @Get(uris = {"/getAll", "/all"})
+    @Get(uris = {"/all"})
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<ItemModelResponseDTO.ItemModelDTO>> getAll(Pageable pageable) {
         Page<ItemModelResponseDTO.ItemModelDTO> list = itemService.getAllItems(pageable);
