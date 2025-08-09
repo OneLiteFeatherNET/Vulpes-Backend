@@ -41,6 +41,7 @@ public class FontController {
 
     @Operation(
             summary = "Add a new font",
+            operationId = "addFont",
             description = "Adds a new font to the database. The font is created with the given properties.",
             tags = {"Font"}
     )
@@ -71,6 +72,7 @@ public class FontController {
 
     @Operation(
             summary = "Get a font by ID",
+            operationId = "getFontById",
             description = "Gets a font by ID from the database.",
             tags = {"Font"}
     )
@@ -105,6 +107,7 @@ public class FontController {
 
     @Operation(
             summary = "Get characters by font ID",
+            operationId = "getCharsById",
             description = "Gets the characters of a font by its ID from the database.",
             tags = {"Font"}
     )
@@ -137,6 +140,7 @@ public class FontController {
 
     @Operation(
             summary = "Remove a font by ID",
+            operationId = "deleteFont",
             description = "Removes a font by ID from the database.",
             tags = {"Font"}
     )
@@ -156,7 +160,7 @@ public class FontController {
                     schema = @Schema(implementation = FontModelErrorDTO.class)
             )
     )
-    @Delete("/remove/{id}")
+    @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<FontModelResponseDTO> remove(@PathVariable UUID id) {
         FontModelResponseDTO result = fontService.deleteFont(id);
@@ -168,6 +172,7 @@ public class FontController {
 
     @Operation(
             summary = "Get all fonts",
+            operationId = "getAllFonts",
             description = "Gets all fonts from the database.",
             tags = {"Font"}
     )
@@ -179,7 +184,7 @@ public class FontController {
                     schema = @Schema(implementation = FontModelResponseDTO.FontModelDTO.class)
             )
     )
-    @Get(uris = {"/getAll", "/all"})
+    @Get(uris = {"/all"})
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<FontModelResponseDTO.FontModelDTO>> getAll(Pageable pageable) {
         Page<FontModelResponseDTO.FontModelDTO> models = fontService.getAllFonts(pageable);
@@ -188,6 +193,7 @@ public class FontController {
 
     @Operation(
             summary = "Delete all fonts",
+            operationId = "deleteAllFonts",
             description = "Deletes all fonts from the database.",
             tags = {"Font"}
     )
@@ -199,7 +205,7 @@ public class FontController {
                     schema = @Schema(implementation = FontModelResponseDTO.FontModelDTO.class)
             )
     )
-    @Delete("/deleteAll")
+    @Delete("delete/all")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<FontModelResponseDTO>> deleteAll() {
         List<FontModelResponseDTO> result = fontService.deleteAllFonts();
@@ -208,6 +214,7 @@ public class FontController {
 
     @Operation(
             summary = "Update a font",
+            operationId = "updateFont",
             description = "Updates a font in the database.",
             tags = {"Font"}
     )

@@ -49,6 +49,7 @@ public class SoundController {
 
     @Operation(
             summary = "Add a new sound event",
+            operationId = "addSoundEvent",
             description = "Adds a new sound event to the database. The sound event is created with the given properties.",
             tags = {"Sound"}
     )
@@ -71,6 +72,7 @@ public class SoundController {
 
     @Operation(
             summary = "Get a sound by its ID",
+            operationId = "getSoundById",
             description = "Retrieves a sound from the database by its ID.",
             tags = {"Sound"}
     )
@@ -102,6 +104,7 @@ public class SoundController {
 
     @Operation(
             summary = "Remove a sound event by ID",
+            operationId = "removeSoundEventById",
             description = "Removes a sound event from the database by its ID.",
             tags = {"Sound"}
     )
@@ -121,7 +124,7 @@ public class SoundController {
                     schema = @Schema(implementation = SoundErrorDTO.class)
             )
     )
-    @Delete("/remove/{id}")
+    @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<SoundResponseDTO> remove(@PathVariable UUID id) {
         SoundResponseDTO result = soundService.deleteSoundEvent(id);
@@ -133,6 +136,7 @@ public class SoundController {
 
     @Operation(
             summary = "Get all sound events",
+            operationId = "getAllSoundEvents",
             description = "Retrieves all sound events from the database.",
             tags = {"Sound"}
     )
@@ -152,7 +156,7 @@ public class SoundController {
                     schema = @Schema(implementation = SoundErrorDTO.class)
             )
     )
-    @Get("/getAll")
+    @Get("/all")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<SoundResponseDTO>> getAll() {
         List<SoundResponseDTO> results = soundService.getAllSoundEvents();
@@ -161,6 +165,7 @@ public class SoundController {
 
     @Operation(
             summary = "Delete all sound events",
+            operationId = "deleteAllSoundEvents",
             description = "Deletes all sound events from the database.",
             tags = {"Sound"}
     )
@@ -172,7 +177,7 @@ public class SoundController {
                     schema = @Schema(implementation = SoundModelDTO.class)
             )
     )
-    @Delete("/deleteAll")
+    @Delete("/delete/all")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<SoundResponseDTO>> deleteAll() {
         List<SoundResponseDTO> results = soundService.deleteAllSoundEvents();
@@ -181,6 +186,7 @@ public class SoundController {
 
     @Operation(
             summary = "Update a sound event",
+            operationId = "updateSoundEvent",
             description = "Updates an existing sound event in the database.",
             tags = {"Sound"}
     )
@@ -212,7 +218,8 @@ public class SoundController {
 
     @Operation(
             summary = "Get all sound file sources by an id",
-            description = "",
+            operationId = "getSoundSourcesById",
+            description = "Get all sound file sources by a given sound event ID.",
             tags = {"Sound"}
     )
     @Get("{id}/sources")
