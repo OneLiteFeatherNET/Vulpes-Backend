@@ -21,7 +21,10 @@ public sealed interface ItemModelResponseDTO {
      * @param id           the UUID of the item model
      * @param enchantments a map of enchantment names and their levels
      */
-    @Schema(description = "Item model with enchantments")
+    @Schema(
+            name = "ItemModelEnchantmentDTO",
+            description = "Item model with enchantments"
+    )
     @Serdeable
     record ItemModelEnchantmentResponseDTO(
             @Schema(description = "UUID of the Item Model", requiredMode = Schema.RequiredMode.REQUIRED) UUID id,
@@ -46,7 +49,10 @@ public sealed interface ItemModelResponseDTO {
      * @param id    the UUID of the item model
      * @param flags the list of flags that modify item behavior
      */
-    @Schema(description = "Item Model with flags")
+    @Schema(
+            name = "ItemModelFlagDTO",
+            description = "Item Model with flags"
+    )
     @Serdeable
     record ItemModelFlagResponseDTO(
             @Schema(description = "UUID of the Item Model", requiredMode = Schema.RequiredMode.REQUIRED) UUID id,
@@ -71,7 +77,10 @@ public sealed interface ItemModelResponseDTO {
      * @param id   the UUID of the item model
      * @param lore the list of text lines displayed in the item tooltip
      */
-    @Schema(description = "Item Model with lore")
+    @Schema(
+            name = "ItemModelLoreDTO",
+            description = "Item Model with lore"
+    )
     @Serdeable
     record ItemModelLoreResponseDTO(
             @Schema(description = "UUID of the Item Model", requiredMode = Schema.RequiredMode.REQUIRED) UUID id,
@@ -106,7 +115,10 @@ public sealed interface ItemModelResponseDTO {
      * @param lore            the list of text lines displayed in the item tooltip
      * @param flags           the list of item flags that modify item behavior
      */
-    @Schema(description = "Item Model Data")
+    @Schema(
+            name = "ItemModelDTO",
+            description = "Item Model Data"
+    )
     @Serdeable
     record ItemModelDTO(
             @Schema(description = "The id of the model") UUID id,

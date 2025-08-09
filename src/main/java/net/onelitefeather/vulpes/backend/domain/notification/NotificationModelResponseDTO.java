@@ -11,7 +11,21 @@ import java.util.UUID;
 @Serdeable
 public sealed interface NotificationModelResponseDTO {
 
-    @Schema(description = "Notification Model Data")
+    /**
+     * Represents a response DTO for notification models that includes the model's details.
+     *
+     * @param id            the UUID of the notification model
+     * @param uiName        the name to display in the UI
+     * @param variableName  the name used for variable generation
+     * @param description   a description of the notification
+     * @param material      the material type of the notification
+     * @param frameType     the frame type of the notification
+     * @param title         the title of the notification
+     */
+    @Schema(
+            name = "NotificationModelDTO",
+            description = "Notification Model Data"
+    )
     @Serdeable
     record NotificationModelDTO(
             @Schema(description = "The id of the model") UUID id,
@@ -22,6 +36,13 @@ public sealed interface NotificationModelResponseDTO {
             @Schema(description = "Frame type of the Notification") String frameType,
             @Schema(description = "Title of the Notification") String title
     ) implements NotificationModelResponseDTO {
+
+        /**
+         * Creates a DTO from a NotificationEntity.
+         *
+         * @param notificationModel the NotificationEntity to convert
+         * @return a new NotificationModelDTO instance
+         */
         public static NotificationModelDTO createDTO(NotificationEntity notificationModel) {
             return new NotificationModelDTO(
                     notificationModel.getId(),
@@ -35,6 +56,11 @@ public sealed interface NotificationModelResponseDTO {
         }
     }
 
+    /**
+     * Represents an error response for notification models.
+     *
+     * @param errorMessage the error message describing the issue
+     */
     @Schema(description = "Error message for Notification Model")
     @Serdeable
     record NotificationModelErrorDTO(

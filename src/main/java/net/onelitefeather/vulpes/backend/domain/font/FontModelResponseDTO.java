@@ -16,10 +16,10 @@ public sealed interface FontModelResponseDTO {
     /**
      * Represents a response DTO for font models that includes characters.
      *
-     * @param chars       a list of characters in the font model
-     * @param id the ID of the font model
+     * @param chars a list of characters in the font model
+     * @param id    the ID of the font model
      */
-    @Schema(description = "Font model data with characters")
+    @Schema(name = "FontModelCharsDTO", description = "Font model data with characters")
     @Serdeable
     record FontModelCharsResponseDTO(
             @Schema(description = "ID of the font model", requiredMode = Schema.RequiredMode.REQUIRED) UUID id,
@@ -29,8 +29,8 @@ public sealed interface FontModelResponseDTO {
         /**
          * Creates a new instance of FontModelCharsResponseDTO.
          *
-         * @param chars       a list of characters in the font model
-         * @param id the ID of the font model
+         * @param chars a list of characters in the font model
+         * @param id    the ID of the font model
          * @return a new FontModelCharsResponseDTO instance
          */
         public static @NotNull FontModelCharsResponseDTO createDTO(@NotNull UUID id, @NotNull List<String> chars) {
@@ -38,7 +38,21 @@ public sealed interface FontModelResponseDTO {
         }
     }
 
-    @Schema(description = "Font model data")
+    /**
+     * Represents a response DTO for font models without characters.
+     *
+     * @param id           the ID of the font model
+     * @param uiName       the name to display in the UI
+     * @param variableName the name used for variable generation
+     * @param provider     the provider of the font
+     * @param mapper       the mapper for the font
+     * @param texturePath  the path to the texture of the font
+     * @param comment      an example comment for the font model
+     * @param ascent       the ascent value of the font model
+     * @param height       the height of the font model
+     * @param chars        an optional list of characters in the font model
+     */
+    @Schema(name = "FontModelDTO", description = "Font model data")
     @Serdeable
     record FontModelDTO(
             @Schema(description = "The id of the model", requiredMode = Schema.RequiredMode.REQUIRED) UUID id,
@@ -52,6 +66,13 @@ public sealed interface FontModelResponseDTO {
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) int height,
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.NOT_REQUIRED) List<String> chars
     ) implements FontModelResponseDTO {
+
+        /**
+         * Converts a {@link FontEntity} to a {@link FontModelDTO}.
+         *
+         * @param fontModel the entity to convert
+         * @return a new dto instance
+         */
         public static FontModelDTO createDTO(FontEntity fontModel) {
             return new FontModelDTO(
                     fontModel.getId(),
@@ -67,6 +88,12 @@ public sealed interface FontModelResponseDTO {
             );
         }
 
+        /**
+         * Creates a {@link FontModelDTO} with characters from a {@link FontEntity}.
+         *
+         * @param fontModel the entity to convert
+         * @return a new dto instance with characters
+         */
         public static FontModelDTO createDTOWithChars(FontEntity fontModel) {
             return new FontModelDTO(
                     fontModel.getId(),
@@ -83,7 +110,12 @@ public sealed interface FontModelResponseDTO {
         }
     }
 
-    @Schema(description = "Error message")
+    /**
+     * Represents an error response for font models.
+     *
+     * @param errorMessage the error message describing the issue
+     */
+    @Schema(name = "FontModelErrorDTO", description = "Error message")
     @Serdeable
     record FontModelErrorDTO(
             @Schema(description = "Error message") String errorMessage) implements FontModelResponseDTO, ErrorResponse {

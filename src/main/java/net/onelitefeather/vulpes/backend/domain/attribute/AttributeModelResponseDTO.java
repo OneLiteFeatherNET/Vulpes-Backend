@@ -11,7 +11,19 @@ import java.util.UUID;
 @Serdeable
 public interface AttributeModelResponseDTO {
 
-    @Schema(description = "Attribute Model Data")
+    /**
+     * The {@link AttributeModelDTO} is used to represent an attribute model in the system.
+     *
+     * @param id           the unique identifier of the attribute model
+     * @param uiName       the name to display in the UI
+     * @param variableName the name used for variable generation
+     * @param defaultValue the default value of the attribute
+     * @param maximumValue the maximum value of the attribute
+     */
+    @Schema(
+            name = "AttributeModelDTO",
+            description = "Attribute Model Data"
+    )
     @Serdeable
     record AttributeModelDTO(
             @Schema(description = "UUID of the Attribute Model") UUID id,
@@ -38,7 +50,15 @@ public interface AttributeModelResponseDTO {
         }
     }
 
-    @Schema(description = "Error message for Attribute Model")
+    /**
+     * The {@link AttributeModelErrorDTO} is used to represent an error response for attribute models.
+     *
+     * @param errorMessage the error message describing the issue
+     */
+    @Schema(
+            name = "AttributeModelErrorDTO",
+            description = "Error message for Attribute Model"
+    )
     @Serdeable
     record AttributeModelErrorDTO(
             @Schema(description = "Error message") String errorMessage
