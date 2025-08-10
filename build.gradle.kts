@@ -42,9 +42,8 @@ dependencies {
     implementation(mn.mariadb.java.client)
     implementation(mn.postgresql)
     implementation(mn.snakeyaml)
-    implementation(mn.log4j)
-    implementation(mn.slf4j.api)
-    implementation(mn.slf4j.simple)
+    implementation(mn.logback.core)
+    implementation(mn.logback.classic)
     // Vulpes API
     implementation(libs.vulpes.api)
     // UUID Creator
