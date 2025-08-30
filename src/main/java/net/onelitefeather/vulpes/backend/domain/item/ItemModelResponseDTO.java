@@ -22,7 +22,7 @@ public sealed interface ItemModelResponseDTO {
      * @param enchantments a map of enchantment names and their levels
      */
     @Schema(
-            name = "ItemModelEnchantmentDTO",
+            name = "ResponseItemModelEnchantmentDTO",
             description = "Item model with enchantments"
     )
     @Serdeable
@@ -50,7 +50,7 @@ public sealed interface ItemModelResponseDTO {
      * @param flags the list of flags that modify item behavior
      */
     @Schema(
-            name = "ItemModelFlagDTO",
+            name = "ResponseItemModelFlagDTO",
             description = "Item Model with flags"
     )
     @Serdeable
@@ -78,7 +78,7 @@ public sealed interface ItemModelResponseDTO {
      * @param lore the list of text lines displayed in the item tooltip
      */
     @Schema(
-            name = "ItemModelLoreDTO",
+            name = "ResponseItemModelLoreDTO",
             description = "Item Model with lore"
     )
     @Serdeable
@@ -116,7 +116,7 @@ public sealed interface ItemModelResponseDTO {
      * @param flags           the list of item flags that modify item behavior
      */
     @Schema(
-            name = "ItemModelDTO",
+            name = "ResponseItemModelDTO",
             description = "Item Model Data"
     )
     @Serdeable

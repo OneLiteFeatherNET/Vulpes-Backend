@@ -21,7 +21,7 @@ public interface SoundResponseDTO {
      * @param subTitle     the subtitle displayed when the sound is played
      */
     @Schema(
-            name = "SoundModelDTO",
+            name = "ResponseSoundModelDTO",
             description = "Data transfer object for Sound models"
     )
     @Serdeable
@@ -56,7 +56,7 @@ public interface SoundResponseDTO {
      * @param errorMessage the error message describing the issue
      */
     @Schema(
-            name = "SoundErrorDTO",
+            name = "ResponseSoundErrorDTO",
             description = "Error message for Sound model"
     )
     @Serdeable

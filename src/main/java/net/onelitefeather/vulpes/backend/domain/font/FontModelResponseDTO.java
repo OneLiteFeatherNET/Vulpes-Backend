@@ -19,7 +19,7 @@ public sealed interface FontModelResponseDTO {
      * @param chars a list of characters in the font model
      * @param id    the ID of the font model
      */
-    @Schema(name = "FontModelCharsDTO", description = "Font model data with characters")
+    @Schema(name = "ResponseFontModelCharsDTO", description = "Font model data with characters")
     @Serdeable
     record FontModelCharsResponseDTO(
             @Schema(description = "ID of the font model", requiredMode = Schema.RequiredMode.REQUIRED) UUID id,
@@ -52,7 +52,7 @@ public sealed interface FontModelResponseDTO {
      * @param height       the height of the font model
      * @param chars        an optional list of characters in the font model
      */
-    @Schema(name = "FontModelDTO", description = "Font model data")
+    @Schema(name = "ResponseFontModelDTO", description = "Font model data")
     @Serdeable
     record FontModelDTO(
             @Schema(description = "The id of the model", requiredMode = Schema.RequiredMode.REQUIRED) UUID id,
@@ -115,7 +115,7 @@ public sealed interface FontModelResponseDTO {
      *
      * @param errorMessage the error message describing the issue
      */
-    @Schema(name = "FontModelErrorDTO", description = "Error message")
+    @Schema(name = "ResponseFontModelErrorDTO", description = "Error message")
     @Serdeable
     record FontModelErrorDTO(
             @Schema(description = "Error message") String errorMessage) implements FontModelResponseDTO, ErrorResponse {

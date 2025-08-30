@@ -23,7 +23,7 @@ public sealed interface NotificationModelResponseDTO {
      * @param title         the title of the notification
      */
     @Schema(
-            name = "NotificationModelDTO",
+            name = "ResponseNotificationModelDTO",
             description = "Notification Model Data"
     )
     @Serdeable
