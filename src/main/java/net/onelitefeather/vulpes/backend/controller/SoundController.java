@@ -221,7 +221,25 @@ public class SoundController {
             summary = "Get all sound file sources by an id",
             operationId = "getSoundSourcesById",
             description = "Get all sound file sources by a given sound event ID.",
-            tags = {"Sound"}
+            tags = {"Sound"},
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "The sound file sources were successfully retrieved.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "No sound file sources were found for the given sound event ID.",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON,
+                                    schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
+                            )
+                    )
+            }
     )
     @Get("{id}/sources")
     @Produces(MediaType.APPLICATION_JSON)
