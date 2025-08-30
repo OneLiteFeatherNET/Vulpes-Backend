@@ -1,0 +1,22 @@
+micronaut:
+  server:
+    port: 8085
+
+datasources:
+  default:
+    url: jdbc:mariadb://localhost:3336/vulpesdb
+    driverClassName: org.mariadb.jdbc.Driver
+    username: vulpes
+    password: vulpespassword
+    dialect: MYSQL
+    schema-generate: UPDATE
+    maximum-pool-size: 10
+
+jpa:
+  default:
+    properties:
+      hibernate:
+        hbm2ddl.auto: update
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.MariaDBDialect
