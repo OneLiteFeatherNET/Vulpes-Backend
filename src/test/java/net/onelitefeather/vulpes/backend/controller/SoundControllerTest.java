@@ -19,7 +19,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Unit tests for SoundController (implementation tests)")
-class SoundControllerUnitTest {
+class SoundControllerTest {
 
     private static final Faker FAKER = new Faker();
 
