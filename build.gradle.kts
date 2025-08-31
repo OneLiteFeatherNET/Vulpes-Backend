@@ -104,52 +104,29 @@ tasks {
     this.openApiGenerate {
         dependsOn("compileJava")
     }
-    register("pushDartClient") {
+    register("pushDartClient", Exec::class) {
         dependsOn("openApiGenerate")
-        doLast {
-            val clientDir = file("$projectDir/build/generated/dart-client")
-            val version = project.version as String
+        val clientDir = file("$projectDir/build/generated/dart-client")
+        val version = project.version as String
 
-            // Get GitHub credentials from environment variables
-            val githubToken = System.getenv("CLIENT_REPO_TOKEN") ?: System.getenv("GITHUB_TOKEN") ?: throw GradleException("CLIENT_REPO_TOKEN or GITHUB_TOKEN environment variable is required")
+        // Get GitHub credentials from environment variables
+        val githubToken = System.getenv("CLIENT_REPO_TOKEN") ?: System.getenv("GITHUB_TOKEN") ?: throw GradleException("CLIENT_REPO_TOKEN or GITHUB_TOKEN environment variable is required")
 
-            // Create a temporary directory for the Git repository
-            val tempDir = file("$projectDir/build/temp/vulpes-client")
-            tempDir.mkdirs()
+        // Create a temporary directory for the Git repository
+        val tempDir = file("$projectDir/build/temp/vulpes-client")
+        tempDir.mkdirs()
+        workingDir = tempDir
+        commandLine("git", "clone", "https://${githubToken}@github.com/OneLiteFeatherNET/vulpes-backend-client-dart.git", ".")
 
-            // Clone the repository using token authentication
-            providers.exec {
-                workingDir = tempDir
-                commandLine("git", "clone", "https://${githubToken}@github.com/OneLiteFeatherNET/vulpes-backend-client-dart.git", ".")
-            }
-
-            // Copy the generated client to the repository
-            copy {
-                from(clientDir)
-                into(tempDir)
-            }
-
-            // Commit and push the changes
-            providers.exec {
-                workingDir = tempDir
-                commandLine("git", "add", ".")
-            }
-
-            providers.exec {
-                workingDir = tempDir
-                commandLine("git", "commit", "-m", "Update client to version $version")
-            }
-
-            providers.exec {
-                workingDir = tempDir
-                commandLine("git", "tag", "-a", "v$version", "-m", "Version $version")
-            }
-
-            providers.exec {
-                workingDir = tempDir
-                commandLine("git", "push", "origin", "main", "--tags")
-            }
+        // Copy the generated client to the repository
+        copy {
+            from(clientDir)
+            into(tempDir)
         }
+        commandLine("git", "add", ".")
+        commandLine("git", "commit", "-m", "Update client to version $version")
+        commandLine("git", "tag", "-a", "v$version", "-m", "Version $version")
+        commandLine("git", "push", "origin", "main", "--tags")
     }
     named("publish") {
         dependsOn("pushDartClient")
