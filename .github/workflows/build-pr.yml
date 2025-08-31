@@ -21,8 +21,6 @@ jobs:
           java-version: 24
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
       - name: Set up Docker
         uses: docker/setup-docker-action@v4
       - name: Build on ${{ matrix.os }}
