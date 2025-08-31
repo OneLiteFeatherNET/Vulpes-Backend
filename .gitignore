@@ -41,3 +41,4 @@ out/
 
 ## Docker ##
 docker/
+/.micronaut/test-resources/test-resources-port.txt
