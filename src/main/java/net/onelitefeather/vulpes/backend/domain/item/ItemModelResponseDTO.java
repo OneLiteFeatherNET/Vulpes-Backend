@@ -164,7 +164,10 @@ public sealed interface ItemModelResponseDTO {
      *
      * @param errorMessage the error message describing the issue with the item model
      */
-    @Schema(description = "Error message for Item Model")
+    @Schema(
+            name = "ItemModelErrorDTO",
+            description = "Error message for Item Model"
+    )
     @Serdeable
     record ItemModelErrorDTO(
             @Schema(description = "Error message") String errorMessage

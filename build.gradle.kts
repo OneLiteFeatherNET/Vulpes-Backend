@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.micronaut.application)
     alias(libs.plugins.micronaut.aot)
+    alias(libs.plugins.micronaut.test.resources)
     jacoco
     `maven-publish`
     id("org.openapi.generator") version "7.14.0"
@@ -54,7 +55,12 @@ dependencies {
     testRuntimeOnly(mn.junit.jupiter.engine)
     testImplementation(mn.testcontainers.core)
     testImplementation(mn.testcontainers.mariadb)
+    testImplementation("org.testcontainers:junit-jupiter")
     testImplementation(mn.micronaut.test.rest.assured)
+    testImplementation(mn.micronaut.test.resources.extensions.core)
+    testImplementation(mn.micronaut.test.resources.extensions.junit.platform)
+    // Faker library for JUnit tests
+    testImplementation("net.datafaker:datafaker:2.4.2")
 }
 
 
@@ -162,10 +168,11 @@ openApiGenerate {
         "pubName" to "vulpes_backend_client",
         "pubVersion" to (project.version as String),
         "pubDescription" to "Vulpes Backend API Client",
-        "pubAuthor" to "OneLiteFeather",
+        "pubAuthor" to "OneLiteFeatherNET",
         "pubAuthorEmail" to "p.glanz@madfix.me",
         "pubHomepage" to "https://github.com/OneLiteFeatherNET/vulpes-backend-client-dart",
         "pubRepository" to "https://github.com/OneLiteFeatherNET/vulpes-backend-client-dart",
+        "pubPublishTo" to "https://github.com/OneLiteFeatherNET/vulpes-backend-client-dart",
         "dateLibrary" to "core",
         "enumUnknownDefaultCase" to "true"
     ))
