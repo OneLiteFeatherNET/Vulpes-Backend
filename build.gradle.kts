@@ -129,6 +129,16 @@ tasks {
 
            providers.exec {
                workingDir = tempDir
+               commandLine("flutter", "pub", "get")
+           }.result?.get()
+
+           providers.exec {
+               workingDir = tempDir
+               commandLine("flutter", "pub", "run", "build_runner", "build", "--delete-conflicting-outputs")
+           }.result?.get()
+
+           providers.exec {
+               workingDir = tempDir
                commandLine("git", "add", ".")
            }.result?.get()
 
