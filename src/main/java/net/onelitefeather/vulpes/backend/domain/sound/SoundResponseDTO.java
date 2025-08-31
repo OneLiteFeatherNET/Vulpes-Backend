@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface SoundResponseDTO {
 
     @Schema(
-            name = "ResponseSoundModelDTO",
+            name = "ResponseSoundFileSourceDTO",
             description = "Data transfer object for Sound models"
     )
     @Serdeable

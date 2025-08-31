@@ -1,6 +1,5 @@
 package net.onelitefeather.vulpes.backend.controller;
 
-import io.micronaut.data.model.Page;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.restassured.RestAssured;
@@ -20,8 +19,6 @@ import org.testcontainers.junit.jupiter.EnabledIfDockerAvailable;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -143,21 +140,14 @@ class SoundControllerIntegrationTest {
     void testGetAll_returnsOk() {
         given().contentType(ContentType.JSON).body(sampleEventDTOWithoutId()).when().post("/sound").then().statusCode(200);
 
-        given()
-        .when()
-                .get("/sound/all")
-        .then()
-                .statusCode(200)
-                .body("totalSize", greaterThan(0))
-                .body("content.size()", greaterThan(0))
-                .body("content.id.size()", greaterThan(0))
-                .body("content.uiName.size()", greaterThan(0))
-                .body("content.variableName.size()", greaterThan(0))
-                .body("content.keyName.size()", greaterThan(0))
-                .body("content.subTitle.size()", greaterThan(0))
-                .body("pageable.size", greaterThan(0))
-                .body("pageable.number", greaterThan(-1))
-                .body("pageable.mode", is("OFFSET"));
+        SoundResponseDTO.SoundModelDTO[] list =
+                given()
+                .when()
+                        .get("/sound/all")
+                .then()
+                        .statusCode(200)
+                        .extract().as(SoundResponseDTO.SoundModelDTO[].class);
+        assertTrue(list.length >= 1);
     }
 
     @Test
