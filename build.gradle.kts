@@ -127,10 +127,10 @@ tasks {
                into(tempDir)
            }
 
-           providers.exec {
-               workingDir = tempDir
-               commandLine("flutter", "pub", "get")
-           }.result?.get()
+//           providers.exec {
+//               workingDir = tempDir
+//               commandLine("flutter", "pub", "get")
+//           }.result?.get()
 
 //           providers.exec {
 //               workingDir = tempDir
