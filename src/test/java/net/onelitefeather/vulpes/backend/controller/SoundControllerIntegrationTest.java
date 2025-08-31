@@ -2,6 +2,7 @@ package net.onelitefeather.vulpes.backend.controller;
 
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.micronaut.test.support.TestPropertyProvider;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.*;
 import org.testcontainers.junit.jupiter.Container;
@@ -14,6 +15,7 @@ import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
 
+import java.util.Map;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
@@ -23,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Testcontainers
 @DisplayName("Integration tests for SoundController endpoints with Testcontainers")
-class SoundControllerIntegrationTest implements io.micronaut.test.support.TestPropertyProvider {
+class SoundControllerIntegrationTest implements TestPropertyProvider {
 
     @Container
     static final MariaDBContainer<?> mariadb = new MariaDBContainer<>("mariadb:11.4")
@@ -32,15 +34,20 @@ class SoundControllerIntegrationTest implements io.micronaut.test.support.TestPr
             .withPassword("vulpes");
 
     @Override
-    public java.util.Map<String, String> getProperties() {
+    public Map<String, String> getProperties() {
         mariadb.start();
-        return java.util.Map.of(
+        return Map.of(
                 "datasources.default.url", mariadb.getJdbcUrl(),
                 "datasources.default.username", mariadb.getUsername(),
                 "datasources.default.password", mariadb.getPassword(),
                 "datasources.default.driverClassName", "org.mariadb.jdbc.Driver",
                 "jpa.default.properties.hibernate.hbm2ddl.auto", "update"
         );
+    }
+
+    @AfterAll
+    static void cleanup() {
+        mariadb.stop();
     }
 
     @Inject
@@ -85,7 +92,7 @@ class SoundControllerIntegrationTest implements io.micronaut.test.support.TestPr
             System.out.println("[DEBUG_LOG] Response status: " + response.statusCode());
             System.out.println("[DEBUG_LOG] Response body: " + response.asString());
         }
-        org.junit.jupiter.api.Assertions.assertEquals(200, response.statusCode());
+        assertEquals(200, response.statusCode());
         SoundResponseDTO.SoundModelDTO resp = response.as(SoundResponseDTO.SoundModelDTO.class);
         assertNotNull(resp);
         assertNotNull(resp.id());
