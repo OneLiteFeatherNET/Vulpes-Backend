@@ -38,7 +38,7 @@ dependencyResolutionManagement {
 
             library("uuid.creator", "com.github.f4b6a3", "uuid-creator").versionRef("uuid.creator")
             library("vulpes.api", "net.onelitefeather", "vulpes-model").versionRef("vulpes.model")
-            library("jetbrains.annotation", "org.jetbrains", "annotations").version("26.0.2")
+            library("jetbrains.annotation", "org.jetbrains", "annotations").version("26.0.2-1")
 
             plugin("micronaut.application", "io.micronaut.application").versionRef("micronaut")
             plugin("micronaut.aot", "io.micronaut.aot").versionRef("micronaut")
