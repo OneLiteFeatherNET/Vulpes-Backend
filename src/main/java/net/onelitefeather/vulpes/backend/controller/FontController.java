@@ -131,11 +131,11 @@ public class FontController {
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<FontModelResponseDTO> getCharsById(@PathVariable UUID id) {
         List<String> model = fontService.findCharsByFontId(id);
-        if (!model.isEmpty()) {
-            FontModelCharsResponseDTO dto = FontModelCharsResponseDTO.createDTO(id, model);
-            return HttpResponse.ok(dto);
+        if (model == null) {
+            return HttpResponse.notFound(new FontModelErrorDTO("Font not found"));
         }
-        return HttpResponse.notFound(new FontModelErrorDTO("Font not found"));
+        FontModelCharsResponseDTO dto = FontModelCharsResponseDTO.createDTO(id, model);
+        return HttpResponse.ok(dto);
     }
 
     @Operation(
