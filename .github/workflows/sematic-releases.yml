@@ -50,6 +50,13 @@ jobs:
           flutter-version: '3.35.2'
           channel: 'stable'
       - name: Generate OpenAPI Spec
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          ONELITEFEATHER_MAVEN_USERNAME: ${{ secrets.ONELITEFEATHER_MAVEN_USERNAME }}
+          ONELITEFEATHER_MAVEN_PASSWORD: ${{ secrets.ONELITEFEATHER_MAVEN_PASSWORD }}
+          # Token with permissions to push to the client repository
+          CLIENT_REPO_TOKEN: ${{ secrets.CLIENT_REPO_TOKEN }}
         run: ./gradlew openApiGenerate
       - name: Get Pub Dependencies
         working-directory: build/generated/dart-client
