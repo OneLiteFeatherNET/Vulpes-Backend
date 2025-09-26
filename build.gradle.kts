@@ -130,15 +130,11 @@ tasks {
            providers.exec {
                workingDir = tempDir
                commandLine("dart", "pub", "get")
-               errorOutput = System.err
-               standardOutput = System.out
            }.result?.get()
 
            providers.exec {
                workingDir = tempDir
                commandLine("dart", "run", "build_runner", "build", "-d")
-               errorOutput = System.err
-               standardOutput = System.out
            }.result?.get()
 
            providers.exec {
