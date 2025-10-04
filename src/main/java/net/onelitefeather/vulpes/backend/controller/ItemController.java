@@ -160,11 +160,39 @@ public class ItemController {
                     )
             )
     )
-    @Get("/enchantments/{id}")
+    @Get(uris = {
+            "/enchantments/{id}",
+            "/{id}/enchantments"
+    })
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<ItemModelEnchantmentResponseDTO>> getEnchantmentsById(@PathVariable UUID id, Pageable pageable) {
         Map<String, Short> enchantments = itemService.findEnchantmentsById(id, pageable);
         return HttpResponse.ok(Page.of(enchantments.entrySet().stream().map(ItemModelResponseDTO.ItemModelEnchantmentResponseDTO::createDTO).toList(), pageable, (long) enchantments.size()));
+    }
+
+    @Operation(
+            summary = "Update enchantments of an item",
+            description = "Updates the enchantments of an item by its ID.",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The enchantments of the item were successfully updated.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    array = @ArraySchema(
+                            schema = @Schema(implementation = ItemModelEnchantmentResponseDTO.class),
+                            arraySchema = @Schema(implementation = List.class)
+                    )
+            )
+    )
+    @Post(uris = {
+            "/enchantments/{id}",
+            "/{id}/enchantments"
+    })
+    public HttpResponse<List<ItemModelEnchantmentResponseDTO>> updateEnchantments(@PathVariable UUID id, @Body Map<String, Short> enchantments) {
+        var enchantmentResult = itemService.updateEnchantmentsById(id, enchantments);
+        return HttpResponse.ok(enchantmentResult.entrySet().stream().map(ItemModelResponseDTO.ItemModelEnchantmentResponseDTO::createDTO).toList());
     }
 
     @Operation(
@@ -183,11 +211,39 @@ public class ItemController {
                     )
             )
     )
-    @Get("/flags/{id}")
+    @Get(uris = {
+            "/flags/{id}",
+            "/{id}/flags"
+    })
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<String>> getFlagsById(@PathVariable UUID id, Pageable pageable) {
         List<String> flags = itemService.findFlagsById(id, pageable);
         return HttpResponse.ok(Page.of(flags, pageable, (long) flags.size()));
+    }
+
+    @Operation(
+            summary = "Update flags of an item",
+            description = "Updates the flags of an item by its ID.",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The flags of the item were successfully updated.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    array = @ArraySchema(
+                            schema = @Schema(implementation = String.class),
+                            arraySchema = @Schema(implementation = List.class)
+                    )
+            )
+    )
+    @Post(uris = {
+            "/flags/{id}",
+            "/{id}/flags"
+    })
+    public HttpResponse<List<String>> updateFlags(@PathVariable UUID id,@Body List<String> flags) {
+        List<String> result = itemService.updateFlagsById(id, flags);
+        return HttpResponse.ok(result);
     }
 
     @Operation(
@@ -206,11 +262,39 @@ public class ItemController {
                     )
             )
     )
-    @Get("/lore/{id}")
+    @Get(uris = {
+            "/lore/{id}",
+            "/{id}/lore"
+    })
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<String>> getLoreById(@PathVariable UUID id, Pageable pageable) {
         List<String> lore = itemService.findLoreById(id, pageable);
         return HttpResponse.ok(Page.of(lore, pageable, (long) lore.size()));
+    }
+
+    @Operation(
+            summary = "Update lore of an item",
+            description = "Updates the lore of an item by its ID.",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The lore of the item was successfully updated.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    array = @ArraySchema(
+                            schema = @Schema(implementation = String.class),
+                            arraySchema = @Schema(implementation = List.class)
+                    )
+            )
+    )
+    @Post(uris = {
+            "/lore/{id}",
+            "/{id}/lore"
+    })
+    public HttpResponse<List<String>> updateLore(@PathVariable UUID id,@Body List<String> lore) {
+        List<String> result = itemService.updateLoreById(id, lore);
+        return HttpResponse.ok(result);
     }
 
 
