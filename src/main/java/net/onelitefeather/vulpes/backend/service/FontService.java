@@ -68,7 +68,7 @@ public interface FontService {
      * @param id the ID of the font
      * @return a list of characters
      */
-    List<String> findCharsByFontId(UUID id);
+    List<String> findCharsByFontId(UUID id, Pageable pageable);
 
     /**
      * Updates the characters of a font by its ID.

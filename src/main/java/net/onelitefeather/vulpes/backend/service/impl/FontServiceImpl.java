@@ -73,8 +73,8 @@ public class FontServiceImpl implements FontService {
     }
 
     @Override
-    public List<String> findCharsByFontId(UUID id) {
-        return fontRepository.findCharsByFontId(id);
+    public List<String> findCharsByFontId(UUID id, Pageable pageable) {
+        return fontRepository.findCharsByFontId(id, pageable);
     }
 
     @Override

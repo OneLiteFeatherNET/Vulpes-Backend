@@ -131,8 +131,8 @@ public class FontController {
     )
     @Get("/chars/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<FontModelResponseDTO> getCharsById(@PathVariable UUID id) {
-        List<String> model = fontService.findCharsByFontId(id);
+    public HttpResponse<FontModelResponseDTO> getCharsById(@PathVariable UUID id, Pageable pageable) {
+        List<String> model = fontService.findCharsByFontId(id, pageable);
         if (model == null) {
             return HttpResponse.notFound(new FontModelErrorDTO("Font not found"));
         }
