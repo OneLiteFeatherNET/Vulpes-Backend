@@ -60,7 +60,7 @@ dependencies {
     testImplementation(mn.micronaut.test.resources.extensions.core)
     testImplementation(mn.micronaut.test.resources.extensions.junit.platform)
     // Faker library for JUnit tests
-    testImplementation("net.datafaker:datafaker:2.5.2")
+    testImplementation("net.datafaker:datafaker:2.5.3")
 }
 
 
