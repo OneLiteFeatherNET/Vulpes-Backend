@@ -77,7 +77,7 @@ public interface SoundService {
      * @param sourceDTO the source data to create
      * @return the created source response
      */
-    SoundResponseDTO createAndLinkSource(@Valid UUID soundEventId, SoundFileSourceDTO sourceDTO);
+    SoundResponseDTO createAndLinkSource(UUID soundEventId, SoundFileSourceDTO sourceDTO);
 
     /**
      * Updates an existing sound file source linked to a sound event by ID.
@@ -85,7 +85,7 @@ public interface SoundService {
      * @param sourceDTO the source data to update
      * @return the updated source response
      */
-    SoundResponseDTO updateLinkedSource(@Valid UUID soundEventId, SoundFileSourceDTO sourceDTO);
+    SoundResponseDTO updateLinkedSource(UUID soundEventId, SoundFileSourceDTO sourceDTO);
 
     /**
      * Deletes an existing sound file source linked to a sound event by ID.
@@ -93,5 +93,5 @@ public interface SoundService {
      * @param sourceDTO the source data to delete
      * @return the deleted source response
      */
-    SoundResponseDTO deleteLinkedSource(@Valid UUID soundEventId, SoundFileSourceDTO sourceDTO);
+    SoundResponseDTO deleteLinkedSource(UUID soundEventId, SoundFileSourceDTO sourceDTO);
 }
