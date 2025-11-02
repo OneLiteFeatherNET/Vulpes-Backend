@@ -125,8 +125,7 @@ public class SoundServiceImpl implements SoundService {
         Optional<SoundResponseDTO.SoundFileSourceDTO> existingSourceOpt = this.getSoundSourcesById(soundEventId, Pageable.unpaged())
                 .getContent()
                 .stream()
-                .map(SoundResponseDTO.SoundFileSourceDTO.class::isInstance)
-                .filter(Objects::nonNull)
+                .filter(SoundResponseDTO.SoundFileSourceDTO.class::isInstance)
                 .map(SoundResponseDTO.SoundFileSourceDTO.class::cast)
                 .filter(s -> s.id().equals(sourceDTO.getId()))
                 .findFirst();
@@ -153,8 +152,7 @@ public class SoundServiceImpl implements SoundService {
         Optional<SoundResponseDTO.SoundFileSourceDTO> existingSourceOpt = this.getSoundSourcesById(soundEventId, Pageable.unpaged())
                 .getContent()
                 .stream()
-                .map(SoundResponseDTO.SoundFileSourceDTO.class::isInstance)
-                .filter(Objects::nonNull)
+                .filter(SoundResponseDTO.SoundFileSourceDTO.class::isInstance)
                 .map(SoundResponseDTO.SoundFileSourceDTO.class::cast)
                 .filter(s -> s.id().equals(sourceDTO.getId()))
                 .findFirst();
