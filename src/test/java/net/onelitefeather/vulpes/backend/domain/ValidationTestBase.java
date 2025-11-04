@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class ValidationTestBase<T> {
 
@@ -48,10 +49,6 @@ public abstract class ValidationTestBase<T> {
      */
     protected void assertNoViolation(T dto, String propertyName) {
         Set<ConstraintViolation<T>> violations = validator.validate(dto);
-        assertFalse(violations.isEmpty(), "Expected no violations for property: " + propertyName);
-        boolean found = violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals(propertyName));
-        if (found) {
-            throw new AssertionError("Violation found for property: " + propertyName);
-        }
+        assertTrue(violations.isEmpty(), "Expected no violations for property: " + propertyName);
     }
 }
