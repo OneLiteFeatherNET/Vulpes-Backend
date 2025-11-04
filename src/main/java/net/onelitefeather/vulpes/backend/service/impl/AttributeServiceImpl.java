@@ -36,7 +36,7 @@ public class AttributeServiceImpl implements AttributeService {
 
     @Override
     public AttributeModelResponseDTO updateAttribute(AttributeModelDTO attributeModelDTO) {
-        Optional<AttributeEntity> modelOptional = attributeRepository.findById(attributeModelDTO.getId());
+        Optional<AttributeEntity> modelOptional = attributeRepository.findById(attributeModelDTO.id());
         if (modelOptional.isEmpty()) {
             return new AttributeModelResponseDTO.AttributeModelErrorDTO("Attribute not found");
         }
