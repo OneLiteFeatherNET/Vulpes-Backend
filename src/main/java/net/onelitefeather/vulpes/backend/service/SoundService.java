@@ -2,7 +2,6 @@ package net.onelitefeather.vulpes.backend.service;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;

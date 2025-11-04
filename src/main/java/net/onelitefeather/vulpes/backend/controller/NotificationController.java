@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.inject.Inject;
 import net.onelitefeather.vulpes.api.model.NotificationEntity;
-import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelDTO;
 import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelResponseDTO;
 import net.onelitefeather.vulpes.backend.service.NotificationService;
@@ -21,7 +20,6 @@ import net.onelitefeather.vulpes.backend.service.NotificationService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Controller for managing notifications.

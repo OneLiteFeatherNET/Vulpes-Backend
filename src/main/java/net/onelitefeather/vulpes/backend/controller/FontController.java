@@ -19,7 +19,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.api.model.FontEntity;
-import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO;
 import net.onelitefeather.vulpes.backend.service.FontService;
@@ -27,7 +26,6 @@ import net.onelitefeather.vulpes.backend.service.FontService;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO.*;
 
