@@ -149,7 +149,7 @@ class SoundControllerTest {
         UUID id = UUID.randomUUID();
         String fileName = FAKER.internet().slug() + ".ogg";
         SoundFileSourceDTO requestDTO = new SoundFileSourceDTO(null, fileName, 1.0f, 1.0f, 1, false, 16, false, "file");
-        SoundResponseDTO.SoundFileSourceDTO expected = new SoundResponseDTO.SoundFileSourceDTO(UUID.randomUUID(), requestDTO.getName(), requestDTO.getVolume(), requestDTO.getPitch(), requestDTO.getWeight(), requestDTO.isStream(), requestDTO.getAttenuationDistance(), requestDTO.isPreload(), requestDTO.getType());
+        SoundResponseDTO.SoundFileSourceDTO expected = new SoundResponseDTO.SoundFileSourceDTO(UUID.randomUUID(), requestDTO.name(), requestDTO.volume(), requestDTO.pitch(), requestDTO.weight(), requestDTO.stream(), requestDTO.attenuationDistance(), requestDTO.preload(), requestDTO.type());
         stub.sourceResponse = expected;
         SoundController controller = new SoundController(stub);
 
@@ -168,7 +168,7 @@ class SoundControllerTest {
         UUID id = UUID.randomUUID();
         String updateName = FAKER.internet().slug() + ".ogg";
         SoundFileSourceDTO requestDTO = new SoundFileSourceDTO(UUID.randomUUID(), updateName, 0.8f, 1.1f, 2, true, 32, true, "file");
-        SoundResponseDTO.SoundFileSourceDTO expected = new SoundResponseDTO.SoundFileSourceDTO(requestDTO.getId(), requestDTO.getName(), requestDTO.getVolume(), requestDTO.getPitch(), requestDTO.getWeight(), requestDTO.isStream(), requestDTO.getAttenuationDistance(), requestDTO.isPreload(), requestDTO.getType());
+        SoundResponseDTO.SoundFileSourceDTO expected = new SoundResponseDTO.SoundFileSourceDTO(requestDTO.id(), requestDTO.name(), requestDTO.volume(), requestDTO.pitch(), requestDTO.weight(), requestDTO.stream(), requestDTO.attenuationDistance(), requestDTO.preload(), requestDTO.type());
         stub.sourceResponse = expected;
         SoundController controller = new SoundController(stub);
 
