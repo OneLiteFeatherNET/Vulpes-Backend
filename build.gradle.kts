@@ -55,14 +55,13 @@ dependencies {
     testRuntimeOnly(mn.junit.jupiter.engine)
     testImplementation(mn.testcontainers.core)
     testImplementation(mn.testcontainers.mariadb)
-    testImplementation("org.testcontainers:junit-jupiter")
     testImplementation(mn.micronaut.test.rest.assured)
     testImplementation(mn.micronaut.test.resources.extensions.core)
     testImplementation(mn.micronaut.test.resources.extensions.junit.platform)
     // Faker library for JUnit tests
-    testImplementation("net.datafaker:datafaker:2.4.2")
+    testImplementation(libs.testcontainers.junit)
+    testImplementation(libs.datafaker)
 }
-
 
 application {
     mainClass.set("net.onelitefeather.vulpes.backend.VulpesBackend")

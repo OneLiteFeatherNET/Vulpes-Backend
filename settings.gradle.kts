@@ -35,10 +35,14 @@ dependencyResolutionManagement {
             version("micronaut", "4.6.2")
             version("vulpes.model", "1.6.0-beta.11")
             version("uuid.creator", "6.1.1")
+            version("datafaker", "2.4.2")
+            version("jetbrains.annotation", "26.0.2")
 
             library("uuid.creator", "com.github.f4b6a3", "uuid-creator").versionRef("uuid.creator")
             library("vulpes.api", "net.onelitefeather", "vulpes-model").versionRef("vulpes.model")
-            library("jetbrains.annotation", "org.jetbrains", "annotations").version("26.1.0")
+            library("jetbrains.annotation", "org.jetbrains", "annotations").versionRef("jetbrains.annotation")
+            library("datafaker", "net.datafaker", "datafaker").versionRef("datafaker")
+            library("testcontainers.junit", "org.testcontainers", "junit-jupiter").withoutVersion()
 
             plugin("micronaut.application", "io.micronaut.application").versionRef("micronaut")
             plugin("micronaut.aot", "io.micronaut.aot").versionRef("micronaut")
