@@ -12,6 +12,8 @@ import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -268,30 +270,30 @@ public class SoundController {
      * Creates a new SoundFileSource and links it to a SoundEventEntity by ID.
      *
      * @param soundEventId the ID of the SoundEventEntity
-     * @param sourceDTO the DTO containing source data
+     * @param sourceDTO    the DTO containing source data
      * @return the created SoundFileSourceDTO
      */
     @Operation(
-        summary = "Create and link a SoundFileSource",
-        operationId = "createAndLinkSoundFileSource",
-        description = "Creates a new SoundFileSource and links it to a SoundEventEntity by its ID.",
-        tags = {"Sound"}
+            summary = "Create and link a SoundFileSource",
+            operationId = "createAndLinkSoundFileSource",
+            description = "Creates a new SoundFileSource and links it to a SoundEventEntity by its ID.",
+            tags = {"Sound"}
     )
     @ApiResponse(
-        responseCode = "200",
-        description = "The SoundFileSource was successfully created and linked.",
-        content = @Content(
-            mediaType = MediaType.APPLICATION_JSON,
-            schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
-        )
+            responseCode = "200",
+            description = "The SoundFileSource was successfully created and linked.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
+            )
     )
     @ApiResponse(
-        responseCode = "404",
-        description = "The SoundEventEntity was not found.",
-        content = @Content(
-            mediaType = MediaType.APPLICATION_JSON,
-            schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
-        )
+            responseCode = "404",
+            description = "The SoundEventEntity was not found.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
+            )
     )
     @Post("{id}/sources")
     @Produces(MediaType.APPLICATION_JSON)
@@ -307,7 +309,7 @@ public class SoundController {
      * Updates an existing SoundFileSource linked to a SoundEventEntity by ID.
      *
      * @param soundEventId the ID of the SoundEventEntity
-     * @param sourceDTO the DTO containing updated source data
+     * @param sourceDTO    the DTO containing updated source data
      * @return the updated SoundFileSourceDTO
      */
     @Operation(
@@ -347,7 +349,7 @@ public class SoundController {
      * Deletes an existing SoundFileSource linked to a SoundEventEntity by ID.
      *
      * @param soundEventId the ID of the SoundEventEntity
-     * @param sourceDTO the DTO containing source data to delete
+     * @param soundId      the DTO containing source data to delete
      * @return the deleted SoundFileSourceDTO
      */
     @Operation(
@@ -372,19 +374,17 @@ public class SoundController {
                     schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
             )
     )
-    @Delete("{id}/sources/delete")
+    @Delete("{id}/sources/delete/{soundId}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<SoundResponseDTO> deleteSource(
+            @Parameter(name = "id", description = "The id of the sound event", in = ParameterIn.PATH, required = true)
             @PathVariable("id") UUID soundEventId,
-            @Body SoundFileSourceDTO sourceDTO
+            @Parameter(name = "soundID", description = "The id of the sound file", in = ParameterIn.PATH, required = true)
+            @PathVariable("soundId") UUID soundId
     ) {
-        SoundResponseDTO result = soundService.deleteLinkedSource(soundEventId, sourceDTO);
+        SoundResponseDTO result = soundService.deleteLinkedSource(soundEventId, soundId);
         return HttpResponse.ok(result);
     }
-
-
-
-
 
 
 }

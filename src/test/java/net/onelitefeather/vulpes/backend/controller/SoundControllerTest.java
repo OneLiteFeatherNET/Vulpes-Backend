@@ -76,7 +76,7 @@ class SoundControllerTest {
         }
 
         @Override
-        public SoundResponseDTO.SoundFileSourceDTO deleteLinkedSource(UUID soundEventId, SoundFileSourceDTO sourceDTO) {
+        public SoundResponseDTO.SoundFileSourceDTO deleteLinkedSource(UUID soundEventId, UUID sourceDTO) {
             return sourceResponse;
         }
     }

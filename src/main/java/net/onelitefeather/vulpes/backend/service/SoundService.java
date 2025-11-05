@@ -72,25 +72,28 @@ public interface SoundService {
 
     /**
      * Creates a new sound file source and links it to a sound event.
+     *
      * @param soundEventId the ID of the sound event to link the source to
-     * @param sourceDTO the source data to create
+     * @param sourceDTO    the source data to create
      * @return the created source response
      */
     SoundResponseDTO createAndLinkSource(UUID soundEventId, SoundFileSourceDTO sourceDTO);
 
     /**
      * Updates an existing sound file source linked to a sound event by ID.
+     *
      * @param soundEventId the ID of the sound event
-     * @param sourceDTO the source data to update
+     * @param sourceDTO    the source data to update
      * @return the updated source response
      */
     SoundResponseDTO updateLinkedSource(UUID soundEventId, SoundFileSourceDTO sourceDTO);
 
     /**
      * Deletes an existing sound file source linked to a sound event by ID.
+     *
      * @param soundEventId the ID of the sound event
-     * @param sourceDTO the source data to delete
+     * @param sourceId     the ID of the source to delete
      * @return the deleted source response
      */
-    SoundResponseDTO deleteLinkedSource(UUID soundEventId, SoundFileSourceDTO sourceDTO);
+    SoundResponseDTO deleteLinkedSource(UUID soundEventId, UUID sourceId);
 }
