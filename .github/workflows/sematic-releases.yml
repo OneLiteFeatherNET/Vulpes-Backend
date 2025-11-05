@@ -64,13 +64,15 @@ jobs:
             VERSION=$(cat version.txt)
             echo "release_version=$VERSION" >> $GITHUB_OUTPUT
           fi
+      - name: Get Version
+        run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
       - name: Upload BOM to Dependency-Track
         uses: DependencyTrack/gh-upload-sbom@v3
         with:
           serverhostname: ${{ secrets.DEPENDENCYTRACK_HOSTNAME }}
           apikey: ${{ secrets.DEPENDENCYTRACK_APIKEY }}
           projectname: "Vulpes Backend"
-          projectversion: ${{ env.release_version }}
+          projectversion: ${{ env.VERSION }}
           projecttags: 'docker,application,micronaut'
           bomfilename: "build/reports/cyclonedx/bom.xml"
           autocreate: true
