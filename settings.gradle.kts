@@ -8,7 +8,7 @@ pluginManagement {
 }
 
 plugins {
-    id("io.micronaut.platform.catalog") version "4.5.4"
+    id("io.micronaut.platform.catalog") version "4.6.1"
 }
 
 dependencyResolutionManagement {
@@ -32,7 +32,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("micronaut", "4.5.4")
+            version("micronaut", "4.6.1")
             version("vulpes.model", "1.6.0-beta.11")
             version("uuid.creator", "6.1.1")
             version("datafaker", "2.4.2")

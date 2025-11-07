@@ -10,7 +10,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
@@ -95,7 +95,7 @@ micronaut {
 tasks {
     compileJava {
         options.encoding = "UTF-8"
-        options.release = 21
+        options.release = 25
         options.forkOptions.jvmArgs = listOf("-Dmicronaut.openapi.views.spec=rapidoc.enabled=true,openapi-explorer.enabled=true,swagger-ui.enabled=true,swagger-ui.theme=flattop")
     }
     jacocoTestReport {
