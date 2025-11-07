@@ -65,8 +65,10 @@ jobs:
             echo "release_version=$VERSION" >> $GITHUB_OUTPUT
           fi
       - name: Get Version
+        id: get_version_env
         run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
       - name: Upload BOM to Dependency-Track
+        if: steps.get_version_env.outputs.VERSION != ''
         uses: DependencyTrack/gh-upload-sbom@v3
         with:
           serverhostname: ${{ secrets.DEPENDENCYTRACK_HOSTNAME }}
