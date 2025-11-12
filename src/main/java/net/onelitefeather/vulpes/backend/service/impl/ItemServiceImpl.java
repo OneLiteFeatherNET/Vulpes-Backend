@@ -9,9 +9,12 @@ import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemLoreEntity;
 import net.onelitefeather.vulpes.api.repository.ItemRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
+import net.onelitefeather.vulpes.api.repository.item.ItemFlagRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemLoreRepository;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemFlagDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemFlagResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
@@ -32,14 +35,17 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ItemEnchantmentRepository itemEnchantmentRepository;
     private final ItemLoreRepository itemLoreRepository;
+    private final ItemFlagRepository itemFlagRepository;
 
     @Inject
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemEnchantmentRepository itemEnchantmentRepository,
-                           ItemLoreRepository itemLoreRepository) {
+                           ItemLoreRepository itemLoreRepository,
+                           ItemFlagRepository itemFlagRepository) {
         this.itemRepository = itemRepository;
         this.itemEnchantmentRepository = itemEnchantmentRepository;
         this.itemLoreRepository = itemLoreRepository;
+        this.itemFlagRepository = itemFlagRepository;
     }
 
     @Override
@@ -92,25 +98,26 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Page<ItemLoreResponseDTO> findFlagsById(UUID id, Pageable pageable) {
+    public Page<ItemFlagResponseDTO> findFlagsById(UUID id, Pageable pageable) {
+        return this.itemFlagRepository.findFlagsById(id, pageable).map(ItemFlagResponseDTO.ItemFlagDTO::createDTO);
+    }
+
+    @Override
+    public Page<ItemLoreResponseDTO> findLoreById(UUID id, Pageable pageable) {
         return this.itemLoreRepository.findLoreById(id, pageable).map(ItemLoreResponseDTO.ItemLoreDTO::createDTO);
     }
 
     @Override
-    public List<String> findLoreById(UUID id, Pageable pageable) {
-        return itemRepository.findLoreById(id, pageable);
-    }
-
-    @Override
-    public List<String> updateLoreById(UUID id, List<String> lore) {
+    public ItemLoreResponseDTO updateLoreById(UUID id, ItemLoreDTO lore) {
         var byId = this.itemRepository.findById(id);
         if (byId.isEmpty()) {
-            return List.of();
+            return new ItemLoreResponseDTO.ItemLoreErrorDTO(GENERIC_ERROR);
         }
         var item = byId.get();
-        item.setLore(lore);
-        var updated = this.itemRepository.update(item);
-        return updated.getLore();
+        var entity = lore.toEntity();
+        entity.setItem(item);
+        var saved = this.itemLoreRepository.save(entity);
+        return ItemLoreResponseDTO.ItemLoreDTO.createDTO(saved);
     }
 
     @Override
@@ -127,15 +134,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemLoreResponseDTO updateFlagById(UUID id, ItemLoreDTO flag) {
+    public ItemFlagResponseDTO updateFlagById(UUID id, ItemFlagDTO flag) {
         var byId = this.itemRepository.findById(id);
         if (byId.isEmpty()) {
-            return new ItemLoreResponseDTO.ItemLoreErrorDTO(GENERIC_ERROR);
+            return new ItemFlagResponseDTO.ItemFlagErrorDTO(GENERIC_ERROR);
         }
         var item = byId.get();
-        ItemLoreEntity entity = flag.toEntity();
+        var entity = flag.toEntity();
         entity.setItem(item);
-        var saved = this.itemLoreRepository.save(entity);
-        return ItemLoreResponseDTO.ItemLoreDTO.createDTO(saved);
+        var saved = this.itemFlagRepository.save(entity);
+        return ItemFlagResponseDTO.ItemFlagDTO.createDTO(saved);
     }
 }

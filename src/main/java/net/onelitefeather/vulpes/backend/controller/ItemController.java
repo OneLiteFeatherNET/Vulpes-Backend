@@ -21,6 +21,8 @@ import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemFlagDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemFlagResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
@@ -211,7 +213,7 @@ public class ItemController {
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     array = @ArraySchema(
-                            schema = @Schema(implementation = ItemLoreResponseDTO.ItemLoreDTO.class),
+                            schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagDTO.class),
                             arraySchema = @Schema(implementation = Page.class)
                     )
             )
@@ -221,8 +223,8 @@ public class ItemController {
             "/{id}/flags"
     })
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<ItemLoreResponseDTO>> getFlagsById(@PathVariable UUID id, Pageable pageable) {
-        Page<ItemLoreResponseDTO> flags = itemService.findFlagsById(id, pageable);
+    public HttpResponse<Page<ItemFlagResponseDTO>> getFlagsById(@PathVariable UUID id, Pageable pageable) {
+        Page<ItemFlagResponseDTO> flags = itemService.findFlagsById(id, pageable);
         return HttpResponse.ok(flags);
     }
 
@@ -246,8 +248,8 @@ public class ItemController {
             "/flag/{id}",
             "/{id}/flag"
     })
-    public HttpResponse<ItemLoreResponseDTO> updateFlags(@PathVariable UUID id,@Body ItemLoreDTO flag) {
-        ItemLoreResponseDTO result = itemService.updateFlagById(id, flag);
+    public HttpResponse<ItemFlagResponseDTO> updateFlags(@PathVariable UUID id, @Body ItemFlagDTO flag) {
+        ItemFlagResponseDTO result = itemService.updateFlagById(id, flag);
         return HttpResponse.ok(result);
     }
 
@@ -262,7 +264,7 @@ public class ItemController {
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     array = @ArraySchema(
-                            schema = @Schema(implementation = String.class),
+                            schema = @Schema(implementation = ItemLoreResponseDTO.class),
                             arraySchema = @Schema(implementation = Page.class)
                     )
             )
@@ -272,9 +274,9 @@ public class ItemController {
             "/{id}/lore"
     })
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<String>> getLoreById(@PathVariable UUID id, Pageable pageable) {
-        List<String> lore = itemService.findLoreById(id, pageable);
-        return HttpResponse.ok(Page.of(lore, pageable, (long) lore.size()));
+    public HttpResponse<Page<ItemLoreResponseDTO>> getLoreById(@PathVariable UUID id, Pageable pageable) {
+        Page<ItemLoreResponseDTO> lore = itemService.findLoreById(id, pageable);
+        return HttpResponse.ok(lore);
     }
 
     @Operation(
@@ -297,8 +299,8 @@ public class ItemController {
             "/lore/{id}",
             "/{id}/lore"
     })
-    public HttpResponse<List<String>> updateLore(@PathVariable UUID id,@Body List<String> lore) {
-        List<String> result = itemService.updateLoreById(id, lore);
+    public HttpResponse<ItemLoreResponseDTO> updateLore(@PathVariable UUID id,@Body ItemLoreDTO lore) {
+        ItemLoreResponseDTO result = itemService.updateLoreById(id, lore);
         return HttpResponse.ok(result);
     }
 
