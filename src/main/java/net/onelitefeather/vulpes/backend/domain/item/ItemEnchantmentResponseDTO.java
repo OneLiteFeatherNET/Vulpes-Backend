@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
+import java.util.UUID;
+
 @Schema(description = "Response DTO for Item Enchantment Model")
 @Serdeable
 public interface ItemEnchantmentResponseDTO {
@@ -22,7 +24,7 @@ public interface ItemEnchantmentResponseDTO {
     )
     @Serdeable
     record ItemEnchantmentDTO(
-            @Schema(description = "Enchantment ID") String id,
+            @Schema(description = "Enchantment ID") UUID id,
             @Schema(description = "Enchantment Name") String name,
             @Schema(description = "Enchantment Level") Short level
     ) implements ItemEnchantmentResponseDTO {
@@ -35,12 +37,12 @@ public interface ItemEnchantmentResponseDTO {
          * @param level the level of the enchantment
          * @return a new ItemEnchantmentDTO instance
          */
-        public static ItemEnchantmentDTO createDTO(String id, String name, Short level) {
+        public static ItemEnchantmentDTO createDTO(UUID id, String name, Short level) {
             return new ItemEnchantmentDTO(id, name, level);
         }
 
         public static ItemEnchantmentResponseDTO createDTO(ItemEnchantmentEntity entity) {
-            return new ItemEnchantmentDTO(entity.getId().toString(), entity.getName(), entity.getLevel());
+            return new ItemEnchantmentDTO(entity.getId(), entity.getName(), entity.getLevel());
         }
 
     }
