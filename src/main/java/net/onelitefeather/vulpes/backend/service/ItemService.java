@@ -4,11 +4,12 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
+import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,7 +72,7 @@ public interface ItemService {
      * @param pageable pagination information
      * @return a map of enchantment names to levels
      */
-    Page<ItemEnchantmentEntity> findEnchantmentsById(UUID id, Pageable pageable);
+    Page<ItemEnchantmentResponseDTO> findEnchantmentsById(UUID id, Pageable pageable);
 
     /**
      * Gets the flags of an item by its ID.
@@ -102,10 +103,10 @@ public interface ItemService {
     /**
      * Updates the enchantments of an item by its ID.
      * @param id the ID of the item to update the enchantments of
-     * @param enchantments the new enchantments to set
+     * @param enchantment the enchantments to update
      * @return the updated enchantments
      */
-    Map<String, Short> updateEnchantmentsById(UUID id, Map<String, Short> enchantments);
+    ItemEnchantmentResponseDTO updateEnchantmentById(UUID id, ItemEnchantmentDTO enchantment);
 
     /**
      * Updates the lore of an item by its ID.

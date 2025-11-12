@@ -8,6 +8,8 @@ import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
 import net.onelitefeather.vulpes.api.repository.ItemRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
+import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 import net.onelitefeather.vulpes.backend.service.ItemService;
@@ -23,6 +25,7 @@ import java.util.UUID;
 @Singleton
 public class ItemServiceImpl implements ItemService {
 
+    private static final String GENERIC_ERROR = "Item not found";
     private final ItemRepository itemRepository;
     private final ItemEnchantmentRepository itemEnchantmentRepository;
 
@@ -77,8 +80,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Page<ItemEnchantmentEntity> findEnchantmentsById(UUID id, Pageable pageable) {
-        return this.itemEnchantmentRepository.findEnchantmentsById(id, pageable);
+    public Page<ItemEnchantmentResponseDTO> findEnchantmentsById(UUID id, Pageable pageable) {
+        return this.itemEnchantmentRepository.findEnchantmentsById(id, pageable).map(ItemEnchantmentResponseDTO.ItemEnchantmentDTO::createDTO);
     }
 
     @Override
@@ -104,15 +107,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Map<String, Short> updateEnchantmentsById(UUID id, Map<String, Short> enchantments) {
+    public ItemEnchantmentResponseDTO updateEnchantmentById(UUID id, ItemEnchantmentDTO enchantment) {
         var byId = this.itemRepository.findById(id);
         if (byId.isEmpty()) {
-            return Map.of();
+            return new ItemEnchantmentResponseDTO.ItemEnchantmentErrorDTO(GENERIC_ERROR);
         }
         var item = byId.get();
-        item.setEnchantments(enchantments);
-        var updated = this.itemRepository.update(item);
-        return updated.getEnchantments();
+        ItemEnchantmentEntity entity = enchantment.toEntity();
+        entity.setItem(item);
+        var saved = this.itemEnchantmentRepository.save(entity);
+        return ItemEnchantmentResponseDTO.ItemEnchantmentDTO.createDTO(saved);
     }
 
     @Override

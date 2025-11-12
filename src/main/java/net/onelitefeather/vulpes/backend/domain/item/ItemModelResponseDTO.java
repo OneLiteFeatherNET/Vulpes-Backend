@@ -15,31 +15,6 @@ import java.util.UUID;
 @Serdeable
 public sealed interface ItemModelResponseDTO {
 
-    /**
-     * Represents a response DTO for item models that includes enchantments.
-     * @param name  the name of the enchantment
-     * @param level the level of the enchantment
-     */
-    @Schema(
-            name = "ResponseEnchantmentDTO",
-            description = "Item model with enchantments"
-    )
-    @Serdeable
-    record ItemModelEnchantmentResponseDTO(
-            @Schema(description = "Enchantment name") String name,
-            @Schema(description = "Enchantment level") Short level
-    ) implements ItemModelResponseDTO {
-
-        /**
-         * Creates a new instance of ItemModelEnchantmentResponseDTO.
-         * @param entry the map entry containing the enchantment name and level
-         * @return a new ItemModelEnchantmentResponseDTO instance
-         */
-        public static ItemModelEnchantmentResponseDTO createDTO(Map.Entry<String, Short> entry) {
-            return new ItemModelEnchantmentResponseDTO(entry.getKey(), entry.getValue());
-        }
-    }
-
 
 
     /**

@@ -19,19 +19,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
-import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
+import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 import net.onelitefeather.vulpes.backend.service.ItemService;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import static net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO.ItemModelEnchantmentResponseDTO;
-import static net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO.ItemModelErrorDTO;
 
 /**
  * @author theEvilReaper
@@ -59,7 +55,7 @@ public class ItemController {
             description = "The item was successfully added to the database.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemModelDTO.class)
+                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelDTO.class)
             )
     )
     @ApiResponse(
@@ -67,7 +63,7 @@ public class ItemController {
             description = "The item could not be added to the database.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemModelErrorDTO.class)
+                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
             )
     )
     @Post
@@ -98,7 +94,7 @@ public class ItemController {
             description = "The item was not found in the database.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemModelErrorDTO.class)
+                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
             )
     )
     @Get("/{id}")
@@ -111,7 +107,7 @@ public class ItemController {
             var itemModel = model.get();
             return HttpResponse.ok(ItemModelResponseDTO.ItemModelDTO.createDTO(itemModel));
         }
-        return HttpResponse.notFound(new ItemModelErrorDTO("Item not found"));
+        return HttpResponse.notFound(new ItemModelResponseDTO.ItemModelErrorDTO("Item not found"));
     }
 
     @Operation(
@@ -133,7 +129,7 @@ public class ItemController {
             description = "The item was not found in the database.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemModelErrorDTO.class)
+                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
             )
     )
     @Delete("/delete/{id}")
@@ -168,33 +164,38 @@ public class ItemController {
     })
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<ItemEnchantmentResponseDTO>> getEnchantmentsById(@PathVariable UUID id, Pageable pageable) {
-        Page<ItemEnchantmentEntity> enchantments = itemService.findEnchantmentsById(id, pageable);
-        return HttpResponse.ok(enchantments.map(ItemEnchantmentResponseDTO.ItemEnchantmentDTO::createDTO));
+        Page<ItemEnchantmentResponseDTO> enchantments = itemService.findEnchantmentsById(id, pageable);
+        return HttpResponse.ok(enchantments);
     }
 
     @Operation(
-            summary = "Update enchantments of an item",
-            description = "Updates the enchantments of an item by its ID.",
+            summary = "Update enchantment of an item",
+            description = "Updates the enchantment of an item by its ID.",
             tags = {"Item"}
     )
     @ApiResponse(
             responseCode = "200",
-            description = "The enchantments of the item were successfully updated.",
+            description = "The enchantment of the item were successfully updated.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = ItemModelEnchantmentResponseDTO.class),
-                            arraySchema = @Schema(implementation = List.class)
-                    )
+                    schema = @Schema(implementation = ItemEnchantmentResponseDTO.ItemEnchantmentDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "No item were found for the given item ID.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ItemEnchantmentResponseDTO.ItemEnchantmentErrorDTO.class)
             )
     )
     @Post(uris = {
-            "/enchantments/{id}",
-            "/{id}/enchantments"
+            "/enchantment/{id}",
+            "/{id}/enchantment"
     })
-    public HttpResponse<List<ItemModelEnchantmentResponseDTO>> updateEnchantments(@PathVariable UUID id, @Body Map<String, Short> enchantments) {
-        var enchantmentResult = itemService.updateEnchantmentsById(id, enchantments);
-        return HttpResponse.ok(enchantmentResult.entrySet().stream().map(ItemModelResponseDTO.ItemModelEnchantmentResponseDTO::createDTO).toList());
+    public HttpResponse<ItemEnchantmentResponseDTO> updateEnchantment(@PathVariable UUID id, @Body ItemEnchantmentDTO enchantment) {
+        var enchantmentResult = itemService.updateEnchantmentById(id, enchantment);
+        return HttpResponse.ok(enchantmentResult);
     }
 
     @Operation(

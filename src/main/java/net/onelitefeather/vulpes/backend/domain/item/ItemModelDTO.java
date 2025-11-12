@@ -10,7 +10,6 @@ import jakarta.validation.constraints.PositiveOrZero;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Schema(
@@ -36,10 +35,7 @@ public record ItemModelDTO(
         @Schema(description = "The material from the item", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank String material,
         @Schema(description = "The group to identify their basic usage", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank String group,
         @Schema(description = "Integer which refers to the customModelData index", requiredMode = Schema.RequiredMode.REQUIRED) @PositiveOrZero int customModelData,
-        @Schema(description = "The amount of the item", requiredMode = Schema.RequiredMode.REQUIRED) @Positive int amount,
-        @Schema(description = "The given enchantments", requiredMode = Schema.RequiredMode.NOT_REQUIRED) Map<String, Short> enchantments,
-        @Schema(description = "The given lore from the item", requiredMode = Schema.RequiredMode.NOT_REQUIRED) List<String> lore,
-        @Schema(description = "The flags which the item should have", requiredMode = Schema.RequiredMode.NOT_REQUIRED) List<String> flags
+        @Schema(description = "The amount of the item", requiredMode = Schema.RequiredMode.REQUIRED) @Positive int amount
 ) {
 
     /**
@@ -58,9 +54,9 @@ public record ItemModelDTO(
                 group,
                 customModelData,
                 amount,
-                enchantments,
-                lore,
-                flags
+                List.of(),
+                List.of(),
+                List.of()
         );
     }
 }
