@@ -21,10 +21,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "minecraft:gold_shovel",
                 "weapon",
                 1,
-                1,
-                Map.of(),
-                List.of(),
-                List.of()
+                1
         );
 
         assertViolation(dto, "uiName");
@@ -41,10 +38,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "minecraft:dirt",
                 "misc",
                 1,
-                1,
-                Map.of(),
-                List.of(),
-                List.of()
+                1
         );
 
         assertViolation(dto, "variableName");
@@ -61,10 +55,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "minecraft:bucket",
                 "misc",
                 1,
-                1,
-                Map.of(),
-                List.of(),
-                List.of()
+                1
         );
         assertNoViolation(dto, "comment");
     }
@@ -80,10 +71,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "minecraft:dirt",
                 "misc",
                 1,
-                1,
-                Map.of(),
-                List.of(),
-                List.of()
+                1
         );
 
         assertViolation(dto, "displayName");
@@ -100,10 +88,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "", // invalid
                 "weapon",
                 1,
-                1,
-                Map.of(),
-                List.of(),
-                List.of()
+                1
         );
 
         assertViolation(dto, "material");
@@ -120,10 +105,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "minecraft:stone",
                 "", // invalid
                 1,
-                1,
-                Map.of(),
-                List.of(),
-                List.of()
+                1
         );
 
         assertViolation(dto, "group");
@@ -140,10 +122,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "material:wool",
                 "misc",
                 -1, // invalid
-                1,
-                Map.of(),
-                List.of(),
-                List.of()
+                1
         );
 
         assertViolation(dto, "customModelData");
@@ -160,10 +139,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "minecraft:dirt",
                 "tools",
                 1,
-                -1, // invalid
-                Map.of(),
-                List.of(),
-                List.of()
+                -1
         );
 
         assertViolation(dto, "amount");
