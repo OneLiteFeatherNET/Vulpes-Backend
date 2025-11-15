@@ -78,6 +78,29 @@ public interface ItemService {
     Page<ItemFlagResponseDTO> findFlagsById(UUID id, Pageable pageable);
 
     /**
+     * Creates the flag of an item by its ID.
+     * @param id the ID of the item to update the flag of
+     * @param itemFlagDTO the flag to create
+     * @return the created flag
+     */
+    ItemFlagResponseDTO createFlagById(UUID id, ItemFlagDTO itemFlagDTO);
+
+    /**
+     * Delete the flag of an item by its ID.
+     * @param id the ID of the item to update the flag of
+     * @param flagId the flag to delete
+     * @return the deleted flag
+     */
+    ItemFlagResponseDTO deleteFlagById(UUID id, UUID flagId);
+
+    /**
+     * Delete the flags of an item by its ID.
+     * @param id the ID of the item to update the flags of
+     * @return the deleted flags
+     */
+    List<ItemFlagResponseDTO> deleteAllFlagsById(UUID id);
+
+    /**
      * Updates the flag of an item by its ID.
      * @param id the ID of the item to update the flag of
      * @param flag the new flag to set

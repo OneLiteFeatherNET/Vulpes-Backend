@@ -384,60 +384,6 @@ public class ItemController {
         return HttpResponse.ok(enchantmentResult);
     }
 
-
-    @Operation(
-            summary = "Get all flags of an item",
-            operationId = "getFlags",
-            description = "Retrieves all flags of an item by its ID.",
-            tags = {"Item"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "The flags of the item were successfully retrieved.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagDTO.class),
-                            arraySchema = @Schema(implementation = Page.class)
-                    )
-            )
-    )
-    @Get(uris = {
-            "/flags/{id}",
-            "/{id}/flags"
-    })
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<ItemFlagResponseDTO>> getFlagsById(@PathVariable UUID id, Pageable pageable) {
-        Page<ItemFlagResponseDTO> flags = itemService.findFlagsById(id, pageable);
-        return HttpResponse.ok(flags);
-    }
-
-    @Operation(
-            summary = "Update flag of an item",
-            operationId = "updateFlag",
-            description = "Updates the flag of an item by its ID.",
-            tags = {"Item"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "The flags of the item were successfully updated.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemLoreResponseDTO.ItemLoreDTO.class)
-            )
-    )
-    @Post(uris = {
-            "/flag/{id}",
-            "/{id}/flag"
-    })
-    public HttpResponse<ItemFlagResponseDTO> updateFlags(@PathVariable UUID id, @Body ItemFlagDTO flag) {
-        ItemFlagResponseDTO result = itemService.updateFlagById(id, flag);
-        if (result instanceof ItemFlagResponseDTO.ItemFlagErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
-    }
-
     @Operation(
             summary = "Get all lore of an item",
             operationId = "getLore",
@@ -589,7 +535,151 @@ public class ItemController {
     }
 
 
+    @Operation(
+            summary = "Get all flags of an item",
+            operationId = "getFlags",
+            description = "Retrieves all flags of an item by its ID.",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The flags of the item were successfully retrieved.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    array = @ArraySchema(
+                            schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagDTO.class),
+                            arraySchema = @Schema(implementation = Page.class)
+                    )
+            )
+    )
+    @Get(uris = {
+            "/flags/{id}",
+            "/{id}/flags"
+    })
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse<Page<ItemFlagResponseDTO>> getFlagsById(@PathVariable UUID id, Pageable pageable) {
+        Page<ItemFlagResponseDTO> flags = itemService.findFlagsById(id, pageable);
+        return HttpResponse.ok(flags);
+    }
+
+    @Operation(
+            summary = "Update flag of an item",
+            operationId = "updateFlag",
+            description = "Updates the flag of an item by its ID.",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The flags of the item were successfully updated.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ItemLoreResponseDTO.ItemLoreDTO.class)
+            )
+    )
+    @Post(uris = {
+            "/flag/{id}",
+            "/{id}/flag"
+    })
+    public HttpResponse<ItemFlagResponseDTO> updateFlags(@PathVariable UUID id, @Body ItemFlagDTO flag) {
+        ItemFlagResponseDTO result = itemService.updateFlagById(id, flag);
+        if (result instanceof ItemFlagResponseDTO.ItemFlagErrorDTO) {
+            return HttpResponse.notFound(result);
+        }
+        return HttpResponse.ok(result);
+    }
+
+    @Operation(
+            summary = "Create flag of an item",
+            operationId = "createdFlag",
+            description = "Create the flag of an item by its ID.",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The flag of the item was successfully created.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagDTO.class)
+            )
+    )
+    @Put(uris = {
+            "/lore/{id}",
+            "/{id}/lore"
+    })
+    public HttpResponse<ItemFlagResponseDTO> createFlag(@PathVariable UUID id,@Body ItemFlagDTO dto) {
+        ItemFlagResponseDTO result = itemService.createFlagById(id, dto);
+        if (result instanceof ItemFlagResponseDTO.ItemFlagErrorDTO) {
+            return HttpResponse.notFound(result);
+        }
+        return HttpResponse.ok(result);
+    }
 
 
+    @Operation(
+            summary = "Delete flag of an item",
+            operationId = "deleteFlag",
+            description = "delete the flag of an item by its ID.",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The flag of the item were successfully deleted.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "No item were found for the given item ID.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagErrorDTO.class)
+            )
+    )
+    @Delete(uris = {
+            "/flag/{id}/{flagId}",
+            "/{id}/flag/{flagId}"
+    })
+    public HttpResponse<ItemFlagResponseDTO> deleteFlag(@PathVariable UUID id, @PathVariable UUID flagId) {
+        var deleteResponse = itemService.deleteFlagById(id, flagId);
+        if (deleteResponse instanceof ItemFlagResponseDTO.ItemFlagErrorDTO) {
+            return HttpResponse.notFound(deleteResponse);
+        }
+        return HttpResponse.ok(deleteResponse);
+    }
+
+    @Operation(
+            summary = "Delete all flags of an item",
+            operationId = "deleteFlags",
+            description = "delete all the flags of an item by its ID.",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The flags of the item were successfully deleted.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    array = @ArraySchema(
+                            schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagDTO.class)
+                    )
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "No item were found for the given item ID.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagErrorDTO.class)
+            )
+    )
+    @Delete(uris = {
+            "/flag/{id}/",
+            "/{id}/flag/"
+    })
+    public HttpResponse<List<ItemFlagResponseDTO>> deleteFlags(@PathVariable UUID id) {
+        var dtos = itemService.deleteAllFlagsById(id);
+        return HttpResponse.ok(dtos);
+    }
 
 }

@@ -103,6 +103,52 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    public ItemFlagResponseDTO createFlagById(UUID id, ItemFlagDTO itemFlagDTO) {
+        var byId = this.itemRepository.findById(id);
+        if (byId.isEmpty()) {
+            return new ItemFlagResponseDTO.ItemFlagErrorDTO(GENERIC_ERROR);
+        }
+        var item = byId.get();
+        var entity = itemFlagDTO.toEntity();
+        entity.setItem(item);
+        var saved = this.itemFlagRepository.save(entity);
+        return ItemFlagResponseDTO.ItemFlagDTO.createDTO(saved);
+    }
+
+    @Override
+    public ItemFlagResponseDTO deleteFlagById(UUID id, UUID flagId) {
+        var byId = this.itemRepository.findById(id);
+        if (byId.isEmpty()) {
+            return new ItemFlagResponseDTO.ItemFlagErrorDTO(GENERIC_ERROR);
+        }
+        var item = byId.get();
+        var entity = this.itemFlagRepository.findById(flagId);
+        if (entity.isEmpty()) {
+            return new ItemFlagResponseDTO.ItemFlagErrorDTO(GENERIC_ERROR);
+        }
+        var resolvedEntity = entity.get();
+        if (!resolvedEntity.getItem().getId().equals(item.getId())) {
+            return new ItemFlagResponseDTO.ItemFlagErrorDTO(GENERIC_ERROR);
+        }
+        this.itemFlagRepository.deleteById(resolvedEntity.getId());
+        return ItemFlagResponseDTO.ItemFlagDTO.createDTO(resolvedEntity);
+    }
+
+    @Override
+    public List<ItemFlagResponseDTO> deleteAllFlagsById(UUID id) {
+        var byId = this.itemRepository.findById(id);
+        if (byId.isEmpty()) {
+            return List.of();
+        }
+        var item = byId.get();
+        var flags = this.itemFlagRepository.findAll().stream().filter(e -> e.getItem().getId().equals(item.getId())).toList();
+        this.itemFlagRepository.deleteAll(flags);
+        return flags.stream()
+                .map(ItemFlagResponseDTO.ItemFlagDTO::createDTO)
+                .toList();
+    }
+
+    @Override
     public Page<ItemLoreResponseDTO> findLoreById(UUID id, Pageable pageable) {
         return this.itemLoreRepository.findLoreById(id, pageable).map(ItemLoreResponseDTO.ItemLoreDTO::createDTO);
     }
