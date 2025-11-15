@@ -147,6 +147,83 @@ public class ItemController {
     }
 
     @Operation(
+            summary = "Get all items",
+            operationId = "getAllItems",
+            description = "Retrieves all items from the database.",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "All items were successfully retrieved from the database.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    array = @ArraySchema(
+                            schema = @Schema(implementation = ItemModelResponseDTO.ItemModelDTO.class),
+                            arraySchema = @Schema(implementation = Page.class)
+                    )
+            )
+    )
+    @Get(uris = {"/all"})
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse<Page<ItemModelResponseDTO.ItemModelDTO>> getAll(Pageable pageable) {
+        Page<ItemModelResponseDTO.ItemModelDTO> list = itemService.getAllItems(pageable);
+        return HttpResponse.ok(list);
+    }
+
+    @Operation(
+            summary = "Delete all items",
+            description = "Deletes all items from the database.",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "All items were successfully deleted from the database.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelDTO.class)
+            )
+    )
+    @Delete("/deleteAll")
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse<List<ItemModelResponseDTO>> deleteAll() {
+        List<ItemModelResponseDTO> result = itemService.deleteAllItems();
+        return HttpResponse.ok(result);
+    }
+
+    @Operation(
+            summary = "Update an item",
+            description = "Updates an item in the database.",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The item was successfully updated in the database.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "The item was not found in the database.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
+            )
+    )
+    @Post("/update")
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse<ItemModelResponseDTO> update(
+            @Valid @Body ItemModelDTO model
+    ) {
+        ItemModelResponseDTO result = itemService.updateItem(model);
+        if (result instanceof ItemModelResponseDTO.ItemModelErrorDTO) {
+            return HttpResponse.notFound(result);
+        }
+        return HttpResponse.ok(result);
+    }
+
+    @Operation(
             summary = "Get enchantments of an item",
             description = "Retrieves the enchantments of an item by its ID.",
             tags = {"Item"}
@@ -305,80 +382,5 @@ public class ItemController {
     }
 
 
-    @Operation(
-            summary = "Get all items",
-            operationId = "getAllItems",
-            description = "Retrieves all items from the database.",
-            tags = {"Item"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "All items were successfully retrieved from the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = ItemModelResponseDTO.ItemModelDTO.class),
-                            arraySchema = @Schema(implementation = Page.class)
-                    )
-            )
-    )
-    @Get(uris = {"/all"})
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<ItemModelResponseDTO.ItemModelDTO>> getAll(Pageable pageable) {
-        Page<ItemModelResponseDTO.ItemModelDTO> list = itemService.getAllItems(pageable);
-        return HttpResponse.ok(list);
-    }
 
-    @Operation(
-            summary = "Delete all items",
-            description = "Deletes all items from the database.",
-            tags = {"Item"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "All items were successfully deleted from the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelDTO.class)
-            )
-    )
-    @Delete("/deleteAll")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<List<ItemModelResponseDTO>> deleteAll() {
-        List<ItemModelResponseDTO> result = itemService.deleteAllItems();
-        return HttpResponse.ok(result);
-    }
-
-    @Operation(
-            summary = "Update an item",
-            description = "Updates an item in the database.",
-            tags = {"Item"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "The item was successfully updated in the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelDTO.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "404",
-            description = "The item was not found in the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
-            )
-    )
-    @Post("/update")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<ItemModelResponseDTO> update(
-            @Valid @Body ItemModelDTO model
-    ) {
-        ItemModelResponseDTO result = itemService.updateItem(model);
-        if (result instanceof ItemModelResponseDTO.ItemModelErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
-    }
 }
