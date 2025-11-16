@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.micronaut.application)
     alias(libs.plugins.micronaut.aot)
-    alias(libs.plugins.micronaut.test.resources)
+//    alias(libs.plugins.micronaut.test.resources) // TODO: Needs be fixed, ref: https://github.com/micronaut-projects/micronaut-gradle-plugin/issues/1195
     jacoco
     `maven-publish`
     id("org.openapi.generator") version "7.20.0"
