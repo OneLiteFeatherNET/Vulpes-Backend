@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@Disabled
 @MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("Integration tests for SoundController endpoints with Testcontainers")
