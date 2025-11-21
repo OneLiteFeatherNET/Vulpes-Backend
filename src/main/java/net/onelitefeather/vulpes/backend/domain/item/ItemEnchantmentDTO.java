@@ -12,14 +12,16 @@ import java.util.UUID;
 @Schema(requiredProperties = {
         "id",
         "name",
-        "level"
+        "level",
+        "unsafe",
 })
 @Introspected
 @Serdeable
 public record ItemEnchantmentDTO(
         @Schema(description = "ID of the Model", requiredMode = Schema.RequiredMode.NOT_REQUIRED) UUID id,
         @Schema(description = "Name of the enchantment", requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank String name,
-        @Schema(description = "Level of the enchantment", requiredMode = Schema.RequiredMode.REQUIRED) @Positive short level
+        @Schema(description = "Level of the enchantment", requiredMode = Schema.RequiredMode.REQUIRED) @Positive short level,
+        @Schema(description = "If the enchantment is unsafe", requiredMode = Schema.RequiredMode.REQUIRED) boolean unsafe
 ) {
 
 
@@ -28,6 +30,7 @@ public record ItemEnchantmentDTO(
         entity.setId(this.id);
         entity.setName(this.name);
         entity.setLevel(this.level);
+        entity.setUnsafe(this.unsafe);
         return entity;
     }
 }
