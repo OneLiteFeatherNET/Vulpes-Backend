@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
