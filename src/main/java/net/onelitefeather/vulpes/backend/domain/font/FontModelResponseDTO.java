@@ -2,40 +2,13 @@ package net.onelitefeather.vulpes.backend.domain.font;
 
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 @Serdeable
 public sealed interface FontModelResponseDTO {
-
-    /**
-     * Represents a response DTO for font models that includes characters.
-     *
-     * @param chars a list of characters in the font model
-     * @param id    the ID of the font model
-     */
-    @Schema(name = "ResponseFontModelCharsDTO", description = "Font model data with characters")
-    @Serdeable
-    record FontModelCharsResponseDTO(
-            @Schema(description = "ID of the font model", requiredMode = Schema.RequiredMode.REQUIRED) UUID id,
-            @Schema(description = "List of characters in the font model", requiredMode = Schema.RequiredMode.REQUIRED) List<String> chars
-    ) implements FontModelResponseDTO {
-
-        /**
-         * Creates a new instance of FontModelCharsResponseDTO.
-         *
-         * @param chars a list of characters in the font model
-         * @param id    the ID of the font model
-         * @return a new FontModelCharsResponseDTO instance
-         */
-        public static @NotNull FontModelCharsResponseDTO createDTO(@NotNull UUID id, @NotNull List<String> chars) {
-            return new FontModelCharsResponseDTO(id, chars);
-        }
-    }
 
     /**
      * Represents a response DTO for font models without characters.
