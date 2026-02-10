@@ -52,7 +52,7 @@ public class FontCharController {
                     schema = @Schema(implementation = FontStringResponseDTO.class)
             )
     )
-    @Put("/chars/{id}")
+    @Put("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<FontStringResponseDTO> createChar(@PathVariable UUID id, @Body FontStringDTO charModel) {
@@ -82,7 +82,7 @@ public class FontCharController {
                     schema = @Schema(implementation = FontModelResponseDTO.FontModelErrorDTO.class)
             )
     )
-    @Get("/chars/{id}")
+    @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<FontStringResponseDTO>> readCharsById(@PathVariable UUID id, Pageable pageable) {
         Page<FontStringResponseDTO> models = fontService.findCharsByFontId(id, pageable);
