@@ -175,6 +175,11 @@ public class ItemServiceImpl implements ItemService {
         var item = byId.get();
         var entity = loreDto.toEntity();
         entity.setItem(item);
+
+        // Set orderIndex to the current count (= next available index)
+        long count = this.itemLoreRepository.countByItemId(item.getId());
+        entity.setOrderIndex((int) (count));
+
         var saved = this.itemLoreRepository.save(entity);
         return ItemLoreResponseDTO.ItemLoreDTO.createDTO(saved);
     }
@@ -196,6 +201,49 @@ public class ItemServiceImpl implements ItemService {
         }
         this.itemLoreRepository.deleteById(resolvedEntity.getId());
         return ItemLoreResponseDTO.ItemLoreDTO.createDTO(resolvedEntity);
+    }
+
+    @Override
+    public ItemLoreResponseDTO reorderLoreById(UUID fontId, UUID entryId, int newIndex) {
+        Optional<ItemEntity> byId = this.itemRepository.findById(fontId);
+
+        if (byId.isEmpty()) {
+            return new ItemLoreResponseDTO.ItemLoreErrorDTO(GENERIC_ERROR);
+        }
+
+        ItemEntity item = byId.get();
+        List<ItemLoreEntity> loreLines =
+                this.itemLoreRepository.findLoreById(item.getId(), Pageable.unpaged()).getContent();
+
+        // 1. Find and remove the entry to move
+        ItemLoreEntity entryToMove = loreLines.stream()
+                .filter(l -> l.getId().equals(entryId))
+                .findFirst()
+                .orElse(null);
+
+        if (entryToMove == null) {
+            return new ItemLoreResponseDTO.ItemLoreErrorDTO(GENERIC_ERROR);
+        }
+
+        loreLines.remove(entryToMove);
+
+        // 2. Clamp newIndex to valid bounds
+        if (newIndex < 0) newIndex = 0;
+        if (newIndex > loreLines.size()) newIndex = loreLines.size();
+
+        // 3. Re-insert at the target position
+        loreLines.add(newIndex, entryToMove);
+
+        // 4. Reassign orderIndex on all entries
+        for (int i = 0; i < loreLines.size(); i++) {
+            loreLines.get(i).setOrderIndex(i);
+        }
+
+        // 5. Persist all updated entries
+        this.itemLoreRepository.updateAll(loreLines);
+
+        // 6. Return success (or 204 No Content via controller)
+        return new ItemLoreResponseDTO.ItemLoreReorderDTO();
     }
 
     @Override

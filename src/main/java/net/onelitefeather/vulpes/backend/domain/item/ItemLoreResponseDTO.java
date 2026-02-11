@@ -48,4 +48,13 @@ public interface ItemLoreResponseDTO {
             @Schema(description = "Error message") String errorMessage
     ) implements ItemLoreResponseDTO, ErrorResponse {
     }
+
+    @Schema(
+            name = "ResponseItemLoreReorderDTO",
+            description = "Response DTO for item lore reorder"
+    )
+    @Serdeable
+    record ItemLoreReorderDTO(
+    ) implements ItemLoreResponseDTO {
+    }
 }

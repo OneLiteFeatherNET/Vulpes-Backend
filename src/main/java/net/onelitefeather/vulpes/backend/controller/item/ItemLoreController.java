@@ -8,6 +8,7 @@ import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Patch;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
@@ -25,6 +26,7 @@ import net.onelitefeather.vulpes.backend.service.ItemService;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller("/item")
@@ -134,6 +136,38 @@ public class ItemLoreController {
         return HttpResponse.ok(createResult);
     }
 
+    @Operation(
+            summary = "Reorder position of a lore line",
+            operationId = "reorderLore",
+            description = "",
+            tags = {"Item"}
+    )
+    @ApiResponse(
+            responseCode = "204",
+            description = "Lore has been successfully reordered",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ItemLoreResponseDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "Something went wrong during the reorder",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ItemLoreResponseDTO.ItemLoreErrorDTO.class)
+            )
+    )
+    @Patch("/{id}/lore/reorder")
+    public HttpResponse<ItemLoreResponseDTO> reorderLore(@PathVariable("id") UUID fontId, @Body Map<String, Object> body) {
+        UUID entryId = UUID.fromString((String) body.get("entryId"));
+        int newIndex = (int) body.get("newIndex");
+        ItemLoreResponseDTO reorderResult = this.itemService.reorderLoreById(fontId, entryId, newIndex);
+        if (reorderResult instanceof ItemLoreResponseDTO.ItemLoreErrorDTO) {
+            return HttpResponse.badRequest(reorderResult);
+        }
+        return HttpResponse.noContent();
+    }
 
     @Operation(
             summary = "Delete lore of an item",
