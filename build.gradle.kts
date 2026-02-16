@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.micronaut.test.resources)
     jacoco
     `maven-publish`
-    id("org.openapi.generator") version "7.19.0"
+    id("org.openapi.generator") version "7.20.0"
 }
 
 java {
