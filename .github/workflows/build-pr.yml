@@ -28,7 +28,7 @@ jobs:
         run: ./gradlew jacocoTestReport
       - name: Upload Coverage Report
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: jacoco-report
           path: |
