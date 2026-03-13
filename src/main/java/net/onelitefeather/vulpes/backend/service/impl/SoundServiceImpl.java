@@ -8,18 +8,14 @@ import jakarta.transaction.Transactional;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
 import net.onelitefeather.vulpes.api.repository.SoundFileSourceRepository;
 import net.onelitefeather.vulpes.api.repository.SoundRepository;
-import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
 import net.onelitefeather.vulpes.backend.service.SoundService;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of the SoundService interface.
@@ -56,7 +52,7 @@ public class SoundServiceImpl implements SoundService {
 
     @Override
     public SoundResponseDTO updateSoundEvent(SoundEventDTO soundEventDTO) {
-        Optional<SoundEventEntity> existingModel = soundRepository.findById(soundEventDTO.getId());
+        Optional<SoundEventEntity> existingModel = soundRepository.findById(soundEventDTO.id());
         if (existingModel.isEmpty()) {
             return new SoundResponseDTO.SoundErrorDTO(GENERIC_ERROR);
         }
@@ -104,7 +100,7 @@ public class SoundServiceImpl implements SoundService {
         }
         Optional<SoundEventEntity> soundEventOpt = soundRepository.findById(soundEventId);
         if (soundEventOpt.isEmpty()) {
-            throw new IllegalArgumentException("Sound event not found");
+            throw new IllegalArgumentException(GENERIC_ERROR);
         }
         var sourceEntity = sourceDTO.toEntity();
         sourceEntity.setSoundEvent(soundEventOpt.get());
@@ -115,20 +111,19 @@ public class SoundServiceImpl implements SoundService {
     @Override
     @Transactional
     public SoundResponseDTO.SoundFileSourceDTO updateLinkedSource(UUID soundEventId, SoundFileSourceDTO sourceDTO) {
-        if (soundEventId == null || sourceDTO == null || sourceDTO.getId() == null) {
+        if (soundEventId == null || sourceDTO == null || sourceDTO.id() == null) {
             throw new IllegalArgumentException("SoundEventId and SourceDTO and SourceDTO.Id must not be null");
         }
         Optional<SoundEventEntity> soundEventOpt = soundRepository.findById(soundEventId);
         if (soundEventOpt.isEmpty()) {
-            throw new IllegalArgumentException("Sound event not found");
+            throw new IllegalArgumentException(GENERIC_ERROR);
         }
         Optional<SoundResponseDTO.SoundFileSourceDTO> existingSourceOpt = this.getSoundSourcesById(soundEventId, Pageable.unpaged())
                 .getContent()
                 .stream()
-                .map(SoundResponseDTO.SoundFileSourceDTO.class::isInstance)
-                .filter(Objects::nonNull)
+                .filter(SoundResponseDTO.SoundFileSourceDTO.class::isInstance)
                 .map(SoundResponseDTO.SoundFileSourceDTO.class::cast)
-                .filter(s -> s.id().equals(sourceDTO.getId()))
+                .filter(s -> s.id().equals(sourceDTO.id()))
                 .findFirst();
         if (existingSourceOpt.isEmpty()) {
             throw new IllegalArgumentException("Sound source not found for the given sound event");
@@ -141,27 +136,26 @@ public class SoundServiceImpl implements SoundService {
 
     @Override
     @Transactional
-    public SoundResponseDTO.SoundFileSourceDTO deleteLinkedSource(UUID soundEventId, SoundFileSourceDTO sourceDTO) {
-        if (soundEventId == null || sourceDTO == null || sourceDTO.getId() == null) {
+    public SoundResponseDTO.SoundFileSourceDTO deleteLinkedSource(UUID soundEventId, UUID sourceID) {
+        if (soundEventId == null || sourceID == null) {
             throw new IllegalArgumentException("SoundEventId and SourceDTO and SourceDTO.Id must not be null");
         }
 
         Optional<SoundEventEntity> soundEventOpt = soundRepository.findById(soundEventId);
         if (soundEventOpt.isEmpty()) {
-            throw new IllegalArgumentException("Sound event not found");
+            throw new IllegalArgumentException(GENERIC_ERROR);
         }
         Optional<SoundResponseDTO.SoundFileSourceDTO> existingSourceOpt = this.getSoundSourcesById(soundEventId, Pageable.unpaged())
                 .getContent()
                 .stream()
-                .map(SoundResponseDTO.SoundFileSourceDTO.class::isInstance)
-                .filter(Objects::nonNull)
+                .filter(SoundResponseDTO.SoundFileSourceDTO.class::isInstance)
                 .map(SoundResponseDTO.SoundFileSourceDTO.class::cast)
-                .filter(s -> s.id().equals(sourceDTO.getId()))
+                .filter(s -> s.id().equals(sourceID))
                 .findFirst();
         if (existingSourceOpt.isEmpty()) {
             throw new IllegalArgumentException("Sound source not found for the given sound event");
         }
-        soundFileSourceRepository.deleteById(sourceDTO.getId());
+        soundFileSourceRepository.deleteById(sourceID);
         return existingSourceOpt.get();
     }
 }

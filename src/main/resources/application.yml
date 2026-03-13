@@ -46,4 +46,3 @@ jpa:
         hbm2ddl.auto: update  # Use `none` in production
         show_sql: true  # Logs SQL statements
         format_sql: true
-        dialect: org.hibernate.dialect.MariaDBDialect

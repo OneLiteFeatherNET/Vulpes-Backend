@@ -36,7 +36,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: 24
+          java-version: 25
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
       - name: Install dependencies
@@ -64,6 +64,21 @@ jobs:
             VERSION=$(cat version.txt)
             echo "release_version=$VERSION" >> $GITHUB_OUTPUT
           fi
+      - name: Get Version
+        id: get_version_env
+        run: echo "VERSION=$(cat version.txt)" >> $GITHUB_ENV
+      - name: Upload BOM to Dependency-Track
+        if: steps.get_version_env.outputs.VERSION != ''
+        uses: DependencyTrack/gh-upload-sbom@v3
+        with:
+          serverhostname: ${{ secrets.DEPENDENCYTRACK_HOSTNAME }}
+          apikey: ${{ secrets.DEPENDENCYTRACK_APIKEY }}
+          projectname: "Vulpes Backend"
+          projectversion: ${{ env.VERSION }}
+          projecttags: 'docker,application,micronaut'
+          bomfilename: "build/reports/cyclonedx/bom.xml"
+          autocreate: true
+          parent: 'a5b26cf1-d8e0-4815-b727-0a355a2354f6'
   docker:
     name: Build Docker Artifacts
     runs-on: ubuntu-latest
@@ -80,7 +95,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: 24
+          java-version: 25
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
       - name: Build Docker Artifacts

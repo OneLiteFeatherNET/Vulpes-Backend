@@ -1,4 +1,4 @@
-package net.onelitefeather.vulpes.backend.controller;
+package net.onelitefeather.vulpes.backend.controller.sound;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
@@ -11,18 +11,17 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
+import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
-import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
-import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
 import net.onelitefeather.vulpes.backend.service.SoundService;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
 import java.util.UUID;
@@ -74,8 +73,9 @@ public class SoundController {
     )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
+    @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<SoundResponseDTO> add(
-            @Body @Valid SoundEventDTO dtoModel
+            @Body SoundEventDTO dtoModel
     ) {
         SoundResponseDTO result = soundService.createSoundEvent(dtoModel);
         if (result instanceof SoundResponseDTO.SoundErrorDTO) {
@@ -173,7 +173,7 @@ public class SoundController {
                     schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
             )
     )
-    @Get("/all")
+    @Get("/")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<SoundResponseDTO.SoundModelDTO>> getAll(Pageable pageable) {
         Page<SoundResponseDTO.SoundModelDTO> returnValues = soundService.getAllSoundEvents(pageable);
@@ -194,7 +194,7 @@ public class SoundController {
                     schema = @Schema(implementation = SoundResponseDTO.SoundModelDTO.class)
             )
     )
-    @Delete("/delete/all")
+    @Delete("/delete/")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<SoundResponseDTO>> deleteAll() {
         List<SoundResponseDTO> results = soundService.deleteAllSoundEvents();
@@ -225,166 +225,12 @@ public class SoundController {
     )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<SoundResponseDTO> update(@Body @Valid SoundEventDTO model) {
+    @Validated(groups = ValidationGroup.Update.class)
+    public HttpResponse<SoundResponseDTO> update(@Body SoundEventDTO model) {
         SoundResponseDTO result = soundService.updateSoundEvent(model);
         if (result instanceof SoundResponseDTO.SoundErrorDTO) {
             return HttpResponse.notFound(result);
         }
         return HttpResponse.ok(result);
     }
-
-    @Operation(
-            summary = "Get all sound file sources by an id",
-            operationId = "getSoundSourcesById",
-            description = "Get all sound file sources by a given sound event ID.",
-            tags = {"Sound"},
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "The sound file sources were successfully retrieved.",
-                            content = @Content(
-                                    mediaType = MediaType.APPLICATION_JSON,
-                                    schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "No sound file sources were found for the given sound event ID.",
-                            content = @Content(
-                                    mediaType = MediaType.APPLICATION_JSON,
-                                    schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
-                            )
-                    )
-            }
-    )
-    @Get("{id}/sources")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<SoundResponseDTO>> get(@PathVariable UUID id, Pageable pageable) {
-        Page<SoundResponseDTO> result = soundService.getSoundSourcesById(id, pageable);
-        return HttpResponse.ok(result);
-    }
-
-    /**
-     * Creates a new SoundFileSource and links it to a SoundEventEntity by ID.
-     *
-     * @param soundEventId the ID of the SoundEventEntity
-     * @param sourceDTO the DTO containing source data
-     * @return the created SoundFileSourceDTO
-     */
-    @Operation(
-        summary = "Create and link a SoundFileSource",
-        operationId = "createAndLinkSoundFileSource",
-        description = "Creates a new SoundFileSource and links it to a SoundEventEntity by its ID.",
-        tags = {"Sound"}
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "The SoundFileSource was successfully created and linked.",
-        content = @Content(
-            mediaType = MediaType.APPLICATION_JSON,
-            schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
-        )
-    )
-    @ApiResponse(
-        responseCode = "404",
-        description = "The SoundEventEntity was not found.",
-        content = @Content(
-            mediaType = MediaType.APPLICATION_JSON,
-            schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
-        )
-    )
-    @Post("{id}/sources")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<SoundResponseDTO> createSource(
-            @PathVariable("id") UUID soundEventId,
-            @Body SoundFileSourceDTO sourceDTO
-    ) {
-        SoundResponseDTO result = soundService.createAndLinkSource(soundEventId, sourceDTO);
-        return HttpResponse.ok(result);
-    }
-
-    /**
-     * Updates an existing SoundFileSource linked to a SoundEventEntity by ID.
-     *
-     * @param soundEventId the ID of the SoundEventEntity
-     * @param sourceDTO the DTO containing updated source data
-     * @return the updated SoundFileSourceDTO
-     */
-    @Operation(
-            summary = "Update a linked SoundFileSource",
-            operationId = "updateLinkedSoundFileSource",
-            description = "Updates an existing SoundFileSource linked to a SoundEventEntity by its ID.",
-            tags = {"Sound"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "The SoundFileSource was successfully updated.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "404",
-            description = "The SoundFileSource or SoundEventEntity was not found.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
-            )
-    )
-    @Post("{id}/sources/update")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<SoundResponseDTO> updateSource(
-            @PathVariable("id") UUID soundEventId,
-            @Body SoundFileSourceDTO sourceDTO
-    ) {
-        SoundResponseDTO result = soundService.updateLinkedSource(soundEventId, sourceDTO);
-        return HttpResponse.ok(result);
-    }
-
-
-    /**
-     * Deletes an existing SoundFileSource linked to a SoundEventEntity by ID.
-     *
-     * @param soundEventId the ID of the SoundEventEntity
-     * @param sourceDTO the DTO containing source data to delete
-     * @return the deleted SoundFileSourceDTO
-     */
-    @Operation(
-            summary = "Delete a linked SoundFileSource",
-            operationId = "deleteLinkedSoundFileSource",
-            description = "Deletes an existing SoundFileSource linked to a SoundEventEntity by its ID.",
-            tags = {"Sound"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "The SoundFileSource was successfully deleted.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "404",
-            description = "The SoundFileSource or SoundEventEntity was not found.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
-            )
-    )
-    @Delete("{id}/sources/delete")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<SoundResponseDTO> deleteSource(
-            @PathVariable("id") UUID soundEventId,
-            @Body SoundFileSourceDTO sourceDTO
-    ) {
-        SoundResponseDTO result = soundService.deleteLinkedSource(soundEventId, sourceDTO);
-        return HttpResponse.ok(result);
-    }
-
-
-
-
-
-
 }

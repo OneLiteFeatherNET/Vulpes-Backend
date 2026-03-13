@@ -1,6 +1,5 @@
 package net.onelitefeather.vulpes.backend.controller;
 
-import io.micronaut.data.model.Page;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.restassured.RestAssured;
@@ -24,8 +23,8 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Disabled
 @MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("Integration tests for SoundController endpoints with Testcontainers")

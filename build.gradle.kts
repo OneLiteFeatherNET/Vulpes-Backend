@@ -1,15 +1,16 @@
 plugins {
     alias(libs.plugins.micronaut.application)
     alias(libs.plugins.micronaut.aot)
-    alias(libs.plugins.micronaut.test.resources)
+//    alias(libs.plugins.micronaut.test.resources) // TODO: Needs be fixed, ref: https://github.com/micronaut-projects/micronaut-gradle-plugin/issues/1195
     jacoco
     `maven-publish`
     id("org.openapi.generator") version "7.20.0"
+    alias(libs.plugins.cyclonedx)
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
@@ -36,7 +37,6 @@ dependencies {
     implementation(mn.micronaut.openapi)
     implementation(mn.validation)
     implementation(mn.swagger.core)
-    implementation(mn.micronaut.management)
     implementation(mn.micronaut.micrometer.core)
     implementation(mn.micronaut.micrometer.registry.prometheus)
     // External Dependencies
@@ -52,17 +52,20 @@ dependencies {
 
     testImplementation(mn.junit.jupiter.api)
     testImplementation(mn.junit.jupiter.params)
-    testRuntimeOnly(mn.junit.jupiter.engine)
     testImplementation(mn.testcontainers.core)
     testImplementation(mn.testcontainers.mariadb)
-    testImplementation("org.testcontainers:junit-jupiter")
     testImplementation(mn.micronaut.test.rest.assured)
+    testImplementation(mn.micronaut.validation)
     testImplementation(mn.micronaut.test.resources.extensions.core)
     testImplementation(mn.micronaut.test.resources.extensions.junit.platform)
     // Faker library for JUnit tests
-    testImplementation("net.datafaker:datafaker:2.5.4")
-}
+    testImplementation(libs.testcontainers.junit)
+    testImplementation(libs.datafaker)
+    testImplementation(libs.hibernate.validator)
+    testImplementation(libs.jakarta.validation)
 
+    testRuntimeOnly(mn.junit.jupiter.engine)
+}
 
 application {
     mainClass.set("net.onelitefeather.vulpes.backend.VulpesBackend")
@@ -91,7 +94,7 @@ micronaut {
 tasks {
     compileJava {
         options.encoding = "UTF-8"
-        options.release = 21
+        options.release = 25
         options.forkOptions.jvmArgs = listOf("-Dmicronaut.openapi.views.spec=rapidoc.enabled=true,openapi-explorer.enabled=true,swagger-ui.enabled=true,swagger-ui.theme=flattop")
     }
     jacocoTestReport {

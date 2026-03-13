@@ -1,4 +1,4 @@
-package net.onelitefeather.vulpes.backend.controller;
+package net.onelitefeather.vulpes.backend.controller.font;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
@@ -11,23 +11,22 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
+import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.api.model.FontEntity;
-import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO;
 import net.onelitefeather.vulpes.backend.service.FontService;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO.*;
 
@@ -65,8 +64,9 @@ public class FontController {
     )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
+    @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<FontModelResponseDTO> add(
-            @Valid @Body FontModelDTO item
+            @Body FontModelDTO item
     ) {
         FontModelResponseDTO.FontModelDTO result = fontService.createFont(item);
         return HttpResponse.ok(result);
@@ -104,64 +104,6 @@ public class FontController {
             return HttpResponse.ok(dto);
         }
         return HttpResponse.notFound(new FontModelErrorDTO("Font not found"));
-    }
-
-
-    @Operation(
-            summary = "Get characters by font ID",
-            operationId = "getCharsById",
-            description = "Gets the characters of a font by its ID from the database.",
-            tags = {"Font"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "The characters of the font were successfully retrieved from the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FontModelCharsResponseDTO.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "404",
-            description = "The font was not found in the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FontModelErrorDTO.class)
-            )
-    )
-    @Get("/chars/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<FontModelResponseDTO> getCharsById(@PathVariable UUID id, Pageable pageable) {
-        List<String> model = fontService.findCharsByFontId(id, pageable);
-        if (model == null) {
-            return HttpResponse.notFound(new FontModelErrorDTO("Font not found"));
-        }
-        FontModelCharsResponseDTO dto = FontModelCharsResponseDTO.createDTO(id, model);
-        return HttpResponse.ok(dto);
-    }
-
-    @Operation(
-            summary = "Update characters of a font",
-            operationId = "updateChars",
-            description = "Updates the characters of a font in the database.",
-            tags = {"Font"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "The characters of the font were successfully updated in the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = FontModelCharsResponseDTO.class)
-                    )
-            )
-    )
-    @Post("/chars/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<FontModelResponseDTO> updateChars(@PathVariable UUID id,@Body List<String> chars) {
-        List<String> model = fontService.updateCharsByFontId(id, chars);
-        FontModelCharsResponseDTO dto = FontModelCharsResponseDTO.createDTO(id, model);
-        return HttpResponse.ok(dto);
     }
 
     @Operation(
@@ -213,7 +155,7 @@ public class FontController {
                     )
             )
     )
-    @Get(uris = {"/all"})
+    @Get(uris = {"/"})
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<FontModelResponseDTO.FontModelDTO>> getAll(Pageable pageable) {
         Page<FontModelResponseDTO.FontModelDTO> models = fontService.getAllFonts(pageable);
@@ -234,44 +176,10 @@ public class FontController {
                     schema = @Schema(implementation = FontModelResponseDTO.FontModelDTO.class)
             )
     )
-    @Delete("delete/all")
+    @Delete("delete")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<FontModelResponseDTO>> deleteAll() {
         List<FontModelResponseDTO> result = fontService.deleteAllFonts();
-        return HttpResponse.ok(result);
-    }
-
-    @Operation(
-            summary = "Update a font",
-            operationId = "updateFont",
-            description = "Updates a font in the database.",
-            tags = {"Font"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "The font was successfully updated in the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FontModelResponseDTO.FontModelDTO.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "404",
-            description = "The font was not found in the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FontModelErrorDTO.class)
-            )
-    )
-    @Post("/update")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<FontModelResponseDTO> update(
-            @Valid @Body FontModelDTO model
-    ) {
-        FontModelResponseDTO result = fontService.updateFont(model);
-        if (result instanceof FontModelResponseDTO.FontModelErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
         return HttpResponse.ok(result);
     }
 }

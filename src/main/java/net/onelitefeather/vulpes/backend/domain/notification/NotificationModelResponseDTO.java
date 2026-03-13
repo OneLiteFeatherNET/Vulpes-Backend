@@ -14,13 +14,13 @@ public sealed interface NotificationModelResponseDTO {
     /**
      * Represents a response DTO for notification models that includes the model's details.
      *
-     * @param id            the UUID of the notification model
-     * @param uiName        the name to display in the UI
-     * @param variableName  the name used for variable generation
-     * @param description   a description of the notification
-     * @param material      the material type of the notification
-     * @param frameType     the frame type of the notification
-     * @param title         the title of the notification
+     * @param id           the UUID of the notification model
+     * @param uiName       the name to display in the UI
+     * @param variableName the name used for variable generation
+     * @param comment      a comment of the notification
+     * @param material     the material type of the notification
+     * @param frameType    the frame type of the notification
+     * @param title        the title of the notification
      */
     @Schema(
             name = "ResponseNotificationModelDTO",
@@ -31,7 +31,7 @@ public sealed interface NotificationModelResponseDTO {
             @Schema(description = "The id of the model") UUID id,
             @Schema(description = "Model Name for the UI") String uiName,
             @Schema(description = "Variable name for the generation") String variableName,
-            @Schema(description = "Description of the Notification") String description,
+            @Schema(description = "Description of the Notification") String comment,
             @Schema(description = "Material type of the Notification") String material,
             @Schema(description = "Frame type of the Notification") String frameType,
             @Schema(description = "Title of the Notification") String title

@@ -11,16 +11,17 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
+import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
 import net.onelitefeather.vulpes.backend.service.AttributeService;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
 import java.util.UUID;
@@ -58,7 +59,8 @@ public class AttributeController {
             )
     )
     @Post
-    public HttpResponse<AttributeModelResponseDTO> add(@Valid @Body AttributeModelDTO model) {
+    @Validated(groups = ValidationGroup.Create.class)
+    public HttpResponse<AttributeModelResponseDTO> add(@Body AttributeModelDTO model) {
         AttributeModelResponseDTO.AttributeModelDTO createdAttribute = attributeService.createAttribute(model);
         return HttpResponse.ok(createdAttribute);
     }
@@ -86,7 +88,8 @@ public class AttributeController {
             )
     )
     @Post("/update")
-    public HttpResponse<AttributeModelResponseDTO> update(@Valid @Body AttributeModelDTO model) {
+    @Validated(groups = ValidationGroup.Update.class)
+    public HttpResponse<AttributeModelResponseDTO> update(@Body AttributeModelDTO model) {
         AttributeModelResponseDTO result = attributeService.updateAttribute(model);
         if (result instanceof AttributeModelResponseDTO.AttributeModelErrorDTO) {
             return HttpResponse.notFound(result);
@@ -144,7 +147,7 @@ public class AttributeController {
                     schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
             )
     )
-    @Delete("/delete/all")
+    @Delete("/delete")
     public HttpResponse<List<AttributeModelResponseDTO>> deleteAll() {
         List<AttributeModelResponseDTO> result = attributeService.deleteAllAttributes();
         return HttpResponse.ok(result);
@@ -173,7 +176,7 @@ public class AttributeController {
             )
     )
     @Produces(MediaType.APPLICATION_JSON)
-    @Get(uris = {"/all"})
+    @Get(uris = {"/"})
     public HttpResponse<Page<AttributeModelResponseDTO.AttributeModelDTO>> getAll(Pageable pageable) {
         Page<AttributeModelResponseDTO.AttributeModelDTO> models = attributeService.getAllAttributes(pageable);
         return HttpResponse.ok(models);

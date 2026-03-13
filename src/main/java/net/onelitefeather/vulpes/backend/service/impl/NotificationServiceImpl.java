@@ -36,7 +36,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationModelResponseDTO updateNotification(NotificationModelDTO notificationModelDTO) {
-        Optional<NotificationEntity> existingModel = notificationRepository.findById(notificationModelDTO.getId());
+        Optional<NotificationEntity> existingModel = notificationRepository.findById(notificationModelDTO.id());
         if (existingModel.isEmpty()) {
             return new NotificationModelResponseDTO.NotificationModelErrorDTO("Notification not found");
         }
