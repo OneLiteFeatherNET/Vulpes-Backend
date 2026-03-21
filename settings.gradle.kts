@@ -36,7 +36,7 @@ dependencyResolutionManagement {
             version("vulpes.model", "1.6.0-beta.14")
             version("uuid.creator", "6.1.1")
             version("datafaker", "2.5.4")
-            version("jetbrains.annotation", "26.0.2")
+            version("jetbrains.annotation", "26.1.0")
             version("hibernate.validator", "9.0.1.Final")
             version("jakarta.validation", "3.1.1")
             version("cyclonedx", "3.2.2")
