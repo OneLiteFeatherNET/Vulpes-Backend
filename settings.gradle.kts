@@ -39,7 +39,7 @@ dependencyResolutionManagement {
             version("jetbrains.annotation", "26.1.0")
             version("hibernate.validator", "9.1.0.Final")
             version("jakarta.validation", "3.1.1")
-            version("cyclonedx", "3.2.2")
+            version("cyclonedx", "3.2.3")
 
             library("uuid.creator", "com.github.f4b6a3", "uuid-creator").versionRef("uuid.creator")
             library("vulpes.api", "net.onelitefeather", "vulpes-model").versionRef("vulpes.model")
