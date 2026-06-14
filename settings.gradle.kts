@@ -32,7 +32,7 @@ dependencyResolutionManagement {
     }
     versionCatalogs {
         create("libs") {
-            version("micronaut", "4.6.2")
+            version("micronaut", "5.0.0")
             version("vulpes.model", "1.7.1")
             version("uuid.creator", "6.1.1")
             version("datafaker", "2.5.4")
