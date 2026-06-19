@@ -8,9 +8,13 @@
   "packages": {
     ".": {
       "package-name": "vulpes-backend",
+      "release-type": "java",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
-        "gradle.properties"
+        {
+          "type": "generic",
+          "path": "gradle.properties"
+        }
       ]
     }
   }
