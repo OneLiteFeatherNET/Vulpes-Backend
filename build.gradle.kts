@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.cyclonedx)
 }
 
+version = (version as String).substringBefore('#').trim()
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(25))
