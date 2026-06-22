@@ -40,7 +40,7 @@ dependencyResolutionManagement {
             version("hibernate.validator", "9.1.0.Final")
             version("jakarta.validation", "3.1.1")
             version("cyclonedx", "3.2.4")
-            version("logstash.logback.encoder", "8.1")
+            version("logstash.logback.encoder", "9.0")
             version("janino", "3.1.12")
             version("opentelemetry.instrumentation.alpha", "2.20.1-alpha")
 
