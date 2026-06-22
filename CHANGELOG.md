@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.4.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.3.0...v2.4.0) (2026-06-22)
+
+
+### Features
+
+* **discovery:** add Micronaut Kubernetes service discovery client ([0f3fc6f](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/0f3fc6f23e9dcd7f98bdfc8072d4d46e2217c3f7))
+* enable Kubernetes service discovery client ([#144](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/144)) ([0f3fc6f](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/0f3fc6f23e9dcd7f98bdfc8072d4d46e2217c3f7))
+
 ## [2.3.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.2.0...v2.3.0) (2026-06-22)
 
 
