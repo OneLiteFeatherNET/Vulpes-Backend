@@ -41,6 +41,9 @@ dependencies {
     implementation(mn.micronaut.management)
     implementation(mn.micronaut.micrometer.core)
     implementation(mn.micronaut.micrometer.registry.prometheus)
+    // Kubernetes service discovery — beans only activate in the k8s environment,
+    // so this is inert in local/dev. Needs RBAC (read services/endpoints) in-cluster.
+    implementation(mn.micronaut.kubernetes.discovery.client)
     // External Dependencies
     implementation(mn.mariadb.java.client)
     implementation(mn.postgresql)
