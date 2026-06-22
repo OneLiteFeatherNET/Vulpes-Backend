@@ -100,7 +100,9 @@ micronaut {
         optimizeClassLoading = false
         deduceEnvironment = true
         optimizeNetty = true
-        replaceLogbackXml = true
+        // Keep logback.xml parsed at runtime so the env-driven JSON/plain switch
+        // and ${...} substitutions work in the optimized (Docker/prod) jar.
+        replaceLogbackXml = false
     }
 }
 tasks {
