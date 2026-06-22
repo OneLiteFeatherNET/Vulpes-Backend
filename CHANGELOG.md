@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.2.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.1.0...v2.2.0) (2026-06-22)
+
+
+### Features
+
+* OpenTelemetry tracing + JSON logging for Grafana Loki ([#137](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/137)) ([ba42293](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/ba422930f98489b68109e19c8a1f93e3c13614f7))
+
+
+### Bug Fixes
+
+* **deps:** update logstash.logback.encoder to v9 ([#138](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/138)) ([3ddd892](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/3ddd892bef7192f67a833e90ed9b99c530137b5f))
+
 ## [2.1.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.0.0...v2.1.0) (2026-06-21)
 
 
