@@ -37,7 +37,7 @@ dependencyResolutionManagement {
             version("uuid.creator", "6.1.1")
             version("datafaker", "2.7.0")
             version("jetbrains.annotation", "26.1.0")
-            version("hibernate.validator", "9.1.1.Final")
+            version("hibernate.validator", "9.1.2.Final")
             version("jakarta.validation", "3.1.1")
             version("cyclonedx", "3.2.4")
             version("logstash.logback.encoder", "9.0")
