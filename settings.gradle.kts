@@ -39,7 +39,7 @@ dependencyResolutionManagement {
             version("jetbrains.annotation", "26.1.0")
             version("hibernate.validator", "9.1.2.Final")
             version("jakarta.validation", "3.1.1")
-            version("cyclonedx", "3.2.4")
+            version("cyclonedx", "3.3.0")
             version("logstash.logback.encoder", "9.0")
             version("janino", "3.1.12")
             version("opentelemetry.instrumentation.alpha", "2.20.1-alpha")
