@@ -6,7 +6,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
-import net.onelitefeather.vulpes.api.model.item.ItemLoreEntity;
 import net.onelitefeather.vulpes.api.repository.ItemRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemFlagRepository;
@@ -22,17 +21,17 @@ import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 import net.onelitefeather.vulpes.backend.service.ItemService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Implementation of the ItemService interface.
+ * Implementation of the {@link ItemService} interface.
  */
 @Singleton
-public class ItemServiceImpl implements ItemService {
+public class ItemServiceImpl
+        extends AbstractCrudService<ItemEntity, UUID, ItemModelDTO, ItemModelResponseDTO, ItemModelResponseDTO.ItemModelDTO>
+        implements ItemService {
 
     private static final String GENERIC_ERROR = "Item not found";
-    private final ItemRepository itemRepository;
     private final ItemEnchantmentRepository itemEnchantmentRepository;
     private final ItemLoreRepository itemLoreRepository;
     private final ItemFlagRepository itemFlagRepository;
@@ -42,54 +41,17 @@ public class ItemServiceImpl implements ItemService {
                            ItemEnchantmentRepository itemEnchantmentRepository,
                            ItemLoreRepository itemLoreRepository,
                            ItemFlagRepository itemFlagRepository) {
-        this.itemRepository = itemRepository;
+        super(
+                itemRepository,
+                ItemModelDTO::toItemEntity,
+                ItemModelResponseDTO.ItemModelDTO::createDTO,
+                ItemModelDTO::id,
+                ItemModelResponseDTO.ItemModelErrorDTO::new,
+                "Item"
+        );
         this.itemEnchantmentRepository = itemEnchantmentRepository;
         this.itemLoreRepository = itemLoreRepository;
         this.itemFlagRepository = itemFlagRepository;
-    }
-
-    @Override
-    public ItemModelResponseDTO.ItemModelDTO createItem(ItemModelDTO itemModelDTO) {
-        ItemEntity itemModel = itemModelDTO.toItemEntity();
-        ItemEntity savedItemModel = itemRepository.save(itemModel);
-        return ItemModelResponseDTO.ItemModelDTO.createDTO(savedItemModel);
-    }
-
-    @Override
-    public ItemModelResponseDTO updateItem(ItemModelDTO itemModelDTO) {
-        Optional<ItemEntity> existingItem = itemRepository.findById(itemModelDTO.id());
-        if (existingItem.isEmpty()) {
-            return new ItemModelResponseDTO.ItemModelErrorDTO("Item not found");
-        }
-        ItemEntity itemModel = itemModelDTO.toItemEntity();
-        ItemEntity updatedItemModel = itemRepository.update(itemModel);
-        return ItemModelResponseDTO.ItemModelDTO.createDTO(updatedItemModel);
-    }
-
-    @Override
-    public ItemModelResponseDTO deleteItem(UUID id) {
-        Optional<ItemEntity> model = itemRepository.findById(id);
-        if (model.isPresent()) {
-            itemRepository.deleteById(id);
-            return ItemModelResponseDTO.ItemModelDTO.createDTO(model.get());
-        }
-        return new ItemModelResponseDTO.ItemModelErrorDTO("Item not found");
-    }
-
-    @Override
-    public List<ItemModelResponseDTO> deleteAllItems() {
-        itemRepository.deleteAll();
-        return List.of();
-    }
-
-    @Override
-    public Page<ItemModelResponseDTO.ItemModelDTO> getAllItems(Pageable pageable) {
-        return itemRepository.findAll(pageable).map(ItemModelResponseDTO.ItemModelDTO::createDTO);
-    }
-
-    @Override
-    public Optional<ItemEntity> findItemById(UUID id) {
-        return itemRepository.findById(id);
     }
 
     @Override
@@ -104,7 +66,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemFlagResponseDTO createFlagById(UUID id, ItemFlagDTO itemFlagDTO) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new ItemFlagResponseDTO.ItemFlagErrorDTO(GENERIC_ERROR);
         }
@@ -117,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemFlagResponseDTO deleteFlagById(UUID id, UUID flagId) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new ItemFlagResponseDTO.ItemFlagErrorDTO(GENERIC_ERROR);
         }
@@ -136,7 +98,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemFlagResponseDTO> deleteAllFlagsById(UUID id) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return List.of();
         }
@@ -155,7 +117,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemLoreResponseDTO updateLoreById(UUID id, ItemLoreDTO lore) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new ItemLoreResponseDTO.ItemLoreErrorDTO(GENERIC_ERROR);
         }
@@ -168,7 +130,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemLoreResponseDTO createLoreById(UUID id, ItemLoreDTO loreDto) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new ItemLoreResponseDTO.ItemLoreErrorDTO(GENERIC_ERROR);
         }
@@ -181,7 +143,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemLoreResponseDTO deleteLoreById(UUID id, UUID loreId) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new ItemLoreResponseDTO.ItemLoreErrorDTO(GENERIC_ERROR);
         }
@@ -200,7 +162,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemLoreResponseDTO> deleteAllLoreById(UUID id) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return List.of();
         }
@@ -214,7 +176,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemEnchantmentResponseDTO updateEnchantmentById(UUID id, ItemEnchantmentDTO enchantment) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new ItemEnchantmentResponseDTO.ItemEnchantmentErrorDTO(GENERIC_ERROR);
         }
@@ -227,7 +189,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemEnchantmentResponseDTO createEnchantmentById(UUID id, ItemEnchantmentDTO enchantment) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new ItemEnchantmentResponseDTO.ItemEnchantmentErrorDTO(GENERIC_ERROR);
         }
@@ -240,7 +202,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemEnchantmentResponseDTO deleteEnchantmentById(UUID id, UUID enchantment) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new ItemEnchantmentResponseDTO.ItemEnchantmentErrorDTO(GENERIC_ERROR);
         }
@@ -259,7 +221,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemEnchantmentResponseDTO> deleteAllEnchantmentsById(UUID id) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return List.of();
         }
@@ -273,7 +235,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemFlagResponseDTO updateFlagById(UUID id, ItemFlagDTO flag) {
-        var byId = this.itemRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new ItemFlagResponseDTO.ItemFlagErrorDTO(GENERIC_ERROR);
         }

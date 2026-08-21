@@ -7,65 +7,18 @@ import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Service interface for managing sound events.
+ * Service interface for managing sound events and sound sources.
  */
-public interface SoundService {
-
-    /**
-     * Creates a new sound event.
-     *
-     * @param soundEventDTO the sound event data to create
-     * @return the created sound event response
-     */
-    SoundResponseDTO createSoundEvent(SoundEventDTO soundEventDTO);
-
-    /**
-     * Updates an existing sound event.
-     *
-     * @param soundEventDTO the sound event data to update
-     * @return the updated sound event response or an error response if the sound event doesn't exist
-     */
-    SoundResponseDTO updateSoundEvent(SoundEventDTO soundEventDTO);
-
-    /**
-     * Deletes a sound event by its ID.
-     *
-     * @param id the ID of the sound event to delete
-     * @return the deleted sound event response or an error response if the sound event doesn't exist
-     */
-    SoundResponseDTO deleteSoundEvent(UUID id);
-
-    /**
-     * Deletes all sound events.
-     *
-     * @return an empty list
-     */
-    List<SoundResponseDTO> deleteAllSoundEvents();
-
-    /**
-     * Gets all sound events.
-     *
-     * @return a list of all sound events
-     */
-    Page<SoundResponseDTO.SoundModelDTO> getAllSoundEvents(Pageable pageable);
-
-    /**
-     * Finds a sound event by its ID.
-     *
-     * @param id the ID of the sound event to find
-     * @return an optional containing the sound event if found, or empty if not found
-     */
-    Optional<SoundEventEntity> findSoundEventById(UUID id);
+public interface SoundService extends CrudService<SoundEventEntity, UUID, SoundEventDTO, SoundResponseDTO, SoundResponseDTO.SoundModelDTO> {
 
     /**
      * Gets all sound file sources by an ID.
      *
-     * @param id the ID of the sound event
+     * @param id       the ID of the sound event
+     * @param pageable pagination details
      * @return the sound event response with sources
      */
     Page<SoundResponseDTO> getSoundSourcesById(UUID id, Pageable pageable);

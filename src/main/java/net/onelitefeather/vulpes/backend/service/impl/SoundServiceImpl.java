@@ -13,78 +13,37 @@ import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
 import net.onelitefeather.vulpes.backend.service.SoundService;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Implementation of the SoundService interface.
+ * Implementation of the {@link SoundService} interface.
  */
 @Singleton
-public class SoundServiceImpl implements SoundService {
+public class SoundServiceImpl
+        extends AbstractCrudService<SoundEventEntity, UUID, SoundEventDTO, SoundResponseDTO, SoundResponseDTO.SoundModelDTO>
+        implements SoundService {
 
     private static final String GENERIC_ERROR = "Sound event not found";
-    private final SoundRepository soundRepository;
     private final SoundFileSourceRepository soundFileSourceRepository;
 
     /**
-     * Constructs a new SoundServiceImpl with the specified SoundRepository.
+     * Constructs a new SoundServiceImpl with the specified SoundRepository and SoundFileSourceRepository.
      *
-     * @param soundRepository the repository to manage sound events
+     * @param soundRepository           the repository to manage sound events
      * @param soundFileSourceRepository the repository to manage sound file sources
      */
     @Inject
     public SoundServiceImpl(SoundRepository soundRepository, SoundFileSourceRepository soundFileSourceRepository) {
-        this.soundRepository = soundRepository;
+        super(
+                soundRepository,
+                SoundEventDTO::toEntity,
+                SoundResponseDTO.SoundModelDTO::createDTO,
+                SoundEventDTO::id,
+                SoundResponseDTO.SoundErrorDTO::new,
+                "Sound event"
+        );
         this.soundFileSourceRepository = soundFileSourceRepository;
-    }
-
-    @Override
-    public SoundResponseDTO createSoundEvent(SoundEventDTO soundEventDTO) {
-        SoundEventEntity event = soundEventDTO.toEntity();
-        if (event.getId() != null) {
-            return new SoundResponseDTO.SoundErrorDTO("New sound event cannot have an id");
-        } else {
-            event = soundRepository.save(event);
-        }
-        return SoundResponseDTO.SoundModelDTO.createDTO(event);
-    }
-
-    @Override
-    public SoundResponseDTO updateSoundEvent(SoundEventDTO soundEventDTO) {
-        Optional<SoundEventEntity> existingModel = soundRepository.findById(soundEventDTO.id());
-        if (existingModel.isEmpty()) {
-            return new SoundResponseDTO.SoundErrorDTO(GENERIC_ERROR);
-        }
-        SoundEventEntity soundModel = soundEventDTO.toEntity();
-        soundModel = soundRepository.update(soundModel);
-        return SoundResponseDTO.SoundModelDTO.createDTO(soundModel);
-    }
-
-    @Override
-    public SoundResponseDTO deleteSoundEvent(UUID id) {
-        Optional<SoundEventEntity> model = soundRepository.findById(id);
-        if (model.isPresent()) {
-            soundRepository.deleteById(id);
-            return SoundResponseDTO.SoundModelDTO.createDTO(model.get());
-        }
-        return new SoundResponseDTO.SoundErrorDTO(GENERIC_ERROR);
-    }
-
-    @Override
-    public List<SoundResponseDTO> deleteAllSoundEvents() {
-        soundRepository.deleteAll();
-        return List.of();
-    }
-
-    @Override
-    public Page<SoundResponseDTO.SoundModelDTO> getAllSoundEvents(Pageable pageable) {
-        return soundRepository.findAll(pageable).map(SoundResponseDTO.SoundModelDTO::createDTO);
-    }
-
-    @Override
-    public Optional<SoundEventEntity> findSoundEventById(UUID id) {
-        return soundRepository.findById(id);
     }
 
     @Override
@@ -98,7 +57,7 @@ public class SoundServiceImpl implements SoundService {
         if (soundEventId == null || sourceDTO == null) {
             throw new IllegalArgumentException("SoundEventId and SourceDTO must not be null");
         }
-        Optional<SoundEventEntity> soundEventOpt = soundRepository.findById(soundEventId);
+        Optional<SoundEventEntity> soundEventOpt = this.repository.findById(soundEventId);
         if (soundEventOpt.isEmpty()) {
             throw new IllegalArgumentException(GENERIC_ERROR);
         }
@@ -114,7 +73,7 @@ public class SoundServiceImpl implements SoundService {
         if (soundEventId == null || sourceDTO == null || sourceDTO.id() == null) {
             throw new IllegalArgumentException("SoundEventId and SourceDTO and SourceDTO.Id must not be null");
         }
-        Optional<SoundEventEntity> soundEventOpt = soundRepository.findById(soundEventId);
+        Optional<SoundEventEntity> soundEventOpt = this.repository.findById(soundEventId);
         if (soundEventOpt.isEmpty()) {
             throw new IllegalArgumentException(GENERIC_ERROR);
         }
@@ -141,7 +100,7 @@ public class SoundServiceImpl implements SoundService {
             throw new IllegalArgumentException("SoundEventId and SourceDTO and SourceDTO.Id must not be null");
         }
 
-        Optional<SoundEventEntity> soundEventOpt = soundRepository.findById(soundEventId);
+        Optional<SoundEventEntity> soundEventOpt = this.repository.findById(soundEventId);
         if (soundEventOpt.isEmpty()) {
             throw new IllegalArgumentException(GENERIC_ERROR);
         }

@@ -15,67 +15,30 @@ import net.onelitefeather.vulpes.backend.domain.font.FontStringResponseDTO;
 import net.onelitefeather.vulpes.backend.service.FontService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Implementation of the FontService interface.
+ * Implementation of the {@link FontService} interface.
  */
 @Singleton
-public class FontServiceImpl implements FontService {
+public class FontServiceImpl
+        extends AbstractCrudService<FontEntity, UUID, FontModelDTO, FontModelResponseDTO, FontModelResponseDTO.FontModelDTO>
+        implements FontService {
 
-    private final FontRepository fontRepository;
     private final FontStringRepository fontStringRepository;
 
     @Inject
     public FontServiceImpl(FontRepository fontRepository, FontStringRepository fontStringRepository) {
-        this.fontRepository = fontRepository;
+        super(
+                fontRepository,
+                FontModelDTO::toFontModel,
+                FontModelResponseDTO.FontModelDTO::createDTOWithChars,
+                FontModelResponseDTO.FontModelDTO::createDTO,
+                FontModelDTO::id,
+                FontModelResponseDTO.FontModelErrorDTO::new,
+                "Font"
+        );
         this.fontStringRepository = fontStringRepository;
-    }
-
-    @Override
-    public FontModelResponseDTO.FontModelDTO createFont(FontModelDTO fontModelDTO) {
-        FontEntity fontModel = fontModelDTO.toFontModel();
-        FontEntity savedFontModel = fontRepository.save(fontModel);
-        return FontModelResponseDTO.FontModelDTO.createDTOWithChars(savedFontModel);
-    }
-
-    @Override
-    public FontModelResponseDTO updateFont(FontModelDTO fontModelDTO) {
-        Optional<FontEntity> modelOptional = fontRepository.findById(fontModelDTO.id());
-        if (modelOptional.isEmpty()) {
-            return new FontModelResponseDTO.FontModelErrorDTO("Font not found");
-        }
-        FontEntity fontModel = fontModelDTO.toFontModel();
-        var updatedFontModel = fontRepository.update(fontModel);
-        return FontModelResponseDTO.FontModelDTO.createDTOWithChars(updatedFontModel);
-    }
-
-    @Override
-    public FontModelResponseDTO deleteFont(UUID id) {
-        Optional<FontEntity> model = fontRepository.findById(id);
-        if (model.isPresent()) {
-            fontRepository.deleteById(id);
-            FontEntity fontModel = model.get();
-            return FontModelResponseDTO.FontModelDTO.createDTO(fontModel);
-        }
-        return new FontModelResponseDTO.FontModelErrorDTO("Font not found");
-    }
-
-    @Override
-    public List<FontModelResponseDTO> deleteAllFonts() {
-        fontRepository.deleteAll();
-        return List.of();
-    }
-
-    @Override
-    public Page<FontModelResponseDTO.FontModelDTO> getAllFonts(Pageable pageable) {
-        return fontRepository.findAll(pageable).map(FontModelResponseDTO.FontModelDTO::createDTO);
-    }
-
-    @Override
-    public Optional<FontEntity> findFontById(UUID id) {
-        return fontRepository.findById(id);
     }
 
     @Override
@@ -86,7 +49,7 @@ public class FontServiceImpl implements FontService {
     @Transactional
     @Override
     public FontStringResponseDTO updateCharByFontId(UUID id, FontStringDTO charModel) {
-        var byId = this.fontRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new FontStringResponseDTO.FontStringErrorDTO("Font not found");
         }
@@ -100,7 +63,7 @@ public class FontServiceImpl implements FontService {
     @Transactional
     @Override
     public FontStringResponseDTO createCharByFontId(UUID id, FontStringDTO charModel) {
-        var byId = this.fontRepository.findById(id);
+        var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new FontStringResponseDTO.FontStringErrorDTO("Font not found");
         }
@@ -113,7 +76,7 @@ public class FontServiceImpl implements FontService {
 
     @Override
     public FontStringResponseDTO deleteCharByFontId(UUID fontId, UUID charId) {
-        var byId = this.fontRepository.findById(fontId);
+        var byId = this.repository.findById(fontId);
         if (byId.isEmpty()) {
             return new FontStringResponseDTO.FontStringErrorDTO("Font not found");
         }
@@ -132,7 +95,7 @@ public class FontServiceImpl implements FontService {
 
     @Override
     public List<FontStringResponseDTO> deleteAllCharByFontId(UUID fontId) {
-        var byId = this.fontRepository.findById(fontId);
+        var byId = this.repository.findById(fontId);
         if (byId.isEmpty()) {
             return List.of();
         }

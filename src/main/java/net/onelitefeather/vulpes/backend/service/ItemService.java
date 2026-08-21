@@ -13,65 +13,17 @@ import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
  * Service interface for managing items.
  */
-public interface ItemService {
-
-    /**
-     * Creates a new item.
-     *
-     * @param itemModelDTO the item data to create
-     * @return the created item response
-     */
-    ItemModelResponseDTO.ItemModelDTO createItem(ItemModelDTO itemModelDTO);
-
-    /**
-     * Updates an existing item.
-     *
-     * @param itemModelDTO the item data to update
-     * @return the updated item response or an error response if the item doesn't exist
-     */
-    ItemModelResponseDTO updateItem(ItemModelDTO itemModelDTO);
-
-    /**
-     * Deletes an item by its ID.
-     *
-     * @param id the ID of the item to delete
-     * @return the deleted item response or an error response if the item doesn't exist
-     */
-    ItemModelResponseDTO deleteItem(UUID id);
-
-    /**
-     * Deletes all items.
-     *
-     * @return an empty list
-     */
-    List<ItemModelResponseDTO> deleteAllItems();
-
-    /**
-     * Gets all items with pagination.
-     *
-     * @param pageable pagination information
-     * @return a page of items
-     */
-    Page<ItemModelResponseDTO.ItemModelDTO> getAllItems(Pageable pageable);
-
-    /**
-     * Finds an item by its ID.
-     *
-     * @param id the ID of the item to find
-     * @return an optional containing the item if found, or empty if not found
-     */
-    Optional<ItemEntity> findItemById(UUID id);
+public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO, ItemModelResponseDTO, ItemModelResponseDTO.ItemModelDTO> {
 
     /**
      * Gets the flags of an item by its ID.
      *
-     * @param id the ID of the item
+     * @param id       the ID of the item
      * @param pageable pagination information
      * @return a list of flags
      */
@@ -79,7 +31,8 @@ public interface ItemService {
 
     /**
      * Creates the flag of an item by its ID.
-     * @param id the ID of the item to update the flag of
+     *
+     * @param id          the ID of the item to update the flag of
      * @param itemFlagDTO the flag to create
      * @return the created flag
      */
@@ -87,7 +40,8 @@ public interface ItemService {
 
     /**
      * Delete the flag of an item by its ID.
-     * @param id the ID of the item to update the flag of
+     *
+     * @param id     the ID of the item to update the flag of
      * @param flagId the flag to delete
      * @return the deleted flag
      */
@@ -95,6 +49,7 @@ public interface ItemService {
 
     /**
      * Delete the flags of an item by its ID.
+     *
      * @param id the ID of the item to update the flags of
      * @return the deleted flags
      */
@@ -102,7 +57,8 @@ public interface ItemService {
 
     /**
      * Updates the flag of an item by its ID.
-     * @param id the ID of the item to update the flag of
+     *
+     * @param id   the ID of the item to update the flag of
      * @param flag the new flag to set
      * @return the updated flag
      */
@@ -111,7 +67,7 @@ public interface ItemService {
     /**
      * Gets the enchantments of an item by its ID.
      *
-     * @param id the ID of the item
+     * @param id       the ID of the item
      * @param pageable pagination information
      * @return a map of enchantment names to levels
      */
@@ -119,7 +75,8 @@ public interface ItemService {
 
     /**
      * Updates the enchantments of an item by its ID.
-     * @param id the ID of the item to update the enchantments of
+     *
+     * @param id          the ID of the item to update the enchantments of
      * @param enchantment the enchantments to update
      * @return the updated enchantments
      */
@@ -127,7 +84,8 @@ public interface ItemService {
 
     /**
      * Creates the enchantments of an item by its ID.
-     * @param id the ID of the item to update the enchantments of
+     *
+     * @param id          the ID of the item to update the enchantments of
      * @param enchantment the enchantments to create
      * @return the created enchantment
      */
@@ -135,7 +93,8 @@ public interface ItemService {
 
     /**
      * Delete the enchantment of an item by its ID.
-     * @param id the ID of the item to update the enchantments of
+     *
+     * @param id          the ID of the item to update the enchantments of
      * @param enchantment the enchantment to delete
      * @return the deleted enchantment
      */
@@ -143,6 +102,7 @@ public interface ItemService {
 
     /**
      * Delete the enchantments of an item by its ID.
+     *
      * @param id the ID of the item to update the enchantments of
      * @return the deleted enchantment
      */
@@ -151,7 +111,7 @@ public interface ItemService {
     /**
      * Gets the lore of an item by its ID.
      *
-     * @param id the ID of the item
+     * @param id       the ID of the item
      * @param pageable pagination information
      * @return a list of lore lines
      */
@@ -159,7 +119,8 @@ public interface ItemService {
 
     /**
      * Updates the lore of an item by its ID.
-     * @param id the ID of the item to update the lore of
+     *
+     * @param id      the ID of the item to update the lore of
      * @param loreDto the lore to update
      * @return the updated lore
      */
@@ -167,7 +128,8 @@ public interface ItemService {
 
     /**
      * Creates the lore of an item by its ID.
-     * @param id the ID of the item to update the lore of item
+     *
+     * @param id      the ID of the item to update the lore of item
      * @param loreDto the lore to create
      * @return the created lore
      */
@@ -175,7 +137,8 @@ public interface ItemService {
 
     /**
      * Delete the enchantment of an item by its ID.
-     * @param id the ID of the item to update the enchantments of
+     *
+     * @param id     the ID of the item to update the enchantments of
      * @param loreId the enchantment to delete
      * @return the deleted enchantment
      */
@@ -183,6 +146,7 @@ public interface ItemService {
 
     /**
      * Delete the lore of an item by its ID.
+     *
      * @param id the ID of the item to update the lore of
      * @return the deleted lore
      */
