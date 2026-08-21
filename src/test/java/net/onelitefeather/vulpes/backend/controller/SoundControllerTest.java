@@ -33,32 +33,32 @@ class SoundControllerTest {
         SoundResponseDTO.SoundFileSourceDTO sourceResponse;
 
         @Override
-        public SoundResponseDTO.SoundModelDTO createSoundEvent(SoundEventDTO soundEventDTO) {
+        public SoundResponseDTO.SoundModelDTO create(SoundEventDTO soundEventDTO) {
             return (SoundResponseDTO.SoundModelDTO) response;
         }
 
         @Override
-        public SoundResponseDTO updateSoundEvent(SoundEventDTO soundEventDTO) {
+        public SoundResponseDTO update(SoundEventDTO soundEventDTO) {
             return response;
         }
 
         @Override
-        public SoundResponseDTO deleteSoundEvent(UUID id) {
+        public SoundResponseDTO delete(UUID id) {
             return response;
         }
 
         @Override
-        public List<SoundResponseDTO> deleteAllSoundEvents() {
+        public List<SoundResponseDTO> deleteAll() {
             return List.of();
         }
 
         @Override
-        public Page<SoundResponseDTO.SoundModelDTO> getAllSoundEvents(Pageable pageable) {
+        public Page<SoundResponseDTO.SoundModelDTO> getAll(Pageable pageable) {
             return modelDtoPage;
         }
 
         @Override
-        public Optional<SoundEventEntity> findSoundEventById(UUID id) {
+        public Optional<SoundEventEntity> findById(UUID id) {
             return findByIdResponse;
         }
 
