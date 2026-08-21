@@ -74,7 +74,7 @@ public class NotificationController {
     public HttpResponse<NotificationModelResponseDTO> add(
             @Body NotificationModelDTO model
     ) {
-        NotificationModelResponseDTO.NotificationModelDTO result = notificationService.createNotification(model);
+        NotificationModelResponseDTO.NotificationModelDTO result = notificationService.create(model);
         return HttpResponse.ok(result);
     }
 
@@ -109,7 +109,7 @@ public class NotificationController {
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<NotificationModelResponseDTO> getById(@PathVariable UUID id) {
-        Optional<NotificationEntity> model = notificationService.findNotificationById(id);
+        Optional<NotificationEntity> model = notificationService.findById(id);
         if (model.isPresent()) {
             return HttpResponse.ok(NotificationModelResponseDTO.NotificationModelDTO.createDTO(model.get()));
         }
@@ -147,7 +147,7 @@ public class NotificationController {
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<NotificationModelResponseDTO> remove(@PathVariable UUID id) {
-        NotificationModelResponseDTO result = notificationService.deleteNotification(id);
+        NotificationModelResponseDTO result = notificationService.delete(id);
         if (result instanceof NotificationModelResponseDTO.NotificationModelErrorDTO) {
             return HttpResponse.notFound(result);
         }
@@ -187,7 +187,7 @@ public class NotificationController {
     @Get(uris = {"/"})
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<NotificationModelResponseDTO.NotificationModelDTO>> getAll(Pageable pageable) {
-        Page<NotificationModelResponseDTO.NotificationModelDTO> list = notificationService.getAllNotifications(pageable);
+        Page<NotificationModelResponseDTO.NotificationModelDTO> list = notificationService.getAll(pageable);
         return HttpResponse.ok(list);
     }
 
@@ -213,7 +213,7 @@ public class NotificationController {
     @Delete("/delete/")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<NotificationModelResponseDTO>> deleteAll() {
-        List<NotificationModelResponseDTO> result = notificationService.deleteAllNotifications();
+        List<NotificationModelResponseDTO> result = notificationService.deleteAll();
         return HttpResponse.ok(result);
     }
 
@@ -249,7 +249,7 @@ public class NotificationController {
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<NotificationModelResponseDTO> update(@Body NotificationModelDTO model) {
-        NotificationModelResponseDTO result = notificationService.updateNotification(model);
+        NotificationModelResponseDTO result = notificationService.update(model);
         if (result instanceof NotificationModelResponseDTO.NotificationModelErrorDTO) {
             return HttpResponse.notFound(result);
         }

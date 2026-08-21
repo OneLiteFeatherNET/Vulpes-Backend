@@ -68,7 +68,7 @@ public class FontController {
     public HttpResponse<FontModelResponseDTO> add(
             @Body FontModelDTO item
     ) {
-        FontModelResponseDTO.FontModelDTO result = fontService.createFont(item);
+        FontModelResponseDTO.FontModelDTO result = fontService.create(item);
         return HttpResponse.ok(result);
     }
 
@@ -97,7 +97,7 @@ public class FontController {
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<FontModelResponseDTO> getById(@PathVariable UUID id) {
-        Optional<FontEntity> model = fontService.findFontById(id);
+        Optional<FontEntity> model = fontService.findById(id);
         if (model.isPresent()) {
             FontEntity fontModel = model.get();
             FontModelResponseDTO.FontModelDTO dto = FontModelResponseDTO.FontModelDTO.createDTO(fontModel);
@@ -131,7 +131,7 @@ public class FontController {
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<FontModelResponseDTO> remove(@PathVariable UUID id) {
-        FontModelResponseDTO result = fontService.deleteFont(id);
+        FontModelResponseDTO result = fontService.delete(id);
         if (result instanceof FontModelResponseDTO.FontModelErrorDTO) {
             return HttpResponse.notFound(result);
         }
@@ -158,7 +158,7 @@ public class FontController {
     @Get(uris = {"/"})
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<FontModelResponseDTO.FontModelDTO>> getAll(Pageable pageable) {
-        Page<FontModelResponseDTO.FontModelDTO> models = fontService.getAllFonts(pageable);
+        Page<FontModelResponseDTO.FontModelDTO> models = fontService.getAll(pageable);
         return HttpResponse.ok(models);
     }
 
@@ -179,7 +179,7 @@ public class FontController {
     @Delete("delete")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<FontModelResponseDTO>> deleteAll() {
-        List<FontModelResponseDTO> result = fontService.deleteAllFonts();
+        List<FontModelResponseDTO> result = fontService.deleteAll();
         return HttpResponse.ok(result);
     }
 }
