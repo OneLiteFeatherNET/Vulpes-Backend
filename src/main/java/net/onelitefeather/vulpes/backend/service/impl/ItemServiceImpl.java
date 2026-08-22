@@ -4,8 +4,10 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.transaction.Transactional;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
+import net.onelitefeather.vulpes.api.model.item.ItemLoreEntity;
 import net.onelitefeather.vulpes.api.repository.ItemRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemFlagRepository;
@@ -20,6 +22,7 @@ import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 import net.onelitefeather.vulpes.backend.service.ItemService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -116,19 +119,25 @@ public class ItemServiceImpl
     }
 
     @Override
+    @Transactional
     public ItemLoreResponseDTO updateLoreById(UUID id, ItemLoreDTO lore) {
         var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
             return new ItemLoreResponseDTO.ItemLoreErrorDTO(GENERIC_ERROR);
         }
         var item = byId.get();
-        var entity = lore.toEntity();
-        entity.setItem(item);
+        var existingLore = this.itemLoreRepository.findById(lore.id());
+        if (existingLore.isEmpty() || !existingLore.get().getItem().getId().equals(item.getId())) {
+            return new ItemLoreResponseDTO.ItemLoreErrorDTO(GENERIC_ERROR);
+        }
+        var entity = existingLore.get();
+        entity.setText(lore.text());
         var saved = this.itemLoreRepository.update(entity);
         return ItemLoreResponseDTO.ItemLoreDTO.createDTO(saved);
     }
 
     @Override
+    @Transactional
     public ItemLoreResponseDTO createLoreById(UUID id, ItemLoreDTO loreDto) {
         var byId = this.repository.findById(id);
         if (byId.isEmpty()) {
@@ -137,6 +146,8 @@ public class ItemServiceImpl
         var item = byId.get();
         var entity = loreDto.toEntity();
         entity.setItem(item);
+        int nextIndex = (int) this.itemLoreRepository.findLoreById(item.getId(), Pageable.unpaged()).getTotalSize();
+        entity.setOrderIndex(nextIndex);
         var saved = this.itemLoreRepository.save(entity);
         return ItemLoreResponseDTO.ItemLoreDTO.createDTO(saved);
     }
@@ -158,6 +169,38 @@ public class ItemServiceImpl
         }
         this.itemLoreRepository.deleteById(resolvedEntity.getId());
         return ItemLoreResponseDTO.ItemLoreDTO.createDTO(resolvedEntity);
+    }
+
+    @Override
+    @Transactional
+    public ItemLoreResponseDTO reorderLoreById(UUID id, UUID entryId, int newIndex) {
+        var byId = this.repository.findById(id);
+        if (byId.isEmpty()) {
+            return new ItemLoreResponseDTO.ItemLoreErrorDTO(GENERIC_ERROR);
+        }
+        var item = byId.get();
+        List<ItemLoreEntity> loreLines = new ArrayList<>(
+                this.itemLoreRepository.findLoreById(item.getId(), Pageable.unpaged()).getContent());
+
+        var entryToMove = loreLines.stream()
+                .filter(entry -> entry.getId().equals(entryId))
+                .findFirst()
+                .orElse(null);
+
+        if (entryToMove == null) {
+            return new ItemLoreResponseDTO.ItemLoreErrorDTO(GENERIC_ERROR);
+        }
+
+        loreLines.remove(entryToMove);
+        int clampedIndex = Math.max(0, Math.min(newIndex, loreLines.size()));
+        loreLines.add(clampedIndex, entryToMove);
+
+        for (int i = 0; i < loreLines.size(); i++) {
+            loreLines.get(i).setOrderIndex(i);
+        }
+        this.itemLoreRepository.updateAll(loreLines);
+
+        return ItemLoreResponseDTO.ItemLoreDTO.createDTO(entryToMove);
     }
 
     @Override
