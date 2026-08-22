@@ -78,7 +78,7 @@ public class ProjectController {
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<ProjectModelResponseDTO> add(@Body ProjectModelDTO model) {
-        ProjectModelResponseDTO.ProjectModelDTO result = projectService.createProject(model);
+        ProjectModelResponseDTO.ProjectModelDTO result = projectService.create(model);
         return HttpResponse.ok(result);
     }
 
@@ -113,7 +113,7 @@ public class ProjectController {
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ProjectModelResponseDTO> getById(@PathVariable UUID id) {
-        Optional<ProjectEntity> model = projectService.findProjectById(id);
+        Optional<ProjectEntity> model = projectService.findById(id);
         if (model.isPresent()) {
             return HttpResponse.ok(ProjectModelResponseDTO.ProjectModelDTO.createDTO(model.get()));
         }
@@ -190,7 +190,7 @@ public class ProjectController {
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<ProjectModelResponseDTO> update(@Body ProjectModelDTO model) {
-        ProjectModelResponseDTO result = projectService.updateProject(model);
+        ProjectModelResponseDTO result = projectService.update(model);
         if (result instanceof ProjectModelResponseDTO.ProjectModelErrorDTO) {
             return HttpResponse.notFound(result);
         }
@@ -228,7 +228,7 @@ public class ProjectController {
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ProjectModelResponseDTO> delete(@PathVariable UUID id) {
-        ProjectModelResponseDTO result = projectService.deleteProject(id);
+        ProjectModelResponseDTO result = projectService.delete(id);
         if (result instanceof ProjectModelResponseDTO.ProjectModelErrorDTO) {
             return HttpResponse.notFound(result);
         }
@@ -257,7 +257,7 @@ public class ProjectController {
     @Delete("/delete")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<ProjectModelResponseDTO>> deleteAll() {
-        List<ProjectModelResponseDTO> result = projectService.deleteAllProjects();
+        List<ProjectModelResponseDTO> result = projectService.deleteAll();
         return HttpResponse.ok(result);
     }
 
@@ -287,7 +287,7 @@ public class ProjectController {
     @Get(uris = {"/"})
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<ProjectModelResponseDTO.ProjectModelDTO>> getAll(Pageable pageable) {
-        Page<ProjectModelResponseDTO.ProjectModelDTO> list = projectService.getAllProjects(pageable);
+        Page<ProjectModelResponseDTO.ProjectModelDTO> list = projectService.getAll(pageable);
         return HttpResponse.ok(list);
     }
 }
