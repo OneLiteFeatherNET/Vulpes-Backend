@@ -1,10 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base"
+    "github>OneLiteFeatherNET/renovate:default(OneLiteFeatherNET/vulpes-maintainer)"
   ],
-  "labels": ["renovate"],
-  "rebaseWhen": "conflicted",
   "packageRules": [
     {
       "matchUpdateTypes": [

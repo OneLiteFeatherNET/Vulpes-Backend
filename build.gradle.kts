@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.cyclonedx)
 }
 
-version = (version as String).substringBefore('#').trim()
+version = "2.4.1" // x-release-please-version
 
 java {
     toolchain {
