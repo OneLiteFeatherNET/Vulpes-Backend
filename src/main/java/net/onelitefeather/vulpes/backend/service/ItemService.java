@@ -145,6 +145,16 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
     ItemLoreResponseDTO deleteLoreById(UUID id, UUID loreId);
 
     /**
+     * Reorders a lore entry of an item by its ID.
+     *
+     * @param id       the ID of the item the lore entry belongs to
+     * @param entryId  the ID of the lore entry to move
+     * @param newIndex the new index of the entry within the lore list
+     * @return the moved lore entry, or an error if the item or entry could not be found
+     */
+    ItemLoreResponseDTO reorderLoreById(UUID id, UUID entryId, int newIndex);
+
+    /**
      * Delete the lore of an item by its ID.
      *
      * @param id the ID of the item to update the lore of
