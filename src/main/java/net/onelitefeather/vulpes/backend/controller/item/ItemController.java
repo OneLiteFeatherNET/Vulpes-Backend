@@ -70,7 +70,7 @@ public class ItemController {
     public HttpResponse<ItemModelResponseDTO> add(
            @Body ItemModelDTO itemModel
     ) {
-        ItemModelResponseDTO.ItemModelDTO createdItem = itemService.createItem(itemModel);
+        ItemModelResponseDTO.ItemModelDTO createdItem = itemService.create(itemModel);
         return HttpResponse.ok(createdItem);
     }
 
@@ -101,7 +101,7 @@ public class ItemController {
     public HttpResponse<ItemModelResponseDTO> getById(
             @PathVariable("itemId") UUID itemId
     ) {
-        Optional<ItemEntity> foundItemOpt = itemService.findItemById(itemId);
+        Optional<ItemEntity> foundItemOpt = itemService.findById(itemId);
         if (foundItemOpt.isPresent()) {
             var foundItem = foundItemOpt.get();
             return HttpResponse.ok(ItemModelResponseDTO.ItemModelDTO.createDTO(foundItem));
@@ -129,7 +129,7 @@ public class ItemController {
     @Get
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<ItemModelResponseDTO.ItemModelDTO>> getAll(Pageable pageable) {
-        Page<ItemModelResponseDTO.ItemModelDTO> itemsPage = itemService.getAllItems(pageable);
+        Page<ItemModelResponseDTO.ItemModelDTO> itemsPage = itemService.getAll(pageable);
         return HttpResponse.ok(itemsPage);
     }
 
@@ -161,7 +161,7 @@ public class ItemController {
     public HttpResponse<ItemModelResponseDTO> update(
             @Body ItemModelDTO itemModel
     ) {
-        ItemModelResponseDTO updateResult = itemService.updateItem(itemModel);
+        ItemModelResponseDTO updateResult = itemService.update(itemModel);
         if (updateResult instanceof ItemModelResponseDTO.ItemModelErrorDTO) {
             return HttpResponse.notFound(updateResult);
         }
@@ -193,7 +193,7 @@ public class ItemController {
     @Delete("/delete/{itemId}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ItemModelResponseDTO> delete(@PathVariable("itemId") UUID itemId) {
-        ItemModelResponseDTO deleteResult = itemService.deleteItem(itemId);
+        ItemModelResponseDTO deleteResult = itemService.delete(itemId);
         if (deleteResult instanceof ItemModelResponseDTO.ItemModelErrorDTO) {
             return HttpResponse.notFound(deleteResult);
         }
@@ -218,7 +218,7 @@ public class ItemController {
     @Delete("/deleteAll")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<ItemModelResponseDTO>> deleteAll() {
-        List<ItemModelResponseDTO> deleteResults = itemService.deleteAllItems();
+        List<ItemModelResponseDTO> deleteResults = itemService.deleteAll();
         return HttpResponse.ok(deleteResults);
     }
 }

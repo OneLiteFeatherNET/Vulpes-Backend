@@ -61,7 +61,7 @@ public class AttributeController {
     @Post
     @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<AttributeModelResponseDTO> add(@Body AttributeModelDTO model) {
-        AttributeModelResponseDTO.AttributeModelDTO createdAttribute = attributeService.createAttribute(model);
+        AttributeModelResponseDTO.AttributeModelDTO createdAttribute = attributeService.create(model);
         return HttpResponse.ok(createdAttribute);
     }
 
@@ -90,7 +90,7 @@ public class AttributeController {
     @Post("/update")
     @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<AttributeModelResponseDTO> update(@Body AttributeModelDTO model) {
-        AttributeModelResponseDTO result = attributeService.updateAttribute(model);
+        AttributeModelResponseDTO result = attributeService.update(model);
         if (result instanceof AttributeModelResponseDTO.AttributeModelErrorDTO) {
             return HttpResponse.notFound(result);
         }
@@ -121,7 +121,7 @@ public class AttributeController {
     )
     @Delete("/delete/{id}")
     public HttpResponse<AttributeModelResponseDTO> delete(@PathVariable UUID id) {
-        AttributeModelResponseDTO result = attributeService.deleteAttribute(id);
+        AttributeModelResponseDTO result = attributeService.delete(id);
         if (result instanceof AttributeModelResponseDTO.AttributeModelErrorDTO) {
             return HttpResponse.notFound(result);
         }
@@ -149,7 +149,7 @@ public class AttributeController {
     )
     @Delete("/delete")
     public HttpResponse<List<AttributeModelResponseDTO>> deleteAll() {
-        List<AttributeModelResponseDTO> result = attributeService.deleteAllAttributes();
+        List<AttributeModelResponseDTO> result = attributeService.deleteAll();
         return HttpResponse.ok(result);
     }
 
@@ -178,7 +178,7 @@ public class AttributeController {
     @Produces(MediaType.APPLICATION_JSON)
     @Get(uris = {"/"})
     public HttpResponse<Page<AttributeModelResponseDTO.AttributeModelDTO>> getAll(Pageable pageable) {
-        Page<AttributeModelResponseDTO.AttributeModelDTO> models = attributeService.getAllAttributes(pageable);
+        Page<AttributeModelResponseDTO.AttributeModelDTO> models = attributeService.getAll(pageable);
         return HttpResponse.ok(models);
     }
 }

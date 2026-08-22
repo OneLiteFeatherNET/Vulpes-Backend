@@ -77,7 +77,7 @@ public class SoundController {
     public HttpResponse<SoundResponseDTO> add(
             @Body SoundEventDTO dtoModel
     ) {
-        SoundResponseDTO result = soundService.createSoundEvent(dtoModel);
+        SoundResponseDTO result = soundService.create(dtoModel);
         if (result instanceof SoundResponseDTO.SoundErrorDTO) {
             return HttpResponse.badRequest(result);
         }
@@ -109,7 +109,7 @@ public class SoundController {
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<SoundResponseDTO> getById(@PathVariable UUID id) {
-        var soundEvent = soundService.findSoundEventById(id);
+        var soundEvent = soundService.findById(id);
         if (soundEvent.isPresent()) {
             return HttpResponse.ok(SoundResponseDTO.SoundModelDTO.createDTO(soundEvent.get()));
         }
@@ -141,7 +141,7 @@ public class SoundController {
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<SoundResponseDTO> remove(@PathVariable UUID id) {
-        SoundResponseDTO result = soundService.deleteSoundEvent(id);
+        SoundResponseDTO result = soundService.delete(id);
         if (result instanceof SoundResponseDTO.SoundErrorDTO) {
             return HttpResponse.notFound(result);
         }
@@ -176,7 +176,7 @@ public class SoundController {
     @Get("/")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<SoundResponseDTO.SoundModelDTO>> getAll(Pageable pageable) {
-        Page<SoundResponseDTO.SoundModelDTO> returnValues = soundService.getAllSoundEvents(pageable);
+        Page<SoundResponseDTO.SoundModelDTO> returnValues = soundService.getAll(pageable);
         return HttpResponse.ok(returnValues);
     }
 
@@ -197,7 +197,7 @@ public class SoundController {
     @Delete("/delete/")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<List<SoundResponseDTO>> deleteAll() {
-        List<SoundResponseDTO> results = soundService.deleteAllSoundEvents();
+        List<SoundResponseDTO> results = soundService.deleteAll();
         return HttpResponse.ok(results);
     }
 
@@ -227,7 +227,7 @@ public class SoundController {
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<SoundResponseDTO> update(@Body SoundEventDTO model) {
-        SoundResponseDTO result = soundService.updateSoundEvent(model);
+        SoundResponseDTO result = soundService.update(model);
         if (result instanceof SoundResponseDTO.SoundErrorDTO) {
             return HttpResponse.notFound(result);
         }
