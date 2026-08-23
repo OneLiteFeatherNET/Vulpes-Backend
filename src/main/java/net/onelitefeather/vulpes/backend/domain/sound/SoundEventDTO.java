@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
@@ -61,9 +62,10 @@ public record SoundEventDTO(
     /**
      * Converts this DTO to a {@link SoundEventEntity}.
      *
+     * @param project the project this sound event belongs to
      * @return a new {@link SoundEventEntity} instance with the data from this DTO
      */
-    public @NotNull SoundEventEntity toEntity() {
+    public @NotNull SoundEventEntity toEntity(ProjectEntity project) {
         return new SoundEventEntity(
                 id,
                 uiName,
@@ -71,7 +73,8 @@ public record SoundEventDTO(
                 keyName,
                 false,
                 subTitle,
-                List.of()
+                List.of(),
+                project
         );
     }
 }

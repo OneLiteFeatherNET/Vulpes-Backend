@@ -7,6 +7,7 @@ import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.api.repository.FontRepository;
+import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.api.repository.font.FontStringRepository;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO;
@@ -28,12 +29,15 @@ public class FontServiceImpl
     private final FontStringRepository fontStringRepository;
 
     @Inject
-    public FontServiceImpl(FontRepository fontRepository, FontStringRepository fontStringRepository) {
+    public FontServiceImpl(FontRepository fontRepository, FontStringRepository fontStringRepository, ProjectRepository projectRepository) {
         super(
                 fontRepository,
+                projectRepository,
                 FontModelDTO::toFontModel,
                 FontModelResponseDTO.FontModelDTO::createDTOWithChars,
                 FontModelResponseDTO.FontModelDTO::createDTO,
+                entity -> entity.getProject().getId(),
+                fontRepository::findByProjectId,
                 FontModelDTO::id,
                 FontModelResponseDTO.FontModelErrorDTO::new,
                 "Font"

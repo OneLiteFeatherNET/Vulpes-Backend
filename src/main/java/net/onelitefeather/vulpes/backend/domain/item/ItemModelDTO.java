@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
+import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
@@ -56,18 +57,21 @@ public record ItemModelDTO(
         String groupName,
         @Schema(description = "Integer which refers to the customModelData index", requiredMode = Schema.RequiredMode.REQUIRED)
         @PositiveOrZero
-        int customModelData,
+        @Nullable
+        Integer customModelData,
         @Schema(description = "The amount of the item", requiredMode = Schema.RequiredMode.REQUIRED)
         @Positive
-        int amount
+        @Nullable
+        Integer amount
 ) {
 
     /**
      * Converts this DTO to an {@link ItemEntity}.
      *
+     * @param project the project this item belongs to
      * @return a new {@link ItemEntity} instance with the data from this DTO
      */
-    public @NotNull ItemEntity toItemEntity() {
+    public @NotNull ItemEntity toItemEntity(ProjectEntity project) {
         return new ItemEntity(
                 this.id,
                 uiName,
@@ -76,11 +80,12 @@ public record ItemModelDTO(
                 displayName,
                 material,
                 groupName,
-                customModelData,
-                amount,
+                customModelData != null ? customModelData : 0,
+                amount != null ? amount : 1,
                 List.of(),
                 List.of(),
-                List.of()
+                List.of(),
+                project
         );
     }
 }

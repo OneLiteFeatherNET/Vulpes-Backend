@@ -11,15 +11,6 @@ import java.util.UUID;
 @Serdeable
 public interface AttributeModelResponseDTO {
 
-    /**
-     * The {@link AttributeModelDTO} is used to represent an attribute model in the system.
-     *
-     * @param id           the unique identifier of the attribute model
-     * @param uiName       the name to display in the UI
-     * @param variableName the name used for variable generation
-     * @param defaultValue the default value of the attribute
-     * @param maximumValue the maximum value of the attribute
-     */
     @Schema(
             name = "ResponseAttributeModelDTO",
             description = "Attribute Model Data"
@@ -30,7 +21,8 @@ public interface AttributeModelResponseDTO {
             @Schema(description = "The name for the ui") String uiName,
             @Schema(description = "The name which represents the variable after the generation") String variableName,
             @Schema(description = "Default value of the attribute") double defaultValue,
-            @Schema(description = "Maximum value of the attribute") double maximumValue
+            @Schema(description = "Maximum value of the attribute") double maximumValue,
+            @Schema(description = "ID of the project this attribute belongs to") UUID projectId
     ) implements AttributeModelResponseDTO {
 
         /**
@@ -45,7 +37,8 @@ public interface AttributeModelResponseDTO {
                     model.getUiName(),
                     model.getVariableName(),
                     model.getDefaultValue(),
-                    model.getMaximumValue()
+                    model.getMaximumValue(),
+                    model.getProject().getId()
             );
         }
     }

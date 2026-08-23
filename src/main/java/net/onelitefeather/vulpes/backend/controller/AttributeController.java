@@ -26,7 +26,7 @@ import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 import java.util.List;
 import java.util.UUID;
 
-@Controller("/attribute")
+@Controller("/project/{projectId}/attribute")
 public class AttributeController {
 
     private final AttributeService attributeService;
@@ -39,7 +39,7 @@ public class AttributeController {
     @Operation(
             summary = "Add a new attribute",
             operationId = "addAttribute",
-            description = "Adds a new attribute to the database. The attribute is created with the given properties.",
+            description = "Adds a new attribute to the given project.",
             tags = {"Attribute"}
     )
     @ApiResponse(
@@ -51,8 +51,8 @@ public class AttributeController {
             )
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "The attribute could not be added to the database.",
+            responseCode = "404",
+            description = "The project was not found.",
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
@@ -60,15 +60,18 @@ public class AttributeController {
     )
     @Post
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<AttributeModelResponseDTO> add(@Body AttributeModelDTO model) {
-        AttributeModelResponseDTO.AttributeModelDTO createdAttribute = attributeService.create(model);
-        return HttpResponse.ok(createdAttribute);
+    public HttpResponse<AttributeModelResponseDTO> add(@PathVariable UUID projectId, @Body AttributeModelDTO model) {
+        AttributeModelResponseDTO result = attributeService.create(projectId, model);
+        if (result instanceof AttributeModelResponseDTO.AttributeModelErrorDTO) {
+            return HttpResponse.notFound(result);
+        }
+        return HttpResponse.ok(result);
     }
 
     @Operation(
             summary = "Update an attribute",
             operationId = "updateAttribute",
-            description = "Returns the attribute with the given ID.",
+            description = "Updates an attribute owned by the given project.",
             tags = {"Attribute"}
     )
     @ApiResponse(
@@ -81,7 +84,7 @@ public class AttributeController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "The attribute was not found.",
+            description = "The attribute was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
@@ -89,8 +92,8 @@ public class AttributeController {
     )
     @Post("/update")
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<AttributeModelResponseDTO> update(@Body AttributeModelDTO model) {
-        AttributeModelResponseDTO result = attributeService.update(model);
+    public HttpResponse<AttributeModelResponseDTO> update(@PathVariable UUID projectId, @Body AttributeModelDTO model) {
+        AttributeModelResponseDTO result = attributeService.update(projectId, model);
         if (result instanceof AttributeModelResponseDTO.AttributeModelErrorDTO) {
             return HttpResponse.notFound(result);
         }
@@ -100,7 +103,7 @@ public class AttributeController {
     @Operation(
             summary = "Delete an attribute by ID",
             operationId = "deleteAttributeById",
-            description = "Deletes the attribute with the given ID.",
+            description = "Deletes an attribute owned by the given project.",
             tags = {"Attribute"}
     )
     @ApiResponse(
@@ -113,15 +116,15 @@ public class AttributeController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "The attribute was not found.",
+            description = "The attribute was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
             )
     )
     @Delete("/delete/{id}")
-    public HttpResponse<AttributeModelResponseDTO> delete(@PathVariable UUID id) {
-        AttributeModelResponseDTO result = attributeService.delete(id);
+    public HttpResponse<AttributeModelResponseDTO> delete(@PathVariable UUID projectId, @PathVariable UUID id) {
+        AttributeModelResponseDTO result = attributeService.delete(projectId, id);
         if (result instanceof AttributeModelResponseDTO.AttributeModelErrorDTO) {
             return HttpResponse.notFound(result);
         }
@@ -129,14 +132,14 @@ public class AttributeController {
     }
 
     /**
-     * Deletes all [AttributeModel] from the database.
+     * Deletes all [AttributeModel] belonging to the given project.
      *
-     * @return a list with all [AttributeModel] mapped in a [HttpResponse]
+     * @return a list with all deleted [AttributeModel] mapped in a [HttpResponse]
      */
     @Operation(
             summary = "Delete all attributes",
             operationId = "deleteAllAttributes",
-            description = "Deletes all attributes from the database.",
+            description = "Deletes all attributes belonging to the given project.",
             tags = {"Attribute"}
     )
     @ApiResponse(
@@ -148,20 +151,20 @@ public class AttributeController {
             )
     )
     @Delete("/delete")
-    public HttpResponse<List<AttributeModelResponseDTO>> deleteAll() {
-        List<AttributeModelResponseDTO> result = attributeService.deleteAll();
+    public HttpResponse<List<AttributeModelResponseDTO>> deleteAll(@PathVariable UUID projectId) {
+        List<AttributeModelResponseDTO> result = attributeService.deleteAll(projectId);
         return HttpResponse.ok(result);
     }
 
     /**
-     * Returns all [AttributeModel] which are currently persists in the database.
+     * Returns all [AttributeModel] belonging to the given project.
      *
      * @return a list with all [AttributeModel] mapped in a [HttpResponse]
      */
     @Operation(
             summary = "Get all attributes",
             operationId = "getAllAttributes",
-            description = "Gets all attributes from the database.",
+            description = "Gets all attributes belonging to the given project.",
             tags = {"Attribute"}
     )
     @ApiResponse(
@@ -177,8 +180,8 @@ public class AttributeController {
     )
     @Produces(MediaType.APPLICATION_JSON)
     @Get(uris = {"/"})
-    public HttpResponse<Page<AttributeModelResponseDTO.AttributeModelDTO>> getAll(Pageable pageable) {
-        Page<AttributeModelResponseDTO.AttributeModelDTO> models = attributeService.getAll(pageable);
+    public HttpResponse<Page<AttributeModelResponseDTO.AttributeModelDTO>> getAll(@PathVariable UUID projectId, Pageable pageable) {
+        Page<AttributeModelResponseDTO.AttributeModelDTO> models = attributeService.getAll(projectId, pageable);
         return HttpResponse.ok(models);
     }
 }

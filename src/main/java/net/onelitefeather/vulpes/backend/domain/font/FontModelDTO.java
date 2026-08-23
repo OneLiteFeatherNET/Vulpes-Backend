@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.PositiveOrZero;
 import net.onelitefeather.vulpes.api.model.FontEntity;
+import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Create;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Update;
 
@@ -51,9 +52,10 @@ public record FontModelDTO(
     /**
      * Converts a {@link FontModelDTO} to a {@link FontEntity}.
      *
+     * @param project the project this font belongs to
      * @return the converted entity
      */
-    public @NotNull FontEntity toFontModel() {
+    public @NotNull FontEntity toFontModel(ProjectEntity project) {
         return new FontEntity(
                 id,
                 uiName,
@@ -63,7 +65,8 @@ public record FontModelDTO(
                 comment,
                 height,
                 ascent,
-                List.of()
+                List.of(),
+                project
         );
     }
 }

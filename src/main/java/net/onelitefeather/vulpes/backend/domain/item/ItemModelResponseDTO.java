@@ -32,6 +32,7 @@ public sealed interface ItemModelResponseDTO {
      * @param enchantments    the map of enchantment names and their levels
      * @param lore            the list of text lines displayed in the item tooltip
      * @param flags           the list of item flags that modify item behavior
+     * @param projectId       the ID of the project this item belongs to
      */
     @Schema(
             name = "ResponseItemModelDTO",
@@ -50,7 +51,8 @@ public sealed interface ItemModelResponseDTO {
             @Schema(description = "Quantity of the item") int amount,
             @Schema(description = "Map of enchantment names and their levels") Map<String, Short> enchantments,
             @Schema(description = "List of text lines displayed in the item tooltip") List<String> lore,
-            @Schema(description = "List of item flags that modify item behavior") List<String> flags
+            @Schema(description = "List of item flags that modify item behavior") List<String> flags,
+            @Schema(description = "ID of the project this item belongs to") UUID projectId
     ) implements ItemModelResponseDTO {
 
         /**
@@ -72,7 +74,8 @@ public sealed interface ItemModelResponseDTO {
                     itemEntity.getAmount(),
                     Collections.emptyMap(),
                     Collections.emptyList(),
-                    Collections.emptyList()
+                    Collections.emptyList(),
+                    itemEntity.getProject().getId()
             );
         }
     }

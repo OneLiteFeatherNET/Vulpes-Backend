@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
+import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.api.repository.SoundFileSourceRepository;
 import net.onelitefeather.vulpes.api.repository.SoundRepository;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
@@ -32,13 +33,17 @@ public class SoundServiceImpl
      *
      * @param soundRepository           the repository to manage sound events
      * @param soundFileSourceRepository the repository to manage sound file sources
+     * @param projectRepository         the repository to manage projects
      */
     @Inject
-    public SoundServiceImpl(SoundRepository soundRepository, SoundFileSourceRepository soundFileSourceRepository) {
+    public SoundServiceImpl(SoundRepository soundRepository, SoundFileSourceRepository soundFileSourceRepository, ProjectRepository projectRepository) {
         super(
                 soundRepository,
+                projectRepository,
                 SoundEventDTO::toEntity,
                 SoundResponseDTO.SoundModelDTO::createDTO,
+                entity -> entity.getProject().getId(),
+                soundRepository::findByProjectId,
                 SoundEventDTO::id,
                 SoundResponseDTO.SoundErrorDTO::new,
                 "Sound event"

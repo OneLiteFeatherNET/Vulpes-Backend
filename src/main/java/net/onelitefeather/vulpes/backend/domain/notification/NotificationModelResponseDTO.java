@@ -21,6 +21,7 @@ public sealed interface NotificationModelResponseDTO {
      * @param material     the material type of the notification
      * @param frameType    the frame type of the notification
      * @param title        the title of the notification
+     * @param projectId    the ID of the project this notification belongs to
      */
     @Schema(
             name = "ResponseNotificationModelDTO",
@@ -34,7 +35,8 @@ public sealed interface NotificationModelResponseDTO {
             @Schema(description = "Description of the Notification") String comment,
             @Schema(description = "Material type of the Notification") String material,
             @Schema(description = "Frame type of the Notification") String frameType,
-            @Schema(description = "Title of the Notification") String title
+            @Schema(description = "Title of the Notification") String title,
+            @Schema(description = "ID of the project this notification belongs to") UUID projectId
     ) implements NotificationModelResponseDTO {
 
         /**
@@ -51,7 +53,8 @@ public sealed interface NotificationModelResponseDTO {
                     notificationModel.getComment(),
                     notificationModel.getMaterial(),
                     notificationModel.getFrameType(),
-                    notificationModel.getTitle()
+                    notificationModel.getTitle(),
+                    notificationModel.getProject().getId()
             );
         }
     }

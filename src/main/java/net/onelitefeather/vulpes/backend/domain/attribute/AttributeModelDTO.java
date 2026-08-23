@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import net.onelitefeather.vulpes.api.model.AttributeEntity;
+import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 
 import java.util.UUID;
 
@@ -37,9 +38,10 @@ public record AttributeModelDTO(
     /**
      * Converts the dto class to a {@link AttributeEntity}.
      *
+     * @param project the project this attribute belongs to
      * @return the created entity
      */
-    public @NotNull AttributeEntity toAttributeModel() {
-        return new AttributeEntity(id, uiName, variableName, defaultValue, maximumValue);
+    public @NotNull AttributeEntity toAttributeModel(ProjectEntity project) {
+        return new AttributeEntity(id, uiName, variableName, defaultValue, maximumValue, project);
     }
 }

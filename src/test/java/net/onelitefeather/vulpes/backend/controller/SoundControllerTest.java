@@ -63,6 +63,36 @@ class SoundControllerTest {
         }
 
         @Override
+        public SoundResponseDTO create(UUID projectId, SoundEventDTO soundEventDTO) {
+            return response;
+        }
+
+        @Override
+        public SoundResponseDTO update(UUID projectId, SoundEventDTO soundEventDTO) {
+            return response;
+        }
+
+        @Override
+        public SoundResponseDTO delete(UUID projectId, UUID id) {
+            return response;
+        }
+
+        @Override
+        public List<SoundResponseDTO> deleteAll(UUID projectId) {
+            return List.of();
+        }
+
+        @Override
+        public Page<SoundResponseDTO.SoundModelDTO> getAll(UUID projectId, Pageable pageable) {
+            return modelDtoPage;
+        }
+
+        @Override
+        public Optional<SoundEventEntity> findById(UUID projectId, UUID id) {
+            return findByIdResponse;
+        }
+
+        @Override
         public Page<SoundResponseDTO> getSoundSourcesById(UUID id, Pageable pageable) {
             return sourcesPage;
         }
@@ -83,6 +113,10 @@ class SoundControllerTest {
         }
     }
 
+    private static net.onelitefeather.vulpes.api.model.project.ProjectEntity sampleProject(UUID id) {
+        return new net.onelitefeather.vulpes.api.model.project.ProjectEntity(id, "Test Project", "test-project", null, null, null, false);
+    }
+
     private static SoundEventDTO sampleEventDTO(UUID id) {
         String uiName = FAKER.rockBand().name();
         String varName = FAKER.internet().slug();
@@ -94,13 +128,14 @@ class SoundControllerTest {
     @Test
     void testAdd_returnsOk() {
         StubSoundService stub = new StubSoundService();
+        UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
         SoundEventDTO dto = sampleEventDTO(id);
-        SoundResponseDTO.SoundModelDTO expected = SoundResponseDTO.SoundModelDTO.createDTO(dto.toEntity());
+        SoundResponseDTO.SoundModelDTO expected = SoundResponseDTO.SoundModelDTO.createDTO(dto.toEntity(sampleProject(projectId)));
         stub.response = expected;
 
         SoundController controller = new SoundController(stub);
-        HttpResponse<SoundResponseDTO> resp = controller.add(dto);
+        HttpResponse<SoundResponseDTO> resp = controller.add(projectId, dto);
 
         assertEquals(200, resp.getStatus().getCode());
         assertInstanceOf(SoundResponseDTO.SoundModelDTO.class, resp.body());
@@ -112,12 +147,13 @@ class SoundControllerTest {
     @Test
     void testGetById_found_returnsOk() {
         StubSoundService stub = new StubSoundService();
+        UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
-        SoundEventEntity entity = sampleEventDTO(id).toEntity();
+        SoundEventEntity entity = sampleEventDTO(id).toEntity(sampleProject(projectId));
         stub.findByIdResponse = Optional.of(entity);
         SoundController controller = new SoundController(stub);
 
-        HttpResponse<SoundResponseDTO> resp = controller.getById(id);
+        HttpResponse<SoundResponseDTO> resp = controller.getById(projectId, id);
         assertEquals(200, resp.getStatus().getCode());
         assertInstanceOf(SoundResponseDTO.SoundModelDTO.class, resp.body());
         SoundResponseDTO.SoundModelDTO body = (SoundResponseDTO.SoundModelDTO) resp.body();
@@ -130,7 +166,7 @@ class SoundControllerTest {
         stub.findByIdResponse = Optional.empty();
         SoundController controller = new SoundController(stub);
 
-        HttpResponse<SoundResponseDTO> resp = controller.getById(UUID.randomUUID());
+        HttpResponse<SoundResponseDTO> resp = controller.getById(UUID.randomUUID(), UUID.randomUUID());
         assertEquals(404, resp.getStatus().getCode());
         assertInstanceOf(SoundResponseDTO.SoundErrorDTO.class, resp.body());
     }
@@ -141,7 +177,7 @@ class SoundControllerTest {
         stub.response = new SoundResponseDTO.SoundErrorDTO("Sound event not found");
         SoundController controller = new SoundController(stub);
 
-        HttpResponse<SoundResponseDTO> resp = controller.remove(UUID.randomUUID());
+        HttpResponse<SoundResponseDTO> resp = controller.remove(UUID.randomUUID(), UUID.randomUUID());
         assertEquals(404, resp.getStatus().getCode());
     }
 

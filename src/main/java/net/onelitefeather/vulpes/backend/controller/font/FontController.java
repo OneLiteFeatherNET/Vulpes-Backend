@@ -30,7 +30,7 @@ import java.util.UUID;
 
 import static net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO.*;
 
-@Controller("/font")
+@Controller("/project/{projectId}/font")
 public class FontController {
 
     private final FontService fontService;
@@ -43,7 +43,7 @@ public class FontController {
     @Operation(
             summary = "Add a new font",
             operationId = "addFont",
-            description = "Adds a new font to the database. The font is created with the given properties.",
+            description = "Adds a new font to the given project.",
             tags = {"Font"}
     )
     @ApiResponse(
@@ -55,8 +55,8 @@ public class FontController {
             )
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "The font could not be added to the database.",
+            responseCode = "404",
+            description = "The project was not found.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = FontModelErrorDTO.class)
@@ -65,17 +65,18 @@ public class FontController {
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<FontModelResponseDTO> add(
-            @Body FontModelDTO item
-    ) {
-        FontModelResponseDTO.FontModelDTO result = fontService.create(item);
+    public HttpResponse<FontModelResponseDTO> add(@PathVariable UUID projectId, @Body FontModelDTO item) {
+        FontModelResponseDTO result = fontService.create(projectId, item);
+        if (result instanceof FontModelErrorDTO) {
+            return HttpResponse.notFound(result);
+        }
         return HttpResponse.ok(result);
     }
 
     @Operation(
             summary = "Get a font by ID",
             operationId = "getFontById",
-            description = "Gets a font by ID from the database.",
+            description = "Gets a font owned by the given project by ID.",
             tags = {"Font"}
     )
     @ApiResponse(
@@ -88,7 +89,7 @@ public class FontController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "The font was not found in the database.",
+            description = "The font was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = FontModelErrorDTO.class)
@@ -96,8 +97,8 @@ public class FontController {
     )
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<FontModelResponseDTO> getById(@PathVariable UUID id) {
-        Optional<FontEntity> model = fontService.findById(id);
+    public HttpResponse<FontModelResponseDTO> getById(@PathVariable UUID projectId, @PathVariable UUID id) {
+        Optional<FontEntity> model = fontService.findById(projectId, id);
         if (model.isPresent()) {
             FontEntity fontModel = model.get();
             FontModelResponseDTO.FontModelDTO dto = FontModelResponseDTO.FontModelDTO.createDTO(fontModel);
@@ -109,7 +110,7 @@ public class FontController {
     @Operation(
             summary = "Remove a font by ID",
             operationId = "deleteFont",
-            description = "Removes a font by ID from the database.",
+            description = "Removes a font owned by the given project by ID.",
             tags = {"Font"}
     )
     @ApiResponse(
@@ -122,7 +123,7 @@ public class FontController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "The font was not found in the database.",
+            description = "The font was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = FontModelErrorDTO.class)
@@ -130,8 +131,8 @@ public class FontController {
     )
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<FontModelResponseDTO> remove(@PathVariable UUID id) {
-        FontModelResponseDTO result = fontService.delete(id);
+    public HttpResponse<FontModelResponseDTO> remove(@PathVariable UUID projectId, @PathVariable UUID id) {
+        FontModelResponseDTO result = fontService.delete(projectId, id);
         if (result instanceof FontModelResponseDTO.FontModelErrorDTO) {
             return HttpResponse.notFound(result);
         }
@@ -141,7 +142,7 @@ public class FontController {
     @Operation(
             summary = "Get all fonts",
             operationId = "getAllFonts",
-            description = "Gets all fonts from the database.",
+            description = "Gets all fonts belonging to the given project.",
             tags = {"Font"}
     )
     @ApiResponse(
@@ -157,15 +158,15 @@ public class FontController {
     )
     @Get(uris = {"/"})
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<FontModelResponseDTO.FontModelDTO>> getAll(Pageable pageable) {
-        Page<FontModelResponseDTO.FontModelDTO> models = fontService.getAll(pageable);
+    public HttpResponse<Page<FontModelResponseDTO.FontModelDTO>> getAll(@PathVariable UUID projectId, Pageable pageable) {
+        Page<FontModelResponseDTO.FontModelDTO> models = fontService.getAll(projectId, pageable);
         return HttpResponse.ok(models);
     }
 
     @Operation(
             summary = "Delete all fonts",
             operationId = "deleteAllFonts",
-            description = "Deletes all fonts from the database.",
+            description = "Deletes all fonts belonging to the given project.",
             tags = {"Font"}
     )
     @ApiResponse(
@@ -178,8 +179,8 @@ public class FontController {
     )
     @Delete("delete")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<List<FontModelResponseDTO>> deleteAll() {
-        List<FontModelResponseDTO> result = fontService.deleteAll();
+    public HttpResponse<List<FontModelResponseDTO>> deleteAll(@PathVariable UUID projectId) {
+        List<FontModelResponseDTO> result = fontService.deleteAll(projectId);
         return HttpResponse.ok(result);
     }
 }
