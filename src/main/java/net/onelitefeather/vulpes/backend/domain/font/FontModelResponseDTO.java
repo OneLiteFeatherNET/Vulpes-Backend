@@ -22,6 +22,7 @@ public sealed interface FontModelResponseDTO {
      * @param comment      an example comment for the font model
      * @param ascent       the ascent value of the font model
      * @param height       the height of the font model
+     * @param projectId    the ID of the project this font belongs to
      */
     @Schema(name = "ResponseFontModelDTO", description = "Font model data")
     @Serdeable
@@ -34,7 +35,8 @@ public sealed interface FontModelResponseDTO {
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) String texturePath,
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) String comment,
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) int ascent,
-            @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) int height
+            @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) int height,
+            @Schema(description = "ID of the project this font belongs to", requiredMode = Schema.RequiredMode.REQUIRED) UUID projectId
     ) implements FontModelResponseDTO {
 
         /**
@@ -53,7 +55,8 @@ public sealed interface FontModelResponseDTO {
                     fontModel.getTexturePath(),
                     fontModel.getComment(),
                     fontModel.getAscent(),
-                    fontModel.getHeight()
+                    fontModel.getHeight(),
+                    fontModel.getProject().getId()
             );
         }
 
@@ -64,17 +67,7 @@ public sealed interface FontModelResponseDTO {
          * @return a new dto instance with characters
          */
         public static FontModelDTO createDTOWithChars(FontEntity fontModel) {
-            return new FontModelDTO(
-                    fontModel.getId(),
-                    fontModel.getUiName(),
-                    fontModel.getVariableName(),
-                    fontModel.getProvider(),
-                    fontModel.getMapper(),
-                    fontModel.getTexturePath(),
-                    fontModel.getComment(),
-                    fontModel.getAscent(),
-                    fontModel.getHeight()
-            );
+            return createDTO(fontModel);
         }
     }
 

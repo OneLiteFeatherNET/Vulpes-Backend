@@ -33,17 +33,12 @@ import java.util.UUID;
  * @version 1.0.0
  * @since 0.1.0
  */
-@Controller("/sound")
+@Controller("/project/{projectId}/sound")
 public class SoundController {
 
     private static final String GENERIC_ERROR = "Sound event not found";
     private final SoundService soundService;
 
-    /**
-     * Constructs a new {@link SoundController} with the specified {@link SoundService}.
-     *
-     * @param soundService the service to manage sound events
-     */
     @Inject
     public SoundController(SoundService soundService) {
         this.soundService = soundService;
@@ -52,7 +47,7 @@ public class SoundController {
     @Operation(
             summary = "Add a new sound event",
             operationId = "addSoundEvent",
-            description = "Adds a new sound event to the database. The sound event is created with the given properties.",
+            description = "Adds a new sound event to the given project.",
             tags = {"Sound"}
     )
     @ApiResponse(
@@ -64,8 +59,8 @@ public class SoundController {
             )
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "The sound event could not be added to the database.",
+            responseCode = "404",
+            description = "The project was not found.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
@@ -74,10 +69,8 @@ public class SoundController {
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<SoundResponseDTO> add(
-            @Body SoundEventDTO dtoModel
-    ) {
-        SoundResponseDTO result = soundService.create(dtoModel);
+    public HttpResponse<SoundResponseDTO> add(@PathVariable UUID projectId, @Body SoundEventDTO dtoModel) {
+        SoundResponseDTO result = soundService.create(projectId, dtoModel);
         if (result instanceof SoundResponseDTO.SoundErrorDTO) {
             return HttpResponse.badRequest(result);
         }
@@ -87,7 +80,7 @@ public class SoundController {
     @Operation(
             summary = "Get a sound by its ID",
             operationId = "getSoundById",
-            description = "Retrieves a sound from the database by its ID.",
+            description = "Retrieves a sound owned by the given project by its ID.",
             tags = {"Sound"}
     )
     @ApiResponse(
@@ -100,7 +93,7 @@ public class SoundController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "The sound was not found in the database.",
+            description = "The sound was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
@@ -108,8 +101,8 @@ public class SoundController {
     )
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<SoundResponseDTO> getById(@PathVariable UUID id) {
-        var soundEvent = soundService.findById(id);
+    public HttpResponse<SoundResponseDTO> getById(@PathVariable UUID projectId, @PathVariable UUID id) {
+        var soundEvent = soundService.findById(projectId, id);
         if (soundEvent.isPresent()) {
             return HttpResponse.ok(SoundResponseDTO.SoundModelDTO.createDTO(soundEvent.get()));
         }
@@ -119,7 +112,7 @@ public class SoundController {
     @Operation(
             summary = "Remove a sound event by ID",
             operationId = "removeSoundEventById",
-            description = "Removes a sound event from the database by its ID.",
+            description = "Removes a sound event owned by the given project by its ID.",
             tags = {"Sound"}
     )
     @ApiResponse(
@@ -132,7 +125,7 @@ public class SoundController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "The sound event was not found in the database.",
+            description = "The sound event was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
@@ -140,8 +133,8 @@ public class SoundController {
     )
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<SoundResponseDTO> remove(@PathVariable UUID id) {
-        SoundResponseDTO result = soundService.delete(id);
+    public HttpResponse<SoundResponseDTO> remove(@PathVariable UUID projectId, @PathVariable UUID id) {
+        SoundResponseDTO result = soundService.delete(projectId, id);
         if (result instanceof SoundResponseDTO.SoundErrorDTO) {
             return HttpResponse.notFound(result);
         }
@@ -151,7 +144,7 @@ public class SoundController {
     @Operation(
             summary = "Get all sound events",
             operationId = "getAllSoundEvents",
-            description = "Retrieves all sound events from the database.",
+            description = "Retrieves all sound events belonging to the given project.",
             tags = {"Sound"}
     )
     @ApiResponse(
@@ -165,25 +158,17 @@ public class SoundController {
                     )
             )
     )
-    @ApiResponse(
-            responseCode = "404",
-            description = "No sound events were found in the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
-            )
-    )
     @Get("/")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<SoundResponseDTO.SoundModelDTO>> getAll(Pageable pageable) {
-        Page<SoundResponseDTO.SoundModelDTO> returnValues = soundService.getAll(pageable);
+    public HttpResponse<Page<SoundResponseDTO.SoundModelDTO>> getAll(@PathVariable UUID projectId, Pageable pageable) {
+        Page<SoundResponseDTO.SoundModelDTO> returnValues = soundService.getAll(projectId, pageable);
         return HttpResponse.ok(returnValues);
     }
 
     @Operation(
             summary = "Delete all sound events",
             operationId = "deleteAllSoundEvents",
-            description = "Deletes all sound events from the database.",
+            description = "Deletes all sound events belonging to the given project.",
             tags = {"Sound"}
     )
     @ApiResponse(
@@ -196,15 +181,15 @@ public class SoundController {
     )
     @Delete("/delete/")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<List<SoundResponseDTO>> deleteAll() {
-        List<SoundResponseDTO> results = soundService.deleteAll();
+    public HttpResponse<List<SoundResponseDTO>> deleteAll(@PathVariable UUID projectId) {
+        List<SoundResponseDTO> results = soundService.deleteAll(projectId);
         return HttpResponse.ok(results);
     }
 
     @Operation(
             summary = "Update a sound event",
             operationId = "updateSoundEvent",
-            description = "Updates an existing sound event in the database.",
+            description = "Updates a sound event owned by the given project.",
             tags = {"Sound"}
     )
     @ApiResponse(
@@ -217,7 +202,7 @@ public class SoundController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "The sound event was not found in the database.",
+            description = "The sound event was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
@@ -226,8 +211,8 @@ public class SoundController {
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<SoundResponseDTO> update(@Body SoundEventDTO model) {
-        SoundResponseDTO result = soundService.update(model);
+    public HttpResponse<SoundResponseDTO> update(@PathVariable UUID projectId, @Body SoundEventDTO model) {
+        SoundResponseDTO result = soundService.update(projectId, model);
         if (result instanceof SoundResponseDTO.SoundErrorDTO) {
             return HttpResponse.notFound(result);
         }

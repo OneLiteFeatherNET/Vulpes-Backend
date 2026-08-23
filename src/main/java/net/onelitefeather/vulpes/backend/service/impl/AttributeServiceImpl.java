@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import net.onelitefeather.vulpes.api.model.AttributeEntity;
 import net.onelitefeather.vulpes.api.repository.AttributeRepository;
+import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
 import net.onelitefeather.vulpes.backend.service.AttributeService;
@@ -19,11 +20,14 @@ public class AttributeServiceImpl
         implements AttributeService {
 
     @Inject
-    public AttributeServiceImpl(AttributeRepository attributeRepository) {
+    public AttributeServiceImpl(AttributeRepository attributeRepository, ProjectRepository projectRepository) {
         super(
                 attributeRepository,
+                projectRepository,
                 AttributeModelDTO::toAttributeModel,
                 AttributeModelResponseDTO.AttributeModelDTO::create,
+                entity -> entity.getProject().getId(),
+                attributeRepository::findByProjectId,
                 AttributeModelDTO::id,
                 AttributeModelResponseDTO.AttributeModelErrorDTO::new,
                 "Attribute"

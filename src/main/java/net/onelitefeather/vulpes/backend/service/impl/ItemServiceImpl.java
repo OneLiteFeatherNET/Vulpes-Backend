@@ -9,6 +9,7 @@ import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemLoreEntity;
 import net.onelitefeather.vulpes.api.repository.ItemRepository;
+import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemFlagRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemLoreRepository;
@@ -43,11 +44,15 @@ public class ItemServiceImpl
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemEnchantmentRepository itemEnchantmentRepository,
                            ItemLoreRepository itemLoreRepository,
-                           ItemFlagRepository itemFlagRepository) {
+                           ItemFlagRepository itemFlagRepository,
+                           ProjectRepository projectRepository) {
         super(
                 itemRepository,
+                projectRepository,
                 ItemModelDTO::toItemEntity,
                 ItemModelResponseDTO.ItemModelDTO::createDTO,
+                entity -> entity.getProject().getId(),
+                itemRepository::findByProjectId,
                 ItemModelDTO::id,
                 ItemModelResponseDTO.ItemModelErrorDTO::new,
                 "Item"

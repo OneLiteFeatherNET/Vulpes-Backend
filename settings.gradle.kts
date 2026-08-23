@@ -48,7 +48,7 @@ dependencyResolutionManagement {
             library("vulpes.api", "net.onelitefeather", "vulpes-model").versionRef("vulpes.model")
             library("jetbrains.annotation", "org.jetbrains", "annotations").versionRef("jetbrains.annotation")
             library("datafaker", "net.datafaker", "datafaker").versionRef("datafaker")
-            library("testcontainers.junit", "org.testcontainers", "junit-jupiter").withoutVersion()
+            library("testcontainers.junit", "org.testcontainers", "testcontainers-junit-jupiter").withoutVersion()
 
             library("hibernate.validator", "org.hibernate.validator", "hibernate-validator").versionRef("hibernate.validator")
             library("jakarta.validation", "jakarta.validation", "jakarta.validation-api").versionRef("jakarta.validation")

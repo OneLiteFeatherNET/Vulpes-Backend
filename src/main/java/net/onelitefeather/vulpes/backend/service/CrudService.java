@@ -5,6 +5,7 @@ import io.micronaut.data.model.Pageable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Generic CRUD service interface providing common persistence operations.
@@ -63,4 +64,57 @@ public interface CrudService<E, ID, REQ, RES, SUCCESS extends RES> {
      * @return an optional containing the entity if present
      */
     Optional<E> findById(ID id);
+
+    /**
+     * Creates a new entity from the given request DTO, scoped to a project.
+     *
+     * @param projectId the identifier of the owning project
+     * @param dto       the request DTO
+     * @return the created entity mapped to the success DTO, or an error DTO if the project does not exist
+     */
+    RES create(UUID projectId, REQ dto);
+
+    /**
+     * Updates an existing entity with the data from the given request DTO, scoped to a project.
+     *
+     * @param projectId the identifier of the owning project
+     * @param dto       the request DTO
+     * @return the updated entity mapped to the success DTO, or an error DTO if not found or not owned by the project
+     */
+    RES update(UUID projectId, REQ dto);
+
+    /**
+     * Deletes an entity by its identifier, scoped to a project.
+     *
+     * @param projectId the identifier of the owning project
+     * @param id        the identifier of the entity to delete
+     * @return the deleted entity mapped to the success DTO, or an error DTO if not found or not owned by the project
+     */
+    RES delete(UUID projectId, ID id);
+
+    /**
+     * Deletes all entities belonging to a project.
+     *
+     * @param projectId the identifier of the owning project
+     * @return an empty list (matching the existing unscoped {@link #deleteAll()} convention)
+     */
+    List<RES> deleteAll(UUID projectId);
+
+    /**
+     * Retrieves all entities belonging to a project, with pagination support.
+     *
+     * @param projectId the identifier of the owning project
+     * @param pageable  pagination details
+     * @return a page of success DTOs belonging to the project
+     */
+    Page<SUCCESS> getAll(UUID projectId, Pageable pageable);
+
+    /**
+     * Finds an entity by its identifier, scoped to a project.
+     *
+     * @param projectId the identifier of the owning project
+     * @param id        the identifier to look for
+     * @return an optional containing the entity if present and owned by the project
+     */
+    Optional<E> findById(UUID projectId, ID id);
 }

@@ -32,7 +32,7 @@ import java.util.UUID;
  * REST controller for item resources.
  * Provides CRUD operations and nested resource management (enchantments, lore, flags).
  */
-@Controller("/item")
+@Controller("/project/{projectId}/item")
 public class ItemController {
 
     private final ItemService itemService;
@@ -45,7 +45,7 @@ public class ItemController {
     @Operation(
             summary = "Create a new item",
             operationId = "addItem",
-            description = "Creates a new item with the provided properties and stores it in the database.",
+            description = "Creates a new item in the given project and stores it in the database.",
             tags = {"Item"}
     )
     @ApiResponse(
@@ -57,8 +57,8 @@ public class ItemController {
             )
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "Item could not be created due to an internal error.",
+            responseCode = "404",
+            description = "The project was not found.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
@@ -68,16 +68,20 @@ public class ItemController {
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<ItemModelResponseDTO> add(
-           @Body ItemModelDTO itemModel
+            @PathVariable UUID projectId,
+            @Body ItemModelDTO itemModel
     ) {
-        ItemModelResponseDTO.ItemModelDTO createdItem = itemService.create(itemModel);
-        return HttpResponse.ok(createdItem);
+        ItemModelResponseDTO result = itemService.create(projectId, itemModel);
+        if (result instanceof ItemModelResponseDTO.ItemModelErrorDTO) {
+            return HttpResponse.notFound(result);
+        }
+        return HttpResponse.ok(result);
     }
 
     @Operation(
             summary = "Get an item by ID",
             operationId = "getItemById",
-            description = "Retrieves a single item from the database by its unique ID (itemId).",
+            description = "Retrieves a single item owned by the given project by its unique ID (itemId).",
             tags = {"Item"}
     )
     @ApiResponse(
@@ -90,7 +94,7 @@ public class ItemController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "Item with the given ID was not found.",
+            description = "Item with the given ID was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
@@ -99,9 +103,10 @@ public class ItemController {
     @Get("/{itemId}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ItemModelResponseDTO> getById(
+            @PathVariable UUID projectId,
             @PathVariable("itemId") UUID itemId
     ) {
-        Optional<ItemEntity> foundItemOpt = itemService.findById(itemId);
+        Optional<ItemEntity> foundItemOpt = itemService.findById(projectId, itemId);
         if (foundItemOpt.isPresent()) {
             var foundItem = foundItemOpt.get();
             return HttpResponse.ok(ItemModelResponseDTO.ItemModelDTO.createDTO(foundItem));
@@ -112,7 +117,7 @@ public class ItemController {
     @Operation(
             summary = "Get all items",
             operationId = "getAllItems",
-            description = "Retrieves a pageable list of all items. Supports standard Micronaut pagination (page, size, sort).",
+            description = "Retrieves a pageable list of all items belonging to the given project. Supports standard Micronaut pagination (page, size, sort).",
             tags = {"Item"}
     )
     @ApiResponse(
@@ -128,15 +133,15 @@ public class ItemController {
     )
     @Get
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<ItemModelResponseDTO.ItemModelDTO>> getAll(Pageable pageable) {
-        Page<ItemModelResponseDTO.ItemModelDTO> itemsPage = itemService.getAll(pageable);
+    public HttpResponse<Page<ItemModelResponseDTO.ItemModelDTO>> getAll(@PathVariable UUID projectId, Pageable pageable) {
+        Page<ItemModelResponseDTO.ItemModelDTO> itemsPage = itemService.getAll(projectId, pageable);
         return HttpResponse.ok(itemsPage);
     }
 
     @Operation(
             summary = "Update an item",
             operationId = "updateItem",
-            description = "Updates an existing item in the database.",
+            description = "Updates an existing item owned by the given project.",
             tags = {"Item"}
     )
     @ApiResponse(
@@ -149,7 +154,7 @@ public class ItemController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "Item was not found and could not be updated.",
+            description = "Item was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
@@ -159,9 +164,10 @@ public class ItemController {
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<ItemModelResponseDTO> update(
+            @PathVariable UUID projectId,
             @Body ItemModelDTO itemModel
     ) {
-        ItemModelResponseDTO updateResult = itemService.update(itemModel);
+        ItemModelResponseDTO updateResult = itemService.update(projectId, itemModel);
         if (updateResult instanceof ItemModelResponseDTO.ItemModelErrorDTO) {
             return HttpResponse.notFound(updateResult);
         }
@@ -171,7 +177,7 @@ public class ItemController {
     @Operation(
             summary = "Remove an item by ID",
             operationId = "removeItemById",
-            description = "Deletes an item from the database by its unique ID (itemId).",
+            description = "Deletes an item owned by the given project by its unique ID (itemId).",
             tags = {"Item"}
     )
     @ApiResponse(
@@ -184,7 +190,7 @@ public class ItemController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "Item with the given ID was not found.",
+            description = "Item with the given ID was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
@@ -192,8 +198,8 @@ public class ItemController {
     )
     @Delete("/delete/{itemId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<ItemModelResponseDTO> delete(@PathVariable("itemId") UUID itemId) {
-        ItemModelResponseDTO deleteResult = itemService.delete(itemId);
+    public HttpResponse<ItemModelResponseDTO> delete(@PathVariable UUID projectId, @PathVariable("itemId") UUID itemId) {
+        ItemModelResponseDTO deleteResult = itemService.delete(projectId, itemId);
         if (deleteResult instanceof ItemModelResponseDTO.ItemModelErrorDTO) {
             return HttpResponse.notFound(deleteResult);
         }
@@ -202,7 +208,7 @@ public class ItemController {
 
     @Operation(
             summary = "Delete all items",
-            description = "Deletes all items from the database.",
+            description = "Deletes all items belonging to the given project.",
             tags = {"Item"}
     )
     @ApiResponse(
@@ -217,8 +223,8 @@ public class ItemController {
     )
     @Delete("/deleteAll")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<List<ItemModelResponseDTO>> deleteAll() {
-        List<ItemModelResponseDTO> deleteResults = itemService.deleteAll();
+    public HttpResponse<List<ItemModelResponseDTO>> deleteAll(@PathVariable UUID projectId) {
+        List<ItemModelResponseDTO> deleteResults = itemService.deleteAll(projectId);
         return HttpResponse.ok(deleteResults);
     }
 }

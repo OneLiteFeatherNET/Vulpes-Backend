@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import net.onelitefeather.vulpes.api.model.NotificationEntity;
+import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import static net.onelitefeather.vulpes.backend.validation.ValidationGroup.*;
@@ -52,9 +53,10 @@ public record NotificationModelDTO(
     /**
      * Converts this DTO to a {@link NotificationEntity}.
      *
+     * @param project the project this notification belongs to
      * @return a new {@link NotificationEntity} instance with the data from this DTO
      */
-    public @NotNull NotificationEntity toNotificationModel() {
+    public @NotNull NotificationEntity toNotificationModel(ProjectEntity project) {
         return new NotificationEntity(
                 this.id,
                 uiName,
@@ -62,7 +64,8 @@ public record NotificationModelDTO(
                 comment,
                 material,
                 frameType,
-                title
+                title,
+                project
         );
     }
 }

@@ -30,7 +30,7 @@ import java.util.UUID;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Controller("/notification")
+@Controller("/project/{projectId}/notification")
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -40,16 +40,10 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    /**
-     * Adds a new notification.
-     *
-     * @param model the notification model to be added
-     * @return HttpResponse containing the added notification
-     */
     @Operation(
             summary = "Add a new notification",
             operationId = "addNotification",
-            description = "Adds a new notification to the database.",
+            description = "Adds a new notification to the given project.",
             tags = {"Notification"}
     )
     @ApiResponse(
@@ -61,8 +55,8 @@ public class NotificationController {
             )
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "The notification could not be added to the database.",
+            responseCode = "404",
+            description = "The project was not found.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelErrorDTO.class)
@@ -71,23 +65,18 @@ public class NotificationController {
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<NotificationModelResponseDTO> add(
-            @Body NotificationModelDTO model
-    ) {
-        NotificationModelResponseDTO.NotificationModelDTO result = notificationService.create(model);
+    public HttpResponse<NotificationModelResponseDTO> add(@PathVariable UUID projectId, @Body NotificationModelDTO model) {
+        NotificationModelResponseDTO result = notificationService.create(projectId, model);
+        if (result instanceof NotificationModelResponseDTO.NotificationModelErrorDTO) {
+            return HttpResponse.notFound(result);
+        }
         return HttpResponse.ok(result);
     }
 
-    /**
-     * Retrieves a notification by its ID.
-     *
-     * @param id the ID of the notification to retrieve
-     * @return HttpResponse containing the notification if found, or not found response
-     */
     @Operation(
             summary = "Get a notification by ID",
             operationId = "getNotificationById",
-            description = "Retrieves a notification from the database by its ID.",
+            description = "Retrieves a notification owned by the given project by its ID.",
             tags = {"Notification"}
     )
     @ApiResponse(
@@ -100,7 +89,7 @@ public class NotificationController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "The notification was not found in the database.",
+            description = "The notification was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelErrorDTO.class)
@@ -108,24 +97,18 @@ public class NotificationController {
     )
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<NotificationModelResponseDTO> getById(@PathVariable UUID id) {
-        Optional<NotificationEntity> model = notificationService.findById(id);
+    public HttpResponse<NotificationModelResponseDTO> getById(@PathVariable UUID projectId, @PathVariable UUID id) {
+        Optional<NotificationEntity> model = notificationService.findById(projectId, id);
         if (model.isPresent()) {
             return HttpResponse.ok(NotificationModelResponseDTO.NotificationModelDTO.createDTO(model.get()));
         }
         return HttpResponse.notFound(new NotificationModelResponseDTO.NotificationModelErrorDTO("Notification not found"));
     }
 
-    /**
-     * Removes a notification by its ID.
-     *
-     * @param id the ID of the notification to remove
-     * @return HttpResponse containing the removed notification if found, or not found response
-     */
     @Operation(
             summary = "Remove a notification by ID",
             operationId = "removeNotificationById",
-            description = "Removes a notification from the database by its ID.",
+            description = "Removes a notification owned by the given project by its ID.",
             tags = {"Notification"}
     )
     @ApiResponse(
@@ -138,7 +121,7 @@ public class NotificationController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "The notification was not found in the database.",
+            description = "The notification was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelErrorDTO.class)
@@ -146,23 +129,18 @@ public class NotificationController {
     )
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<NotificationModelResponseDTO> remove(@PathVariable UUID id) {
-        NotificationModelResponseDTO result = notificationService.delete(id);
+    public HttpResponse<NotificationModelResponseDTO> remove(@PathVariable UUID projectId, @PathVariable UUID id) {
+        NotificationModelResponseDTO result = notificationService.delete(projectId, id);
         if (result instanceof NotificationModelResponseDTO.NotificationModelErrorDTO) {
             return HttpResponse.notFound(result);
         }
         return HttpResponse.ok(result);
     }
 
-    /**
-     * Retrieves all notifications.
-     *
-     * @return HttpResponse containing a list of all notifications
-     */
     @Operation(
             summary = "Get all notifications",
             operationId = "getAllNotifications",
-            description = "Retrieves all notifications from the database.",
+            description = "Retrieves all notifications belonging to the given project.",
             tags = {"Notification"}
     )
     @ApiResponse(
@@ -176,30 +154,17 @@ public class NotificationController {
                     )
             )
     )
-    @ApiResponse(
-            responseCode = "404",
-            description = "No notifications were found in the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelErrorDTO.class)
-            )
-    )
     @Get(uris = {"/"})
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<NotificationModelResponseDTO.NotificationModelDTO>> getAll(Pageable pageable) {
-        Page<NotificationModelResponseDTO.NotificationModelDTO> list = notificationService.getAll(pageable);
+    public HttpResponse<Page<NotificationModelResponseDTO.NotificationModelDTO>> getAll(@PathVariable UUID projectId, Pageable pageable) {
+        Page<NotificationModelResponseDTO.NotificationModelDTO> list = notificationService.getAll(projectId, pageable);
         return HttpResponse.ok(list);
     }
 
-    /**
-     * Deletes all notifications.
-     *
-     * @return HttpResponse containing an empty list
-     */
     @Operation(
             summary = "Delete all notifications",
             operationId = "deleteAllNotifications",
-            description = "Deletes all notifications from the database.",
+            description = "Deletes all notifications belonging to the given project.",
             tags = {"Notification"}
     )
     @ApiResponse(
@@ -212,21 +177,15 @@ public class NotificationController {
     )
     @Delete("/delete/")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<List<NotificationModelResponseDTO>> deleteAll() {
-        List<NotificationModelResponseDTO> result = notificationService.deleteAll();
+    public HttpResponse<List<NotificationModelResponseDTO>> deleteAll(@PathVariable UUID projectId) {
+        List<NotificationModelResponseDTO> result = notificationService.deleteAll(projectId);
         return HttpResponse.ok(result);
     }
 
-    /**
-     * Updates an existing notification.
-     *
-     * @param model the notification model to update
-     * @return HttpResponse containing the updated notification
-     */
     @Operation(
             summary = "Update a notification",
             operationId = "updateNotification",
-            description = "Updates an existing notification in the database.",
+            description = "Updates a notification owned by the given project.",
             tags = {"Notification"}
     )
     @ApiResponse(
@@ -239,7 +198,7 @@ public class NotificationController {
     )
     @ApiResponse(
             responseCode = "404",
-            description = "The notification was not found in the database.",
+            description = "The notification was not found, or does not belong to the given project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelErrorDTO.class)
@@ -248,8 +207,8 @@ public class NotificationController {
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<NotificationModelResponseDTO> update(@Body NotificationModelDTO model) {
-        NotificationModelResponseDTO result = notificationService.update(model);
+    public HttpResponse<NotificationModelResponseDTO> update(@PathVariable UUID projectId, @Body NotificationModelDTO model) {
+        NotificationModelResponseDTO result = notificationService.update(projectId, model);
         if (result instanceof NotificationModelResponseDTO.NotificationModelErrorDTO) {
             return HttpResponse.notFound(result);
         }
