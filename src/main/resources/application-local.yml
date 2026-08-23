@@ -9,7 +9,7 @@ datasources:
     username: vulpes
     password: vulpespassword
     dialect: MYSQL
-    schema-generate: UPDATE
+    schema-generate: NONE
     maximum-pool-size: 10
 
 jpa:
