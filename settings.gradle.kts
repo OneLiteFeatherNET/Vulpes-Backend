@@ -33,7 +33,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             version("micronaut", "5.0.2")
-            version("vulpes.model", "1.8.3")
+            version("vulpes.model", "2.0.0")
             version("uuid.creator", "6.1.1")
             version("datafaker", "2.7.0")
             version("jetbrains.annotation", "26.1.0")
@@ -48,7 +48,7 @@ dependencyResolutionManagement {
             library("vulpes.api", "net.onelitefeather", "vulpes-model").versionRef("vulpes.model")
             library("jetbrains.annotation", "org.jetbrains", "annotations").versionRef("jetbrains.annotation")
             library("datafaker", "net.datafaker", "datafaker").versionRef("datafaker")
-            library("testcontainers.junit", "org.testcontainers", "junit-jupiter").withoutVersion()
+            library("testcontainers.junit", "org.testcontainers", "testcontainers-junit-jupiter").withoutVersion()
 
             library("hibernate.validator", "org.hibernate.validator", "hibernate-validator").versionRef("hibernate.validator")
             library("jakarta.validation", "jakarta.validation", "jakarta.validation-api").versionRef("jakarta.validation")
