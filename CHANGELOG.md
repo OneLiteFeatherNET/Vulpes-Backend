@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.5.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.4.1...v2.5.0) (2026-08-24)
+
+
+### Features
+
+* add project controller and service ([#165](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/165)) ([5f299d7](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/5f299d7c5743a607249ec638b2d8cb8295b75c08))
+* add project entity usage ([#176](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/176)) ([69dd75d](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/69dd75d1882925b4502f9176f414dc82fd336697))
+* **service:** add crud service structure ([#163](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/163)) ([cd22f2e](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/cd22f2eea6de371b5b80487ff5214f5904759d30))
+
+
+### Bug Fixes
+
+* **deps:** update datafaker ([#151](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/151)) ([ebb3ed2](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/ebb3ed2b1a9aa2f29413108d26a1dd84878cf630))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v1.8.0 ([#166](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/166)) ([a4481c1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/a4481c1cb948c095437da77e6b3dbf12f1287ad3))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v1.8.1 ([#172](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/172)) ([57fabcb](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/57fabcba124a25ac7044d6573c4f25fff506daf0))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v1.8.2 ([#173](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/173)) ([b5e0f99](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/b5e0f99dfac7c1c12c914f2d7f28d7a4716a2285))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v2 ([#175](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/175)) ([19c04ea](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/19c04ea9859a7931603f8124737101375821abe1))
+* **deps:** update dependency org.hibernate.validator:hibernate-validator to v9.1.2.final ([#155](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/155)) ([dee40ee](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/dee40ee6396b71b66907c95bb7ce99f8e8616111))
+* **deps:** update dependency org.hibernate.validator:hibernate-validator to v9.1.3.final ([#158](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/158)) ([17b568c](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/17b568cc0eed8224d1d1e77273f926b44ee63887))
+* **item:** separate reorder handling from lore dto ([#167](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/167)) ([2d05d22](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/2d05d22bc5be03f02822598604de7c1b8b0bc4a9))
+
 ## [2.4.1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.4.0...v2.4.1) (2026-06-22)
 
 
