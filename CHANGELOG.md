@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.5.0...v2.6.0) (2026-08-24)
+
+
+### Features
+
+* **helm:** publish a chart alongside the image ([#179](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/179)) ([f41ee56](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/f41ee56587ed7ca3984066e3ed0bd9acf01800e4))
+
 ## [2.5.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.4.1...v2.5.0) (2026-08-24)
 
 
