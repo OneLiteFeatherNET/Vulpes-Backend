@@ -39,15 +39,6 @@ jobs:
       java-distribution: "temurin"
     secrets: inherit
 
-  publish-snapshot:
-    needs: [release-please, version]
-    if: needs.version.outputs.is_snapshot == 'true'
-    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-publish.yml@v2.8.1
-    with:
-      java-version: "25.0.3"
-      java-distribution: "temurin"
-    secrets: inherit
-
   # ---- Release Docker image (Gradle produces the context, docker-publish builds it) ----
   build-context:
     name: Build Docker context
@@ -81,36 +72,6 @@ jobs:
       version: ${{ github.event_name == 'workflow_dispatch' && inputs.docker_version || needs.release-please.outputs.version }}
       context: "build/docker/optimized"
       artifact-name: "docker-context-release"
-      blob-chunk: "90000000"   # ~90 MB, under the 100 MB Cloudflare cap
-      req-concurrent: "4"
-    secrets: inherit
-
-  # ---- Snapshot Docker image (on every non-release push to main) ----
-  build-context-snapshot:
-    name: Build Docker context (snapshot)
-    needs: [release-please, version]
-    if: needs.version.outputs.is_snapshot == 'true'
-    uses: OneLiteFeatherNET/workflows/.github/workflows/gradle-docker-context.yml@v2.8.1
-    with:
-      version: ${{ needs.version.outputs.version }}
-      gradle-command: "./gradlew jar optimizedBuildLayers optimizedDockerfile -Pversion=$VERSION"
-      context-path: "build/docker/optimized"
-      artifact-name: "docker-context-snapshot"
-    secrets: inherit
-
-  docker-snapshot:
-    name: Build Docker Artifacts (snapshot)
-    needs: [version, build-context-snapshot]
-    permissions:
-      contents: read
-      id-token: write   # keyless cosign signing via GitHub OIDC
-    if: needs.version.outputs.is_snapshot == 'true'
-    uses: OneLiteFeatherNET/workflows/.github/workflows/docker-publish.yml@v2.8.1
-    with:
-      image-name: "onelitefeather/vulpes-backend"
-      version: ${{ needs.version.outputs.version }}
-      context: "build/docker/optimized"
-      artifact-name: "docker-context-snapshot"
       blob-chunk: "90000000"   # ~90 MB, under the 100 MB Cloudflare cap
       req-concurrent: "4"
     secrets: inherit
