@@ -13,6 +13,10 @@
         {
           "type": "generic",
           "path": "build.gradle.kts"
+        },
+        {
+          "type": "generic",
+          "path": "charts/vulpes-backend/Chart.yaml"
         }
       ]
     }
