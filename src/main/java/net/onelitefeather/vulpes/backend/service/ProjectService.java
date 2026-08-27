@@ -10,7 +10,7 @@ import java.util.UUID;
 /**
  * Service interface for managing projects.
  */
-public interface ProjectService extends CrudService<ProjectEntity, UUID, ProjectModelDTO, ProjectModelResponseDTO, ProjectModelResponseDTO.ProjectModelDTO> {
+public interface ProjectService extends CrudService<ProjectEntity, UUID, ProjectModelDTO, ProjectModelResponseDTO.ProjectModelDTO> {
 
     /**
      * Finds a project by its unique key.

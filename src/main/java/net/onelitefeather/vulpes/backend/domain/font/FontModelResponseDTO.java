@@ -3,7 +3,6 @@ package net.onelitefeather.vulpes.backend.domain.font;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.onelitefeather.vulpes.api.model.FontEntity;
-import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.UUID;
 
@@ -69,16 +68,5 @@ public sealed interface FontModelResponseDTO {
         public static FontModelDTO createDTOWithChars(FontEntity fontModel) {
             return createDTO(fontModel);
         }
-    }
-
-    /**
-     * Represents an error response for font models.
-     *
-     * @param errorMessage the error message describing the issue
-     */
-    @Schema(name = "ResponseFontModelErrorDTO", description = "Error message")
-    @Serdeable
-    record FontModelErrorDTO(
-            @Schema(description = "Error message") String errorMessage) implements FontModelResponseDTO, ErrorResponse {
     }
 }

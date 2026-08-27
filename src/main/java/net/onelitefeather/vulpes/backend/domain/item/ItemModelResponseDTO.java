@@ -4,7 +4,6 @@ import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
-import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.Collections;
 import java.util.List;
@@ -78,20 +77,5 @@ public sealed interface ItemModelResponseDTO {
                     itemEntity.getProject().getId()
             );
         }
-    }
-
-    /**
-     * Represents an error response DTO for item models.
-     *
-     * @param errorMessage the error message describing the issue with the item model
-     */
-    @Schema(
-            name = "ItemModelErrorDTO",
-            description = "Error message for Item Model"
-    )
-    @Serdeable
-    record ItemModelErrorDTO(
-            @Schema(description = "Error message") String errorMessage
-    ) implements ItemModelResponseDTO, ErrorResponse {
     }
 }

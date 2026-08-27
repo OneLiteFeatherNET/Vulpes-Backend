@@ -18,7 +18,7 @@ import java.util.UUID;
 /**
  * Service interface for managing items.
  */
-public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO, ItemModelResponseDTO, ItemModelResponseDTO.ItemModelDTO> {
+public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO, ItemModelResponseDTO.ItemModelDTO> {
 
     /**
      * Gets the flags of an item by its ID.
@@ -27,7 +27,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param pageable pagination information
      * @return a list of flags
      */
-    Page<ItemFlagResponseDTO> findFlagsById(UUID id, Pageable pageable);
+    Page<ItemFlagResponseDTO.ItemFlagDTO> findFlagsById(UUID id, Pageable pageable);
 
     /**
      * Creates the flag of an item by its ID.
@@ -36,7 +36,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param itemFlagDTO the flag to create
      * @return the created flag
      */
-    ItemFlagResponseDTO createFlagById(UUID id, ItemFlagDTO itemFlagDTO);
+    ItemFlagResponseDTO.ItemFlagDTO createFlagById(UUID id, ItemFlagDTO itemFlagDTO);
 
     /**
      * Delete the flag of an item by its ID.
@@ -45,7 +45,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param flagId the flag to delete
      * @return the deleted flag
      */
-    ItemFlagResponseDTO deleteFlagById(UUID id, UUID flagId);
+    ItemFlagResponseDTO.ItemFlagDTO deleteFlagById(UUID id, UUID flagId);
 
     /**
      * Delete the flags of an item by its ID.
@@ -53,7 +53,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param id the ID of the item to update the flags of
      * @return the deleted flags
      */
-    List<ItemFlagResponseDTO> deleteAllFlagsById(UUID id);
+    List<ItemFlagResponseDTO.ItemFlagDTO> deleteAllFlagsById(UUID id);
 
     /**
      * Updates the flag of an item by its ID.
@@ -62,7 +62,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param flag the new flag to set
      * @return the updated flag
      */
-    ItemFlagResponseDTO updateFlagById(UUID id, ItemFlagDTO flag);
+    ItemFlagResponseDTO.ItemFlagDTO updateFlagById(UUID id, ItemFlagDTO flag);
 
     /**
      * Gets the enchantments of an item by its ID.
@@ -71,7 +71,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param pageable pagination information
      * @return a map of enchantment names to levels
      */
-    Page<ItemEnchantmentResponseDTO> findEnchantmentsById(UUID id, Pageable pageable);
+    Page<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> findEnchantmentsById(UUID id, Pageable pageable);
 
     /**
      * Updates the enchantments of an item by its ID.
@@ -80,7 +80,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param enchantment the enchantments to update
      * @return the updated enchantments
      */
-    ItemEnchantmentResponseDTO updateEnchantmentById(UUID id, ItemEnchantmentDTO enchantment);
+    ItemEnchantmentResponseDTO.ItemEnchantmentDTO updateEnchantmentById(UUID id, ItemEnchantmentDTO enchantment);
 
     /**
      * Creates the enchantments of an item by its ID.
@@ -89,7 +89,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param enchantment the enchantments to create
      * @return the created enchantment
      */
-    ItemEnchantmentResponseDTO createEnchantmentById(UUID id, ItemEnchantmentDTO enchantment);
+    ItemEnchantmentResponseDTO.ItemEnchantmentDTO createEnchantmentById(UUID id, ItemEnchantmentDTO enchantment);
 
     /**
      * Delete the enchantment of an item by its ID.
@@ -98,7 +98,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param enchantment the enchantment to delete
      * @return the deleted enchantment
      */
-    ItemEnchantmentResponseDTO deleteEnchantmentById(UUID id, UUID enchantment);
+    ItemEnchantmentResponseDTO.ItemEnchantmentDTO deleteEnchantmentById(UUID id, UUID enchantment);
 
     /**
      * Delete the enchantments of an item by its ID.
@@ -106,7 +106,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param id the ID of the item to update the enchantments of
      * @return the deleted enchantment
      */
-    List<ItemEnchantmentResponseDTO> deleteAllEnchantmentsById(UUID id);
+    List<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> deleteAllEnchantmentsById(UUID id);
 
     /**
      * Gets the lore of an item by its ID.
@@ -115,7 +115,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param pageable pagination information
      * @return a list of lore lines
      */
-    Page<ItemLoreResponseDTO> findLoreById(UUID id, Pageable pageable);
+    Page<ItemLoreResponseDTO.ItemLoreDTO> findLoreById(UUID id, Pageable pageable);
 
     /**
      * Updates the lore of an item by its ID.
@@ -124,7 +124,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param loreDto the lore to update
      * @return the updated lore
      */
-    ItemLoreResponseDTO updateLoreById(UUID id, ItemLoreDTO loreDto);
+    ItemLoreResponseDTO.ItemLoreDTO updateLoreById(UUID id, ItemLoreDTO loreDto);
 
     /**
      * Creates the lore of an item by its ID.
@@ -133,7 +133,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param loreDto the lore to create
      * @return the created lore
      */
-    ItemLoreResponseDTO createLoreById(UUID id, ItemLoreDTO loreDto);
+    ItemLoreResponseDTO.ItemLoreDTO createLoreById(UUID id, ItemLoreDTO loreDto);
 
     /**
      * Delete the enchantment of an item by its ID.
@@ -142,7 +142,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param loreId the enchantment to delete
      * @return the deleted enchantment
      */
-    ItemLoreResponseDTO deleteLoreById(UUID id, UUID loreId);
+    ItemLoreResponseDTO.ItemLoreDTO deleteLoreById(UUID id, UUID loreId);
 
     /**
      * Reorders a lore entry of an item by its ID.
@@ -152,7 +152,7 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param newIndex the new index of the entry within the lore list
      * @return the moved lore entry, or an error if the item or entry could not be found
      */
-    ItemLoreResponseDTO reorderLoreById(UUID id, UUID entryId, int newIndex);
+    ItemLoreResponseDTO.ItemLoreDTO reorderLoreById(UUID id, UUID entryId, int newIndex);
 
     /**
      * Delete the lore of an item by its ID.
@@ -160,5 +160,5 @@ public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO,
      * @param id the ID of the item to update the lore of
      * @return the deleted lore
      */
-    List<ItemLoreResponseDTO> deleteAllLoreById(UUID id);
+    List<ItemLoreResponseDTO.ItemLoreDTO> deleteAllLoreById(UUID id);
 }

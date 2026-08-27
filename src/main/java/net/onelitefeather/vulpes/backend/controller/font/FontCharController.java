@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringResponseDTO;
 import net.onelitefeather.vulpes.backend.service.FontService;
@@ -49,15 +49,22 @@ public class FontCharController {
             description = "The characters of the font were successfully created in the database.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FontStringResponseDTO.class)
+                    schema = @Schema(implementation = FontStringResponseDTO.FontStringDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Put("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<FontStringResponseDTO> createChar(@PathVariable UUID id, @Body FontStringDTO charModel) {
-        FontStringResponseDTO model = fontService.createCharByFontId(id, charModel);
-        return HttpResponse.ok(model);
+    public HttpResponse<FontStringResponseDTO.FontStringDTO> createChar(@PathVariable UUID id, @Body FontStringDTO charModel) {
+        return HttpResponse.ok(fontService.createCharByFontId(id, charModel));
     }
 
     @Operation(
@@ -71,21 +78,21 @@ public class FontCharController {
             description = "The characters of the font were successfully retrieved from the database.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FontStringResponseDTO.class)
+                    schema = @Schema(implementation = FontStringResponseDTO.FontStringDTO.class)
             )
     )
     @ApiResponse(
             responseCode = "404",
             description = "The font was not found in the database.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FontModelResponseDTO.FontModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<FontStringResponseDTO>> readCharsById(@PathVariable UUID id, Pageable pageable) {
-        Page<FontStringResponseDTO> models = fontService.findCharsByFontId(id, pageable);
+    public HttpResponse<Page<FontStringResponseDTO.FontStringDTO>> readCharsById(@PathVariable UUID id, Pageable pageable) {
+        Page<FontStringResponseDTO.FontStringDTO> models = fontService.findCharsByFontId(id, pageable);
         return HttpResponse.ok(models);
     }
 
@@ -101,16 +108,23 @@ public class FontCharController {
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     array = @ArraySchema(
-                            schema = @Schema(implementation = FontStringResponseDTO.class)
+                            schema = @Schema(implementation = FontStringResponseDTO.FontStringDTO.class)
                     )
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<FontStringResponseDTO> updateChar(@PathVariable UUID id, @Body FontStringDTO charModel) {
-        FontStringResponseDTO model = fontService.updateCharByFontId(id, charModel);
-        return HttpResponse.ok(model);
+    public HttpResponse<FontStringResponseDTO.FontStringDTO> updateChar(@PathVariable UUID id, @Body FontStringDTO charModel) {
+        return HttpResponse.ok(fontService.updateCharByFontId(id, charModel));
     }
 
     @Operation(
@@ -131,18 +145,14 @@ public class FontCharController {
             responseCode = "404",
             description = "The character was not found in the database.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = FontStringResponseDTO.FontStringErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete("/{fontId}/{charId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<FontStringResponseDTO> deleteChar(@PathVariable UUID fontId, @PathVariable UUID charId) {
-        FontStringResponseDTO model = fontService.deleteCharByFontId(fontId, charId);
-        if (model instanceof FontStringResponseDTO.FontStringErrorDTO) {
-            return HttpResponse.notFound(model);
-        }
-        return HttpResponse.ok(model);
+    public HttpResponse<FontStringResponseDTO.FontStringDTO> deleteChar(@PathVariable UUID fontId, @PathVariable UUID charId) {
+        return HttpResponse.ok(fontService.deleteCharByFontId(fontId, charId));
     }
 
     @Operation(
@@ -157,14 +167,13 @@ public class FontCharController {
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     array = @ArraySchema(
-                            schema = @Schema(implementation = FontStringResponseDTO.class)
+                            schema = @Schema(implementation = FontStringResponseDTO.FontStringDTO.class)
                     )
             )
     )
     @Delete("/{fontId}/")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<List<FontStringResponseDTO>> deleteAllChars(@PathVariable UUID fontId) {
-        List<FontStringResponseDTO> model = fontService.deleteAllCharByFontId(fontId);
-        return HttpResponse.ok(model);
+    public HttpResponse<List<FontStringResponseDTO.FontStringDTO>> deleteAllChars(@PathVariable UUID fontId) {
+        return HttpResponse.ok(fontService.deleteAllCharByFontId(fontId));
     }
 }

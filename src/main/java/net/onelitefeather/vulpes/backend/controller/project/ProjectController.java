@@ -18,14 +18,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelResponseDTO;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ProjectService;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -70,14 +69,22 @@ public class ProjectController {
             responseCode = "500",
             description = "The project could not be added to the database.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ProjectModelResponseDTO.ProjectModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<ProjectModelResponseDTO> add(@Body ProjectModelDTO model) {
+    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> add(@Body ProjectModelDTO model) {
         ProjectModelResponseDTO.ProjectModelDTO result = projectService.create(model);
         return HttpResponse.ok(result);
     }
@@ -106,18 +113,16 @@ public class ProjectController {
             responseCode = "404",
             description = "The project was not found in the database.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ProjectModelResponseDTO.ProjectModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<ProjectModelResponseDTO> getById(@PathVariable UUID id) {
-        Optional<ProjectEntity> model = projectService.findById(id);
-        if (model.isPresent()) {
-            return HttpResponse.ok(ProjectModelResponseDTO.ProjectModelDTO.createDTO(model.get()));
-        }
-        return HttpResponse.notFound(new ProjectModelResponseDTO.ProjectModelErrorDTO("Project not found"));
+    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> getById(@PathVariable UUID id) {
+        return HttpResponse.ok(projectService.findById(id)
+                .map(ProjectModelResponseDTO.ProjectModelDTO::createDTO)
+                .orElseThrow(ApiException::projectNotFound));
     }
 
     /**
@@ -144,18 +149,16 @@ public class ProjectController {
             responseCode = "404",
             description = "The project was not found in the database.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ProjectModelResponseDTO.ProjectModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Get("/key/{key}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<ProjectModelResponseDTO> getByKey(@PathVariable String key) {
-        Optional<ProjectEntity> model = projectService.findProjectByKey(key);
-        if (model.isPresent()) {
-            return HttpResponse.ok(ProjectModelResponseDTO.ProjectModelDTO.createDTO(model.get()));
-        }
-        return HttpResponse.notFound(new ProjectModelResponseDTO.ProjectModelErrorDTO("Project not found"));
+    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> getByKey(@PathVariable String key) {
+        return HttpResponse.ok(projectService.findProjectByKey(key)
+                .map(ProjectModelResponseDTO.ProjectModelDTO::createDTO)
+                .orElseThrow(ApiException::projectNotFound));
     }
 
     /**
@@ -182,19 +185,23 @@ public class ProjectController {
             responseCode = "404",
             description = "The project was not found in the database.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ProjectModelResponseDTO.ProjectModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<ProjectModelResponseDTO> update(@Body ProjectModelDTO model) {
-        ProjectModelResponseDTO result = projectService.update(model);
-        if (result instanceof ProjectModelResponseDTO.ProjectModelErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
+    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> update(@Body ProjectModelDTO model) {
+        return HttpResponse.ok(projectService.update(model));
     }
 
     /**
@@ -221,18 +228,14 @@ public class ProjectController {
             responseCode = "404",
             description = "The project was not found in the database.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ProjectModelResponseDTO.ProjectModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<ProjectModelResponseDTO> delete(@PathVariable UUID id) {
-        ProjectModelResponseDTO result = projectService.delete(id);
-        if (result instanceof ProjectModelResponseDTO.ProjectModelErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
+    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> delete(@PathVariable UUID id) {
+        return HttpResponse.ok(projectService.delete(id));
     }
 
     /**
@@ -247,18 +250,14 @@ public class ProjectController {
             tags = {"Project"}
     )
     @ApiResponse(
-            responseCode = "200",
-            description = "All projects were successfully deleted from the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ProjectModelResponseDTO.ProjectModelDTO.class)
-            )
+            responseCode = "204",
+            description = "All projects were successfully deleted from the database."
     )
     @Delete("/delete")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<List<ProjectModelResponseDTO>> deleteAll() {
-        List<ProjectModelResponseDTO> result = projectService.deleteAll();
-        return HttpResponse.ok(result);
+    public HttpResponse<Void> deleteAll() {
+        projectService.deleteAll();
+        return HttpResponse.noContent();
     }
 
     /**

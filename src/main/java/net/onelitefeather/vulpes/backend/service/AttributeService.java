@@ -9,5 +9,5 @@ import java.util.UUID;
 /**
  * Service interface for managing attributes.
  */
-public interface AttributeService extends CrudService<AttributeEntity, UUID, AttributeModelDTO, AttributeModelResponseDTO, AttributeModelResponseDTO.AttributeModelDTO> {
+public interface AttributeService extends CrudService<AttributeEntity, UUID, AttributeModelDTO, AttributeModelResponseDTO.AttributeModelDTO> {
 }

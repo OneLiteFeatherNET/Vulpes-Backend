@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
 import net.onelitefeather.vulpes.backend.service.ItemService;
@@ -55,8 +56,16 @@ public class ItemEnchantmentController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemEnchantmentResponseDTO.ItemEnchantmentErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Put(uris = {
@@ -64,7 +73,7 @@ public class ItemEnchantmentController {
             "/{itemId}/enchantment"
     })
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<ItemEnchantmentResponseDTO> createEnchantment(@PathVariable("itemId") UUID itemId, @Body ItemEnchantmentDTO enchantment) {
+    public HttpResponse<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> createEnchantment(@PathVariable("itemId") UUID itemId, @Body ItemEnchantmentDTO enchantment) {
         var createResult = itemService.createEnchantmentById(itemId, enchantment);
         return HttpResponse.ok(createResult);
     }
@@ -91,8 +100,8 @@ public class ItemEnchantmentController {
             "/{itemId}/enchantments"
     })
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<ItemEnchantmentResponseDTO>> getEnchantmentsById(@PathVariable("itemId") UUID itemId, Pageable pageable) {
-        Page<ItemEnchantmentResponseDTO> enchantmentsPage = itemService.findEnchantmentsById(itemId, pageable);
+    public HttpResponse<Page<ItemEnchantmentResponseDTO.ItemEnchantmentDTO>> getEnchantmentsById(@PathVariable("itemId") UUID itemId, Pageable pageable) {
+        Page<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> enchantmentsPage = itemService.findEnchantmentsById(itemId, pageable);
         return HttpResponse.ok(enchantmentsPage);
     }
 
@@ -114,8 +123,16 @@ public class ItemEnchantmentController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemEnchantmentResponseDTO.ItemEnchantmentErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post(uris = {
@@ -123,12 +140,8 @@ public class ItemEnchantmentController {
             "/{itemId}/enchantment"
     })
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<ItemEnchantmentResponseDTO> updateEnchantment(@PathVariable("itemId") UUID itemId, @Body ItemEnchantmentDTO enchantment) {
-        var updateResult = itemService.updateEnchantmentById(itemId, enchantment);
-        if (updateResult instanceof ItemEnchantmentResponseDTO.ItemEnchantmentErrorDTO) {
-            return HttpResponse.notFound(updateResult);
-        }
-        return HttpResponse.ok(updateResult);
+    public HttpResponse<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> updateEnchantment(@PathVariable("itemId") UUID itemId, @Body ItemEnchantmentDTO enchantment) {
+        return HttpResponse.ok(itemService.updateEnchantmentById(itemId, enchantment));
     }
 
     @Operation(
@@ -149,20 +162,16 @@ public class ItemEnchantmentController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemEnchantmentResponseDTO.ItemEnchantmentErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete(uris = {
             "/enchantment/{itemId}/{enchantmentId}",
             "/{itemId}/enchantment/{enchantmentId}"
     })
-    public HttpResponse<ItemEnchantmentResponseDTO> deleteEnchantment(@PathVariable("itemId") UUID itemId, @PathVariable("enchantmentId") UUID enchantmentId) {
-        var deleteResult = itemService.deleteEnchantmentById(itemId, enchantmentId);
-        if (deleteResult instanceof ItemEnchantmentResponseDTO.ItemEnchantmentErrorDTO) {
-            return HttpResponse.notFound(deleteResult);
-        }
-        return HttpResponse.ok(deleteResult);
+    public HttpResponse<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> deleteEnchantment(@PathVariable("itemId") UUID itemId, @PathVariable("enchantmentId") UUID enchantmentId) {
+        return HttpResponse.ok(itemService.deleteEnchantmentById(itemId, enchantmentId));
     }
 
     @Operation(
@@ -185,15 +194,15 @@ public class ItemEnchantmentController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemEnchantmentResponseDTO.ItemEnchantmentErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete(uris = {
             "/enchantment/{itemId}",
             "/{itemId}/enchantment"
     })
-    public HttpResponse<List<ItemEnchantmentResponseDTO>> deleteEnchantments(@PathVariable("itemId") UUID itemId) {
+    public HttpResponse<List<ItemEnchantmentResponseDTO.ItemEnchantmentDTO>> deleteEnchantments(@PathVariable("itemId") UUID itemId) {
         var deletedEnchantments = itemService.deleteAllEnchantmentsById(itemId);
         return HttpResponse.ok(deletedEnchantments);
     }

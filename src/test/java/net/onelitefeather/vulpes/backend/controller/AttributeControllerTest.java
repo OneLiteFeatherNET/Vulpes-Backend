@@ -5,6 +5,8 @@ import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.AttributeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class AttributeControllerTest {
 
     private static class StubAttributeService implements AttributeService {
-        AttributeModelResponseDTO response;
+        AttributeModelResponseDTO.AttributeModelDTO response;
         Page<AttributeModelResponseDTO.AttributeModelDTO> page;
 
         @Override
@@ -28,18 +30,17 @@ class AttributeControllerTest {
         }
 
         @Override
-        public AttributeModelResponseDTO update(AttributeModelDTO dto) {
+        public AttributeModelResponseDTO.AttributeModelDTO update(AttributeModelDTO dto) {
             return response;
         }
 
         @Override
-        public AttributeModelResponseDTO delete(UUID id) {
+        public AttributeModelResponseDTO.AttributeModelDTO delete(UUID id) {
             return response;
         }
 
         @Override
-        public List<AttributeModelResponseDTO> deleteAll() {
-            return List.of();
+        public void deleteAll() {
         }
 
         @Override
@@ -53,23 +54,22 @@ class AttributeControllerTest {
         }
 
         @Override
-        public AttributeModelResponseDTO create(UUID projectId, AttributeModelDTO dto) {
+        public AttributeModelResponseDTO.AttributeModelDTO create(UUID projectId, AttributeModelDTO dto) {
             return response;
         }
 
         @Override
-        public AttributeModelResponseDTO update(UUID projectId, AttributeModelDTO dto) {
+        public AttributeModelResponseDTO.AttributeModelDTO update(UUID projectId, AttributeModelDTO dto) {
             return response;
         }
 
         @Override
-        public AttributeModelResponseDTO delete(UUID projectId, UUID id) {
+        public AttributeModelResponseDTO.AttributeModelDTO delete(UUID projectId, UUID id) {
             return response;
         }
 
         @Override
-        public List<AttributeModelResponseDTO> deleteAll(UUID projectId) {
-            return List.of();
+        public void deleteAll(UUID projectId) {
         }
 
         @Override
@@ -91,33 +91,46 @@ class AttributeControllerTest {
         stub.response = new AttributeModelResponseDTO.AttributeModelDTO(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectId);
         AttributeController controller = new AttributeController(stub);
 
-        HttpResponse<AttributeModelResponseDTO> resp = controller.add(projectId, dto);
+        HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> resp = controller.add(projectId, dto);
 
         assertEquals(200, resp.getStatus().getCode());
         assertInstanceOf(AttributeModelResponseDTO.AttributeModelDTO.class, resp.body());
     }
 
     @Test
-    void add_unknownProject_returns404() {
-        StubAttributeService stub = new StubAttributeService();
-        stub.response = new AttributeModelResponseDTO.AttributeModelErrorDTO("Project not found");
+    @DisplayName("add() lets a PROJECT_NOT_FOUND from the service reach the exception handler")
+    void add_unknownProject_propagates() {
+        StubAttributeService stub = new StubAttributeService() {
+            @Override
+            public AttributeModelResponseDTO.AttributeModelDTO create(UUID projectId, AttributeModelDTO dto) {
+                throw ApiException.projectNotFound();
+            }
+        };
         AttributeController controller = new AttributeController(stub);
         AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
+        UUID projectId = UUID.randomUUID();
 
-        HttpResponse<AttributeModelResponseDTO> resp = controller.add(UUID.randomUUID(), dto);
+        ApiException exception = assertThrows(ApiException.class, () -> controller.add(projectId, dto));
 
-        assertEquals(404, resp.getStatus().getCode());
+        assertEquals(ErrorCode.PROJECT_NOT_FOUND, exception.code());
     }
 
     @Test
-    void delete_crossProject_returns404() {
-        StubAttributeService stub = new StubAttributeService();
-        stub.response = new AttributeModelResponseDTO.AttributeModelErrorDTO("Attribute not found");
+    @DisplayName("delete() lets a RESOURCE_NOT_FOUND from the service reach the exception handler")
+    void delete_crossProject_propagates() {
+        StubAttributeService stub = new StubAttributeService() {
+            @Override
+            public AttributeModelResponseDTO.AttributeModelDTO delete(UUID projectId, UUID id) {
+                throw ApiException.notFound("Attribute");
+            }
+        };
         AttributeController controller = new AttributeController(stub);
+        UUID projectId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
 
-        HttpResponse<AttributeModelResponseDTO> resp = controller.delete(UUID.randomUUID(), UUID.randomUUID());
+        ApiException exception = assertThrows(ApiException.class, () -> controller.delete(projectId, id));
 
-        assertEquals(404, resp.getStatus().getCode());
+        assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
     }
 
     @Test

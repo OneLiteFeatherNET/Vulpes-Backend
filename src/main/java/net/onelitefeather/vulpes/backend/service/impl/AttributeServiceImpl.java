@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 @Singleton
 public class AttributeServiceImpl
-        extends AbstractCrudService<AttributeEntity, UUID, AttributeModelDTO, AttributeModelResponseDTO, AttributeModelResponseDTO.AttributeModelDTO>
+        extends AbstractCrudService<AttributeEntity, UUID, AttributeModelDTO, AttributeModelResponseDTO.AttributeModelDTO>
         implements AttributeService {
 
     @Inject
@@ -29,7 +29,6 @@ public class AttributeServiceImpl
                 entity -> entity.getProject().getId(),
                 attributeRepository::findByProjectId,
                 AttributeModelDTO::id,
-                AttributeModelResponseDTO.AttributeModelErrorDTO::new,
                 "Attribute"
         );
     }

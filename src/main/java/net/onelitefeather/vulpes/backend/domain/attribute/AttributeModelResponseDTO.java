@@ -3,7 +3,6 @@ package net.onelitefeather.vulpes.backend.domain.attribute;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.onelitefeather.vulpes.api.model.AttributeEntity;
-import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.UUID;
 
@@ -41,20 +40,5 @@ public interface AttributeModelResponseDTO {
                     model.getProject().getId()
             );
         }
-    }
-
-    /**
-     * The {@link AttributeModelErrorDTO} is used to represent an error response for attribute models.
-     *
-     * @param errorMessage the error message describing the issue
-     */
-    @Schema(
-            name = "AttributeModelErrorDTO",
-            description = "Error message for Attribute Model"
-    )
-    @Serdeable
-    record AttributeModelErrorDTO(
-            @Schema(description = "Error message") String errorMessage
-    ) implements AttributeModelResponseDTO, ErrorResponse {
     }
 }

@@ -3,7 +3,6 @@ package net.onelitefeather.vulpes.backend.domain.notification;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.onelitefeather.vulpes.api.model.NotificationEntity;
-import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.UUID;
 
@@ -57,20 +56,5 @@ public sealed interface NotificationModelResponseDTO {
                     notificationModel.getProject().getId()
             );
         }
-    }
-
-    /**
-     * Represents an error response for notification models.
-     *
-     * @param errorMessage the error message describing the issue
-     */
-    @Schema(
-            name = "NotificationModelErrorDTO",
-            description = "Error message for Notification Model"
-    )
-    @Serdeable
-    record NotificationModelErrorDTO(
-            @Schema(description = "Error message") String errorMessage
-    ) implements NotificationModelResponseDTO, ErrorResponse {
     }
 }

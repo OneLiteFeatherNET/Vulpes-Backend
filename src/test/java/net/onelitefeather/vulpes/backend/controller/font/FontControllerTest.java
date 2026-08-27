@@ -4,10 +4,12 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
 import net.onelitefeather.vulpes.api.model.FontEntity;
+import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringResponseDTO;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.FontService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class FontControllerTest {
 
     private static class StubFontService implements FontService {
-        FontModelResponseDTO response;
+        FontModelResponseDTO.FontModelDTO response;
         Page<FontModelResponseDTO.FontModelDTO> page;
         Optional<FontEntity> findByIdResponse = Optional.empty();
 
@@ -32,18 +34,17 @@ class FontControllerTest {
         }
 
         @Override
-        public FontModelResponseDTO update(FontModelDTO dto) {
+        public FontModelResponseDTO.FontModelDTO update(FontModelDTO dto) {
             return response;
         }
 
         @Override
-        public FontModelResponseDTO delete(UUID id) {
+        public FontModelResponseDTO.FontModelDTO delete(UUID id) {
             return response;
         }
 
         @Override
-        public List<FontModelResponseDTO> deleteAll() {
-            return List.of();
+        public void deleteAll() {
         }
 
         @Override
@@ -57,23 +58,22 @@ class FontControllerTest {
         }
 
         @Override
-        public FontModelResponseDTO create(UUID projectId, FontModelDTO dto) {
+        public FontModelResponseDTO.FontModelDTO create(UUID projectId, FontModelDTO dto) {
             return response;
         }
 
         @Override
-        public FontModelResponseDTO update(UUID projectId, FontModelDTO dto) {
+        public FontModelResponseDTO.FontModelDTO update(UUID projectId, FontModelDTO dto) {
             return response;
         }
 
         @Override
-        public FontModelResponseDTO delete(UUID projectId, UUID id) {
+        public FontModelResponseDTO.FontModelDTO delete(UUID projectId, UUID id) {
             return response;
         }
 
         @Override
-        public List<FontModelResponseDTO> deleteAll(UUID projectId) {
-            return List.of();
+        public void deleteAll(UUID projectId) {
         }
 
         @Override
@@ -87,27 +87,27 @@ class FontControllerTest {
         }
 
         @Override
-        public Page<FontStringResponseDTO> findCharsByFontId(UUID id, Pageable pageable) {
+        public Page<FontStringResponseDTO.FontStringDTO> findCharsByFontId(UUID id, Pageable pageable) {
             return Page.empty();
         }
 
         @Override
-        public FontStringResponseDTO updateCharByFontId(UUID id, FontStringDTO charModel) {
+        public FontStringResponseDTO.FontStringDTO updateCharByFontId(UUID id, FontStringDTO charModel) {
             return null;
         }
 
         @Override
-        public FontStringResponseDTO createCharByFontId(UUID id, FontStringDTO charModel) {
+        public FontStringResponseDTO.FontStringDTO createCharByFontId(UUID id, FontStringDTO charModel) {
             return null;
         }
 
         @Override
-        public FontStringResponseDTO deleteCharByFontId(UUID fontId, UUID charId) {
+        public FontStringResponseDTO.FontStringDTO deleteCharByFontId(UUID fontId, UUID charId) {
             return null;
         }
 
         @Override
-        public List<FontStringResponseDTO> deleteAllCharByFontId(UUID fontId) {
+        public List<FontStringResponseDTO.FontStringDTO> deleteAllCharByFontId(UUID fontId) {
             return List.of();
         }
     }
@@ -127,32 +127,42 @@ class FontControllerTest {
         stub.response = sampleResponse(UUID.randomUUID(), projectId);
         FontController controller = new FontController(stub);
 
-        HttpResponse<FontModelResponseDTO> resp = controller.add(projectId, sampleDTO(null));
+        HttpResponse<FontModelResponseDTO.FontModelDTO> resp = controller.add(projectId, sampleDTO(null));
 
         assertEquals(200, resp.getStatus().getCode());
         assertInstanceOf(FontModelResponseDTO.FontModelDTO.class, resp.body());
     }
 
     @Test
-    void add_unknownProject_returns404() {
-        StubFontService stub = new StubFontService();
-        stub.response = new FontModelResponseDTO.FontModelErrorDTO("Project not found");
+    @DisplayName("add() lets a PROJECT_NOT_FOUND from the service reach the exception handler")
+    void add_unknownProject_propagates() {
+        StubFontService stub = new StubFontService() {
+            @Override
+            public FontModelResponseDTO.FontModelDTO create(UUID projectId, FontModelDTO dto) {
+                throw ApiException.projectNotFound();
+            }
+        };
         FontController controller = new FontController(stub);
+        FontModelDTO dto = sampleDTO(null);
+        UUID projectId = UUID.randomUUID();
 
-        HttpResponse<FontModelResponseDTO> resp = controller.add(UUID.randomUUID(), sampleDTO(null));
+        ApiException exception = assertThrows(ApiException.class, () -> controller.add(projectId, dto));
 
-        assertEquals(404, resp.getStatus().getCode());
+        assertEquals(ErrorCode.PROJECT_NOT_FOUND, exception.code());
     }
 
     @Test
-    void getById_crossProject_returns404() {
+    @DisplayName("getById() raises RESOURCE_NOT_FOUND when the entity belongs to another project")
+    void getById_crossProject_raisesNotFound() {
         StubFontService stub = new StubFontService();
         stub.findByIdResponse = Optional.empty();
         FontController controller = new FontController(stub);
+        UUID projectId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
 
-        HttpResponse<FontModelResponseDTO> resp = controller.getById(UUID.randomUUID(), UUID.randomUUID());
+        ApiException exception = assertThrows(ApiException.class, () -> controller.getById(projectId, id));
 
-        assertEquals(404, resp.getStatus().getCode());
+        assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
     }
 
     @Test

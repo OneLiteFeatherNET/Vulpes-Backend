@@ -4,7 +4,6 @@ import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
 import net.onelitefeather.vulpes.api.model.sound.SoundFileSource;
-import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.UUID;
 
@@ -83,20 +82,5 @@ public interface SoundResponseDTO {
                     event.getProject().getId()
             );
         }
-    }
-
-    /**
-     * The {@link SoundErrorDTO} is used to represent an error response for sound events.
-     *
-     * @param errorMessage the error message describing the issue
-     */
-    @Schema(
-            name = "ResponseSoundErrorDTO",
-            description = "Error message for Sound model"
-    )
-    @Serdeable
-    record SoundErrorDTO(
-            @Schema(description = "Error message") String errorMessage
-    ) implements SoundResponseDTO, ErrorResponse {
     }
 }

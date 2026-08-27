@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 @Singleton
 public class NotificationServiceImpl
-        extends AbstractCrudService<NotificationEntity, UUID, NotificationModelDTO, NotificationModelResponseDTO, NotificationModelResponseDTO.NotificationModelDTO>
+        extends AbstractCrudService<NotificationEntity, UUID, NotificationModelDTO, NotificationModelResponseDTO.NotificationModelDTO>
         implements NotificationService {
 
     @Inject
@@ -29,7 +29,6 @@ public class NotificationServiceImpl
                 entity -> entity.getProject().getId(),
                 notificationRepository::findByProjectId,
                 NotificationModelDTO::id,
-                NotificationModelResponseDTO.NotificationModelErrorDTO::new,
                 "Notification"
         );
     }

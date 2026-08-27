@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 import net.onelitefeather.vulpes.api.model.FontEntity;
+import net.onelitefeather.vulpes.api.model.font.FontStringEntity;
 import net.onelitefeather.vulpes.api.repository.FontRepository;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.api.repository.font.FontStringRepository;
@@ -13,6 +14,7 @@ import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringResponseDTO;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.FontService;
 
 import java.util.List;
@@ -23,8 +25,11 @@ import java.util.UUID;
  */
 @Singleton
 public class FontServiceImpl
-        extends AbstractCrudService<FontEntity, UUID, FontModelDTO, FontModelResponseDTO, FontModelResponseDTO.FontModelDTO>
+        extends AbstractCrudService<FontEntity, UUID, FontModelDTO, FontModelResponseDTO.FontModelDTO>
         implements FontService {
+
+    private static final String FONT = "Font";
+    private static final String FONT_CHARACTER = "Font character";
 
     private final FontStringRepository fontStringRepository;
 
@@ -39,25 +44,32 @@ public class FontServiceImpl
                 entity -> entity.getProject().getId(),
                 fontRepository::findByProjectId,
                 FontModelDTO::id,
-                FontModelResponseDTO.FontModelErrorDTO::new,
-                "Font"
+                FONT
         );
         this.fontStringRepository = fontStringRepository;
     }
 
+    /**
+     * Loads the font a character request addressed.
+     *
+     * @param id the font identifier
+     * @return the font
+     * @throws ApiException {@code RESOURCE_NOT_FOUND} if no font has that identifier
+     */
+    private FontEntity requireFont(UUID id) {
+        return this.repository.findById(id).orElseThrow(() -> ApiException.notFound(FONT));
+    }
+
     @Override
-    public Page<FontStringResponseDTO> findCharsByFontId(UUID id, Pageable pageable) {
-        return this.fontStringRepository.findCharsByFontId(id, pageable).map(FontStringResponseDTO.FontStringDTO::createDTO);
+    public Page<FontStringResponseDTO.FontStringDTO> findCharsByFontId(UUID id, Pageable pageable) {
+        return this.fontStringRepository.findCharsByFontId(id, pageable)
+                .map(FontStringResponseDTO.FontStringDTO::createDTO);
     }
 
     @Transactional
     @Override
-    public FontStringResponseDTO updateCharByFontId(UUID id, FontStringDTO charModel) {
-        var byId = this.repository.findById(id);
-        if (byId.isEmpty()) {
-            return new FontStringResponseDTO.FontStringErrorDTO("Font not found");
-        }
-        var fontEntity = byId.get();
+    public FontStringResponseDTO.FontStringDTO updateCharByFontId(UUID id, FontStringDTO charModel) {
+        var fontEntity = requireFont(id);
         var charEntity = charModel.toEntity();
         charEntity.setFont(fontEntity);
         var updatedChar = this.fontStringRepository.update(charEntity);
@@ -66,12 +78,8 @@ public class FontServiceImpl
 
     @Transactional
     @Override
-    public FontStringResponseDTO createCharByFontId(UUID id, FontStringDTO charModel) {
-        var byId = this.repository.findById(id);
-        if (byId.isEmpty()) {
-            return new FontStringResponseDTO.FontStringErrorDTO("Font not found");
-        }
-        var fontEntity = byId.get();
+    public FontStringResponseDTO.FontStringDTO createCharByFontId(UUID id, FontStringDTO charModel) {
+        var fontEntity = requireFont(id);
         var charEntity = charModel.toEntity();
         charEntity.setFont(fontEntity);
         var savedChar = this.fontStringRepository.save(charEntity);
@@ -79,34 +87,22 @@ public class FontServiceImpl
     }
 
     @Override
-    public FontStringResponseDTO deleteCharByFontId(UUID fontId, UUID charId) {
-        var byId = this.repository.findById(fontId);
-        if (byId.isEmpty()) {
-            return new FontStringResponseDTO.FontStringErrorDTO("Font not found");
-        }
-        var charById = this.fontStringRepository.findById(charId);
-        if (charById.isEmpty()) {
-            return new FontStringResponseDTO.FontStringErrorDTO("Font character not found");
-        }
-        var fontEntity = byId.get();
-        var charEntity = charById.get();
+    public FontStringResponseDTO.FontStringDTO deleteCharByFontId(UUID fontId, UUID charId) {
+        var fontEntity = requireFont(fontId);
+        var charEntity = this.fontStringRepository.findById(charId)
+                .orElseThrow(() -> ApiException.notFound(FONT_CHARACTER));
         if (!fontEntity.getId().equals(charEntity.getFont().getId())) {
-            return new FontStringResponseDTO.FontStringErrorDTO("Font character not found");
+            throw ApiException.notOwnedBy(FONT_CHARACTER, charId, "font", fontId);
         }
         this.fontStringRepository.deleteById(charId);
         return FontStringResponseDTO.FontStringDTO.createDTO(charEntity);
     }
 
     @Override
-    public List<FontStringResponseDTO> deleteAllCharByFontId(UUID fontId) {
-        var byId = this.repository.findById(fontId);
-        if (byId.isEmpty()) {
-            return List.of();
-        }
-        var fontEntity = byId.get();
-        var charEntities = this.fontStringRepository.findAll()
-                .stream()
-                .filter(charEntity -> charEntity.getFont().getId().equals(fontEntity.getId())).toList();
+    public List<FontStringResponseDTO.FontStringDTO> deleteAllCharByFontId(UUID fontId) {
+        var fontEntity = requireFont(fontId);
+        List<FontStringEntity> charEntities =
+                this.fontStringRepository.findCharsByFontId(fontEntity.getId(), Pageable.unpaged()).getContent();
         this.fontStringRepository.deleteAll(charEntities);
         return charEntities.stream()
                 .map(FontStringResponseDTO.FontStringDTO::createDTO)

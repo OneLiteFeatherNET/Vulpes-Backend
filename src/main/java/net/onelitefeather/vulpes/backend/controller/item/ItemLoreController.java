@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreReorderDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreResponseDTO;
@@ -61,8 +62,8 @@ public class ItemLoreController {
             "/{itemId}/lore"
     })
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<ItemLoreResponseDTO>> getLoreById(@PathVariable("itemId") UUID itemId, Pageable pageable) {
-        Page<ItemLoreResponseDTO> lorePage = itemService.findLoreById(itemId, pageable);
+    public HttpResponse<Page<ItemLoreResponseDTO.ItemLoreDTO>> getLoreById(@PathVariable("itemId") UUID itemId, Pageable pageable) {
+        Page<ItemLoreResponseDTO.ItemLoreDTO> lorePage = itemService.findLoreById(itemId, pageable);
         return HttpResponse.ok(lorePage);
     }
 
@@ -84,8 +85,16 @@ public class ItemLoreController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemLoreResponseDTO.ItemLoreErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post(uris = {
@@ -93,12 +102,8 @@ public class ItemLoreController {
             "/{itemId}/lore"
     })
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<ItemLoreResponseDTO> updateLore(@PathVariable("itemId") UUID itemId, @Body ItemLoreDTO lore) {
-        ItemLoreResponseDTO updateResult = itemService.updateLoreById(itemId, lore);
-        if (updateResult instanceof ItemLoreResponseDTO.ItemLoreErrorDTO) {
-            return HttpResponse.notFound(updateResult);
-        }
-        return HttpResponse.ok(updateResult);
+    public HttpResponse<ItemLoreResponseDTO.ItemLoreDTO> updateLore(@PathVariable("itemId") UUID itemId, @Body ItemLoreDTO lore) {
+        return HttpResponse.ok(itemService.updateLoreById(itemId, lore));
     }
 
     @Operation(
@@ -119,8 +124,16 @@ public class ItemLoreController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemLoreResponseDTO.ItemLoreErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Put(uris = {
@@ -128,12 +141,8 @@ public class ItemLoreController {
             "/{itemId}/lore"
     })
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<ItemLoreResponseDTO> createLore(@PathVariable("itemId") UUID itemId, @Body ItemLoreDTO lore) {
-        ItemLoreResponseDTO createResult = itemService.createLoreById(itemId, lore);
-        if (createResult instanceof ItemLoreResponseDTO.ItemLoreErrorDTO) {
-            return HttpResponse.notFound(createResult);
-        }
-        return HttpResponse.ok(createResult);
+    public HttpResponse<ItemLoreResponseDTO.ItemLoreDTO> createLore(@PathVariable("itemId") UUID itemId, @Body ItemLoreDTO lore) {
+        return HttpResponse.ok(itemService.createLoreById(itemId, lore));
     }
 
     @Operation(
@@ -150,17 +159,14 @@ public class ItemLoreController {
             responseCode = "400",
             description = "Item or lore entry for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemLoreResponseDTO.ItemLoreErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Patch("/{itemId}/lore/reorder")
     @Validated
-    public HttpResponse<ItemLoreResponseDTO> reorderLore(@PathVariable("itemId") UUID itemId, @Body ItemLoreReorderDTO reorder) {
-        ItemLoreResponseDTO reorderResult = itemService.reorderLoreById(itemId, reorder.entryId(), reorder.newIndex());
-        if (reorderResult instanceof ItemLoreResponseDTO.ItemLoreErrorDTO) {
-            return HttpResponse.badRequest(reorderResult);
-        }
+    public HttpResponse<Void> reorderLore(@PathVariable("itemId") UUID itemId, @Body ItemLoreReorderDTO reorder) {
+        itemService.reorderLoreById(itemId, reorder.entryId(), reorder.newIndex());
         return HttpResponse.noContent();
     }
 
@@ -182,20 +188,16 @@ public class ItemLoreController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemLoreResponseDTO.ItemLoreErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete(uris = {
             "/lore/{itemId}/{loreId}",
             "/{itemId}/lore/{loreId}"
     })
-    public HttpResponse<ItemLoreResponseDTO> deleteLore(@PathVariable("itemId") UUID itemId, @PathVariable("loreId") UUID loreId) {
-        var deleteResult = itemService.deleteLoreById(itemId, loreId);
-        if (deleteResult instanceof ItemLoreResponseDTO.ItemLoreErrorDTO) {
-            return HttpResponse.notFound(deleteResult);
-        }
-        return HttpResponse.ok(deleteResult);
+    public HttpResponse<ItemLoreResponseDTO.ItemLoreDTO> deleteLore(@PathVariable("itemId") UUID itemId, @PathVariable("loreId") UUID loreId) {
+        return HttpResponse.ok(itemService.deleteLoreById(itemId, loreId));
     }
 
     @Operation(
@@ -218,15 +220,15 @@ public class ItemLoreController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemLoreResponseDTO.ItemLoreErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete(uris = {
             "/lore/{itemId}",
             "/{itemId}/lore"
     })
-    public HttpResponse<List<ItemLoreResponseDTO>> deleteLores(@PathVariable("itemId") UUID itemId) {
+    public HttpResponse<List<ItemLoreResponseDTO.ItemLoreDTO>> deleteLores(@PathVariable("itemId") UUID itemId) {
         var deletedLores = itemService.deleteAllLoreById(itemId);
         return HttpResponse.ok(deletedLores);
     }
