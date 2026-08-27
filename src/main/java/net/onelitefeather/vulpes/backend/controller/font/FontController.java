@@ -108,6 +108,38 @@ public class FontController {
     }
 
     @Operation(
+            summary = "Update an existing font",
+            operationId = "updateFont",
+            description = "Updates a font in the given project.",
+            tags = {"Font"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The font was successfully updated.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = FontModelResponseDTO.FontModelDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "The font or project was not found.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = FontModelErrorDTO.class)
+            )
+    )
+    @Post("/update")
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse<FontModelResponseDTO> update(@PathVariable UUID projectId, @Body FontModelDTO item) {
+        FontModelResponseDTO result = fontService.update(projectId, item);
+        if (result instanceof FontModelErrorDTO) {
+            return HttpResponse.notFound(result);
+        }
+        return HttpResponse.ok(result);
+    }
+
+    @Operation(
             summary = "Remove a font by ID",
             operationId = "deleteFont",
             description = "Removes a font owned by the given project by ID.",
