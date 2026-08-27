@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.6.1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.6.0...v2.6.1) (2026-08-27)
+
+
+### Bug Fixes
+
+* **ci:** publish the Helm chart only after the image ([#181](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/181)) ([05c3430](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/05c3430641d81b9eda429ba25439ed75f2f4ee7a))
+* **font:** add missing update endpoint ([#183](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/183)) ([9d416c9](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/9d416c953bb1154517630a65a0384f554061eb5d))
+
 ## [2.6.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.5.0...v2.6.0) (2026-08-24)
 
 
