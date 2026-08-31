@@ -18,14 +18,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import net.onelitefeather.vulpes.api.model.ItemEntity;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ItemService;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -60,22 +59,26 @@ public class ItemController {
             responseCode = "404",
             description = "The project was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<ItemModelResponseDTO> add(
+    public HttpResponse<ItemModelResponseDTO.ItemModelDTO> add(
             @PathVariable UUID projectId,
             @Body ItemModelDTO itemModel
     ) {
-        ItemModelResponseDTO result = itemService.create(projectId, itemModel);
-        if (result instanceof ItemModelResponseDTO.ItemModelErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
+        return HttpResponse.ok(itemService.create(projectId, itemModel));
     }
 
     @Operation(
@@ -96,22 +99,19 @@ public class ItemController {
             responseCode = "404",
             description = "Item with the given ID was not found, or does not belong to the given project.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Get("/{itemId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<ItemModelResponseDTO> getById(
+    public HttpResponse<ItemModelResponseDTO.ItemModelDTO> getById(
             @PathVariable UUID projectId,
             @PathVariable("itemId") UUID itemId
     ) {
-        Optional<ItemEntity> foundItemOpt = itemService.findById(projectId, itemId);
-        if (foundItemOpt.isPresent()) {
-            var foundItem = foundItemOpt.get();
-            return HttpResponse.ok(ItemModelResponseDTO.ItemModelDTO.createDTO(foundItem));
-        }
-        return HttpResponse.notFound(new ItemModelResponseDTO.ItemModelErrorDTO("Item not found"));
+        return HttpResponse.ok(itemService.findById(projectId, itemId)
+                .map(ItemModelResponseDTO.ItemModelDTO::createDTO)
+                .orElseThrow(() -> ApiException.notFound("Item")));
     }
 
     @Operation(
@@ -156,22 +156,26 @@ public class ItemController {
             responseCode = "404",
             description = "Item was not found, or does not belong to the given project.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<ItemModelResponseDTO> update(
+    public HttpResponse<ItemModelResponseDTO.ItemModelDTO> update(
             @PathVariable UUID projectId,
             @Body ItemModelDTO itemModel
     ) {
-        ItemModelResponseDTO updateResult = itemService.update(projectId, itemModel);
-        if (updateResult instanceof ItemModelResponseDTO.ItemModelErrorDTO) {
-            return HttpResponse.notFound(updateResult);
-        }
-        return HttpResponse.ok(updateResult);
+        return HttpResponse.ok(itemService.update(projectId, itemModel));
     }
 
     @Operation(
@@ -192,18 +196,14 @@ public class ItemController {
             responseCode = "404",
             description = "Item with the given ID was not found, or does not belong to the given project.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemModelResponseDTO.ItemModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete("/delete/{itemId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<ItemModelResponseDTO> delete(@PathVariable UUID projectId, @PathVariable("itemId") UUID itemId) {
-        ItemModelResponseDTO deleteResult = itemService.delete(projectId, itemId);
-        if (deleteResult instanceof ItemModelResponseDTO.ItemModelErrorDTO) {
-            return HttpResponse.notFound(deleteResult);
-        }
-        return HttpResponse.ok(deleteResult);
+    public HttpResponse<ItemModelResponseDTO.ItemModelDTO> delete(@PathVariable UUID projectId, @PathVariable("itemId") UUID itemId) {
+        return HttpResponse.ok(itemService.delete(projectId, itemId));
     }
 
     @Operation(
@@ -212,19 +212,13 @@ public class ItemController {
             tags = {"Item"}
     )
     @ApiResponse(
-            responseCode = "200",
-            description = "All items were successfully deleted.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = ItemModelResponseDTO.ItemModelDTO.class)
-                    )
-            )
+            responseCode = "204",
+            description = "All items were successfully deleted."
     )
     @Delete("/deleteAll")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<List<ItemModelResponseDTO>> deleteAll(@PathVariable UUID projectId) {
-        List<ItemModelResponseDTO> deleteResults = itemService.deleteAll(projectId);
-        return HttpResponse.ok(deleteResults);
+    public HttpResponse<Void> deleteAll(@PathVariable UUID projectId) {
+        itemService.deleteAll(projectId);
+        return HttpResponse.noContent();
     }
 }

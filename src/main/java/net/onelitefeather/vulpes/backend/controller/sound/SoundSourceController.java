@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
 import net.onelitefeather.vulpes.backend.service.SoundService;
@@ -54,16 +55,16 @@ public class SoundSourceController {
                             responseCode = "404",
                             description = "No sound file sources were found for the given sound event ID.",
                             content = @Content(
-                                    mediaType = MediaType.APPLICATION_JSON,
-                                    schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
+                                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                                    schema = @Schema(implementation = ProblemDetail.class)
                             )
                     )
             }
     )
     @Get("/{id}/sources")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<SoundResponseDTO>> get(@PathVariable UUID id, Pageable pageable) {
-        Page<SoundResponseDTO> result = soundService.getSoundSourcesById(id, pageable);
+    public HttpResponse<Page<SoundResponseDTO.SoundFileSourceDTO>> get(@PathVariable UUID id, Pageable pageable) {
+        Page<SoundResponseDTO.SoundFileSourceDTO> result = soundService.getSoundSourcesById(id, pageable);
         return HttpResponse.ok(result);
     }
 
@@ -96,15 +97,22 @@ public class SoundSourceController {
                     schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
             )
     )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
     @Post("/{id}/sources")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<SoundResponseDTO> createSource(
+    public HttpResponse<SoundResponseDTO.SoundFileSourceDTO> createSource(
             @PathVariable("id") UUID soundEventId,
             @Body SoundFileSourceDTO sourceDTO
     ) {
-        SoundResponseDTO result = soundService.createAndLinkSource(soundEventId, sourceDTO);
-        return HttpResponse.ok(result);
+        return HttpResponse.ok(soundService.createAndLinkSource(soundEventId, sourceDTO));
     }
 
     /**
@@ -136,15 +144,22 @@ public class SoundSourceController {
                     schema = @Schema(implementation = SoundResponseDTO.SoundFileSourceDTO.class)
             )
     )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
     @Post("/{id}/sources/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<SoundResponseDTO> updateSource(
+    public HttpResponse<SoundResponseDTO.SoundFileSourceDTO> updateSource(
             @PathVariable("id") UUID soundEventId,
             @Body SoundFileSourceDTO sourceDTO
     ) {
-        SoundResponseDTO result = soundService.updateLinkedSource(soundEventId, sourceDTO);
-        return HttpResponse.ok(result);
+        return HttpResponse.ok(soundService.updateLinkedSource(soundEventId, sourceDTO));
     }
 
 
@@ -179,13 +194,12 @@ public class SoundSourceController {
     )
     @Delete("/{id}/sources/delete/{soundId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<SoundResponseDTO> deleteSource(
+    public HttpResponse<SoundResponseDTO.SoundFileSourceDTO> deleteSource(
             @Parameter(name = "id", description = "The id of the sound event", in = ParameterIn.PATH, required = true)
             @PathVariable("id") UUID soundEventId,
             @Parameter(name = "soundID", description = "The id of the sound file", in = ParameterIn.PATH, required = true)
             @PathVariable("soundId") UUID soundId
     ) {
-        SoundResponseDTO result = soundService.deleteLinkedSource(soundEventId, soundId);
-        return HttpResponse.ok(result);
+        return HttpResponse.ok(soundService.deleteLinkedSource(soundEventId, soundId));
     }
 }

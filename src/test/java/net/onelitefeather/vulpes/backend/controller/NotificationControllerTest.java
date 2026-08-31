@@ -4,8 +4,10 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
 import net.onelitefeather.vulpes.api.model.NotificationEntity;
+import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelDTO;
 import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelResponseDTO;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.NotificationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class NotificationControllerTest {
 
     private static class StubNotificationService implements NotificationService {
-        NotificationModelResponseDTO response;
+        NotificationModelResponseDTO.NotificationModelDTO response;
         Page<NotificationModelResponseDTO.NotificationModelDTO> page;
         Optional<NotificationEntity> findByIdResponse = Optional.empty();
 
@@ -30,18 +32,17 @@ class NotificationControllerTest {
         }
 
         @Override
-        public NotificationModelResponseDTO update(NotificationModelDTO dto) {
+        public NotificationModelResponseDTO.NotificationModelDTO update(NotificationModelDTO dto) {
             return response;
         }
 
         @Override
-        public NotificationModelResponseDTO delete(UUID id) {
+        public NotificationModelResponseDTO.NotificationModelDTO delete(UUID id) {
             return response;
         }
 
         @Override
-        public List<NotificationModelResponseDTO> deleteAll() {
-            return List.of();
+        public void deleteAll() {
         }
 
         @Override
@@ -55,23 +56,22 @@ class NotificationControllerTest {
         }
 
         @Override
-        public NotificationModelResponseDTO create(UUID projectId, NotificationModelDTO dto) {
+        public NotificationModelResponseDTO.NotificationModelDTO create(UUID projectId, NotificationModelDTO dto) {
             return response;
         }
 
         @Override
-        public NotificationModelResponseDTO update(UUID projectId, NotificationModelDTO dto) {
+        public NotificationModelResponseDTO.NotificationModelDTO update(UUID projectId, NotificationModelDTO dto) {
             return response;
         }
 
         @Override
-        public NotificationModelResponseDTO delete(UUID projectId, UUID id) {
+        public NotificationModelResponseDTO.NotificationModelDTO delete(UUID projectId, UUID id) {
             return response;
         }
 
         @Override
-        public List<NotificationModelResponseDTO> deleteAll(UUID projectId) {
-            return List.of();
+        public void deleteAll(UUID projectId) {
         }
 
         @Override
@@ -93,44 +93,60 @@ class NotificationControllerTest {
         stub.response = new NotificationModelResponseDTO.NotificationModelDTO(UUID.randomUUID(), "UI", "var", "comment", "STONE", "frame", "title", projectId);
         NotificationController controller = new NotificationController(stub);
 
-        HttpResponse<NotificationModelResponseDTO> resp = controller.add(projectId, dto);
+        HttpResponse<NotificationModelResponseDTO.NotificationModelDTO> resp = controller.add(projectId, dto);
 
         assertEquals(200, resp.getStatus().getCode());
         assertInstanceOf(NotificationModelResponseDTO.NotificationModelDTO.class, resp.body());
     }
 
     @Test
-    void add_unknownProject_returns404() {
-        StubNotificationService stub = new StubNotificationService();
-        stub.response = new NotificationModelResponseDTO.NotificationModelErrorDTO("Project not found");
+    @DisplayName("add() lets a PROJECT_NOT_FOUND from the service reach the exception handler")
+    void add_unknownProject_propagates() {
+        StubNotificationService stub = new StubNotificationService() {
+            @Override
+            public NotificationModelResponseDTO.NotificationModelDTO create(UUID projectId, NotificationModelDTO dto) {
+                throw ApiException.projectNotFound();
+            }
+        };
         NotificationController controller = new NotificationController(stub);
         NotificationModelDTO dto = new NotificationModelDTO(null, "UI", "var", "comment", "STONE", "frame", "title");
+        UUID projectId = UUID.randomUUID();
 
-        HttpResponse<NotificationModelResponseDTO> resp = controller.add(UUID.randomUUID(), dto);
+        ApiException exception = assertThrows(ApiException.class, () -> controller.add(projectId, dto));
 
-        assertEquals(404, resp.getStatus().getCode());
+        assertEquals(ErrorCode.PROJECT_NOT_FOUND, exception.code());
     }
 
     @Test
-    void getById_crossProject_returns404() {
+    @DisplayName("getById() raises RESOURCE_NOT_FOUND when the entity belongs to another project")
+    void getById_crossProject_raisesNotFound() {
         StubNotificationService stub = new StubNotificationService();
         stub.findByIdResponse = Optional.empty();
         NotificationController controller = new NotificationController(stub);
+        UUID projectId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
 
-        HttpResponse<NotificationModelResponseDTO> resp = controller.getById(UUID.randomUUID(), UUID.randomUUID());
+        ApiException exception = assertThrows(ApiException.class, () -> controller.getById(projectId, id));
 
-        assertEquals(404, resp.getStatus().getCode());
+        assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
     }
 
     @Test
-    void delete_crossProject_returns404() {
-        StubNotificationService stub = new StubNotificationService();
-        stub.response = new NotificationModelResponseDTO.NotificationModelErrorDTO("Notification not found");
+    @DisplayName("remove() lets a RESOURCE_NOT_FOUND from the service reach the exception handler")
+    void delete_crossProject_propagates() {
+        StubNotificationService stub = new StubNotificationService() {
+            @Override
+            public NotificationModelResponseDTO.NotificationModelDTO delete(UUID projectId, UUID id) {
+                throw ApiException.notFound("Notification");
+            }
+        };
         NotificationController controller = new NotificationController(stub);
+        UUID projectId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
 
-        HttpResponse<NotificationModelResponseDTO> resp = controller.remove(UUID.randomUUID(), UUID.randomUUID());
+        ApiException exception = assertThrows(ApiException.class, () -> controller.remove(projectId, id));
 
-        assertEquals(404, resp.getStatus().getCode());
+        assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
     }
 
     @Test

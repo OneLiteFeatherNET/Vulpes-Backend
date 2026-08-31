@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * Service interface for managing fonts and font characters.
  */
-public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO, FontModelResponseDTO, FontModelResponseDTO.FontModelDTO> {
+public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO, FontModelResponseDTO.FontModelDTO> {
 
     /**
      * Gets the characters of a font by its ID.
@@ -23,7 +23,7 @@ public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO,
      * @param pageable pagination information
      * @return a list of characters
      */
-    Page<FontStringResponseDTO> findCharsByFontId(UUID id, Pageable pageable);
+    Page<FontStringResponseDTO.FontStringDTO> findCharsByFontId(UUID id, Pageable pageable);
 
     /**
      * Updates the character of a font by its ID.
@@ -32,7 +32,7 @@ public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO,
      * @param charModel the new character to set
      * @return the updated character
      */
-    FontStringResponseDTO updateCharByFontId(UUID id, FontStringDTO charModel);
+    FontStringResponseDTO.FontStringDTO updateCharByFontId(UUID id, FontStringDTO charModel);
 
     /**
      * Creates the character of a font by its ID.
@@ -41,7 +41,7 @@ public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO,
      * @param charModel the new character to set
      * @return the updated character
      */
-    FontStringResponseDTO createCharByFontId(UUID id, FontStringDTO charModel);
+    FontStringResponseDTO.FontStringDTO createCharByFontId(UUID id, FontStringDTO charModel);
 
     /**
      * Deletes the character of a font by its ID.
@@ -50,7 +50,7 @@ public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO,
      * @param charId the ID of the character to delete
      * @return the deleted character
      */
-    FontStringResponseDTO deleteCharByFontId(UUID fontId, UUID charId);
+    FontStringResponseDTO.FontStringDTO deleteCharByFontId(UUID fontId, UUID charId);
 
     /**
      * Deletes all characters of a font by its ID.
@@ -58,5 +58,5 @@ public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO,
      * @param fontId the ID of the font
      * @return the list of deleted characters
      */
-    List<FontStringResponseDTO> deleteAllCharByFontId(UUID fontId);
+    List<FontStringResponseDTO.FontStringDTO> deleteAllCharByFontId(UUID fontId);
 }

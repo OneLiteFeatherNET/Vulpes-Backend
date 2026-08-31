@@ -3,7 +3,6 @@ package net.onelitefeather.vulpes.backend.domain.font;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.onelitefeather.vulpes.api.model.font.FontStringEntity;
-import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.UUID;
 
@@ -29,25 +28,9 @@ public interface FontStringResponseDTO {
             @Schema(description = "Font String order index") int orderIndex
     ) implements FontStringResponseDTO {
 
-        public static FontStringResponseDTO createDTO(FontStringEntity entity) {
+        public static FontStringDTO createDTO(FontStringEntity entity) {
             return new FontStringDTO(entity.getId(), entity.getLine(), entity.getOrderIndex());
         }
 
     }
-
-    /**
-     * The {@link FontStringResponseDTO.FontStringErrorDTO} is used to represent an error response for Enchantment events.
-     *
-     * @param errorMessage the error message describing the issue
-     */
-    @Schema(
-            name = "ResponseFontStringErrorDTO",
-            description = "Error message for Font String model"
-    )
-    @Serdeable
-    record FontStringErrorDTO(
-            @Schema(description = "Error message") String errorMessage
-    ) implements FontStringResponseDTO, ErrorResponse {
-    }
-
 }

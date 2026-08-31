@@ -4,6 +4,7 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
+import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemFlagDTO;
@@ -12,6 +13,7 @@ import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ItemService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ItemControllerTest {
 
     private static class StubItemService implements ItemService {
-        ItemModelResponseDTO response;
+        ItemModelResponseDTO.ItemModelDTO response;
         Page<ItemModelResponseDTO.ItemModelDTO> page;
         Optional<ItemEntity> findByIdResponse = Optional.empty();
 
@@ -37,18 +39,17 @@ class ItemControllerTest {
         }
 
         @Override
-        public ItemModelResponseDTO update(ItemModelDTO dto) {
+        public ItemModelResponseDTO.ItemModelDTO update(ItemModelDTO dto) {
             return response;
         }
 
         @Override
-        public ItemModelResponseDTO delete(UUID id) {
+        public ItemModelResponseDTO.ItemModelDTO delete(UUID id) {
             return response;
         }
 
         @Override
-        public List<ItemModelResponseDTO> deleteAll() {
-            return List.of();
+        public void deleteAll() {
         }
 
         @Override
@@ -62,23 +63,22 @@ class ItemControllerTest {
         }
 
         @Override
-        public ItemModelResponseDTO create(UUID projectId, ItemModelDTO dto) {
+        public ItemModelResponseDTO.ItemModelDTO create(UUID projectId, ItemModelDTO dto) {
             return response;
         }
 
         @Override
-        public ItemModelResponseDTO update(UUID projectId, ItemModelDTO dto) {
+        public ItemModelResponseDTO.ItemModelDTO update(UUID projectId, ItemModelDTO dto) {
             return response;
         }
 
         @Override
-        public ItemModelResponseDTO delete(UUID projectId, UUID id) {
+        public ItemModelResponseDTO.ItemModelDTO delete(UUID projectId, UUID id) {
             return response;
         }
 
         @Override
-        public List<ItemModelResponseDTO> deleteAll(UUID projectId) {
-            return List.of();
+        public void deleteAll(UUID projectId) {
         }
 
         @Override
@@ -92,82 +92,82 @@ class ItemControllerTest {
         }
 
         @Override
-        public Page<ItemFlagResponseDTO> findFlagsById(UUID id, Pageable pageable) {
+        public Page<ItemFlagResponseDTO.ItemFlagDTO> findFlagsById(UUID id, Pageable pageable) {
             return Page.empty();
         }
 
         @Override
-        public ItemFlagResponseDTO createFlagById(UUID id, ItemFlagDTO itemFlagDTO) {
+        public ItemFlagResponseDTO.ItemFlagDTO createFlagById(UUID id, ItemFlagDTO itemFlagDTO) {
             return null;
         }
 
         @Override
-        public ItemFlagResponseDTO deleteFlagById(UUID id, UUID flagId) {
+        public ItemFlagResponseDTO.ItemFlagDTO deleteFlagById(UUID id, UUID flagId) {
             return null;
         }
 
         @Override
-        public List<ItemFlagResponseDTO> deleteAllFlagsById(UUID id) {
+        public List<ItemFlagResponseDTO.ItemFlagDTO> deleteAllFlagsById(UUID id) {
             return List.of();
         }
 
         @Override
-        public ItemFlagResponseDTO updateFlagById(UUID id, ItemFlagDTO flag) {
+        public ItemFlagResponseDTO.ItemFlagDTO updateFlagById(UUID id, ItemFlagDTO flag) {
             return null;
         }
 
         @Override
-        public Page<ItemEnchantmentResponseDTO> findEnchantmentsById(UUID id, Pageable pageable) {
+        public Page<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> findEnchantmentsById(UUID id, Pageable pageable) {
             return Page.empty();
         }
 
         @Override
-        public ItemEnchantmentResponseDTO updateEnchantmentById(UUID id, ItemEnchantmentDTO enchantment) {
+        public ItemEnchantmentResponseDTO.ItemEnchantmentDTO updateEnchantmentById(UUID id, ItemEnchantmentDTO enchantment) {
             return null;
         }
 
         @Override
-        public ItemEnchantmentResponseDTO createEnchantmentById(UUID id, ItemEnchantmentDTO enchantment) {
+        public ItemEnchantmentResponseDTO.ItemEnchantmentDTO createEnchantmentById(UUID id, ItemEnchantmentDTO enchantment) {
             return null;
         }
 
         @Override
-        public ItemEnchantmentResponseDTO deleteEnchantmentById(UUID id, UUID enchantment) {
+        public ItemEnchantmentResponseDTO.ItemEnchantmentDTO deleteEnchantmentById(UUID id, UUID enchantment) {
             return null;
         }
 
         @Override
-        public List<ItemEnchantmentResponseDTO> deleteAllEnchantmentsById(UUID id) {
+        public List<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> deleteAllEnchantmentsById(UUID id) {
             return List.of();
         }
 
         @Override
-        public Page<ItemLoreResponseDTO> findLoreById(UUID id, Pageable pageable) {
+        public Page<ItemLoreResponseDTO.ItemLoreDTO> findLoreById(UUID id, Pageable pageable) {
             return Page.empty();
         }
 
         @Override
-        public ItemLoreResponseDTO updateLoreById(UUID id, ItemLoreDTO loreDto) {
+        public ItemLoreResponseDTO.ItemLoreDTO updateLoreById(UUID id, ItemLoreDTO loreDto) {
             return null;
         }
 
         @Override
-        public ItemLoreResponseDTO createLoreById(UUID id, ItemLoreDTO loreDto) {
+        public ItemLoreResponseDTO.ItemLoreDTO createLoreById(UUID id, ItemLoreDTO loreDto) {
             return null;
         }
 
         @Override
-        public ItemLoreResponseDTO deleteLoreById(UUID id, UUID loreId) {
+        public ItemLoreResponseDTO.ItemLoreDTO deleteLoreById(UUID id, UUID loreId) {
             return null;
         }
 
         @Override
-        public ItemLoreResponseDTO reorderLoreById(UUID id, UUID entryId, int newIndex) {
+        public ItemLoreResponseDTO.ItemLoreDTO reorderLoreById(UUID id, UUID entryId, int newIndex) {
             return null;
         }
 
         @Override
-        public List<ItemLoreResponseDTO> deleteAllLoreById(UUID id) {
+        public List<ItemLoreResponseDTO.ItemLoreDTO> deleteAllLoreById(UUID id) {
             return List.of();
         }
     }
@@ -190,32 +190,42 @@ class ItemControllerTest {
         stub.response = sampleResponse(UUID.randomUUID(), projectId);
         ItemController controller = new ItemController(stub);
 
-        HttpResponse<ItemModelResponseDTO> resp = controller.add(projectId, sampleDTO(null));
+        HttpResponse<ItemModelResponseDTO.ItemModelDTO> resp = controller.add(projectId, sampleDTO(null));
 
         assertEquals(200, resp.getStatus().getCode());
         assertInstanceOf(ItemModelResponseDTO.ItemModelDTO.class, resp.body());
     }
 
     @Test
-    void add_unknownProject_returns404() {
-        StubItemService stub = new StubItemService();
-        stub.response = new ItemModelResponseDTO.ItemModelErrorDTO("Project not found");
+    @DisplayName("add() lets a PROJECT_NOT_FOUND from the service reach the exception handler")
+    void add_unknownProject_propagates() {
+        StubItemService stub = new StubItemService() {
+            @Override
+            public ItemModelResponseDTO.ItemModelDTO create(UUID projectId, ItemModelDTO dto) {
+                throw ApiException.projectNotFound();
+            }
+        };
         ItemController controller = new ItemController(stub);
+        ItemModelDTO dto = sampleDTO(null);
+        UUID projectId = UUID.randomUUID();
 
-        HttpResponse<ItemModelResponseDTO> resp = controller.add(UUID.randomUUID(), sampleDTO(null));
+        ApiException exception = assertThrows(ApiException.class, () -> controller.add(projectId, dto));
 
-        assertEquals(404, resp.getStatus().getCode());
+        assertEquals(ErrorCode.PROJECT_NOT_FOUND, exception.code());
     }
 
     @Test
-    void getById_crossProject_returns404() {
+    @DisplayName("getById() raises RESOURCE_NOT_FOUND when the entity belongs to another project")
+    void getById_crossProject_raisesNotFound() {
         StubItemService stub = new StubItemService();
         stub.findByIdResponse = Optional.empty();
         ItemController controller = new ItemController(stub);
+        UUID projectId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
 
-        HttpResponse<ItemModelResponseDTO> resp = controller.getById(UUID.randomUUID(), UUID.randomUUID());
+        ApiException exception = assertThrows(ApiException.class, () -> controller.getById(projectId, id));
 
-        assertEquals(404, resp.getStatus().getCode());
+        assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
     }
 
     @Test

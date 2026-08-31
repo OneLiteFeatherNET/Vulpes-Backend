@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.item.ItemFlagDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemFlagResponseDTO;
 import net.onelitefeather.vulpes.backend.service.ItemService;
@@ -59,8 +60,8 @@ public class ItemFlagController {
             "/{itemId}/flags"
     })
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Page<ItemFlagResponseDTO>> getFlagsById(@PathVariable("itemId") UUID itemId, Pageable pageable) {
-        Page<ItemFlagResponseDTO> flagsPage = itemService.findFlagsById(itemId, pageable);
+    public HttpResponse<Page<ItemFlagResponseDTO.ItemFlagDTO>> getFlagsById(@PathVariable("itemId") UUID itemId, Pageable pageable) {
+        Page<ItemFlagResponseDTO.ItemFlagDTO> flagsPage = itemService.findFlagsById(itemId, pageable);
         return HttpResponse.ok(flagsPage);
     }
 
@@ -82,8 +83,16 @@ public class ItemFlagController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post(uris = {
@@ -91,12 +100,8 @@ public class ItemFlagController {
             "/{itemId}/flag"
     })
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<ItemFlagResponseDTO> updateFlags(@PathVariable("itemId") UUID itemId, @Body ItemFlagDTO flag) {
-        ItemFlagResponseDTO updateResult = itemService.updateFlagById(itemId, flag);
-        if (updateResult instanceof ItemFlagResponseDTO.ItemFlagErrorDTO) {
-            return HttpResponse.notFound(updateResult);
-        }
-        return HttpResponse.ok(updateResult);
+    public HttpResponse<ItemFlagResponseDTO.ItemFlagDTO> updateFlags(@PathVariable("itemId") UUID itemId, @Body ItemFlagDTO flag) {
+        return HttpResponse.ok(itemService.updateFlagById(itemId, flag));
     }
 
     @Operation(
@@ -117,8 +122,16 @@ public class ItemFlagController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Put(uris = {
@@ -126,12 +139,8 @@ public class ItemFlagController {
             "/{itemId}/flag"
     })
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<ItemFlagResponseDTO> createFlag(@PathVariable("itemId") UUID itemId, @Body ItemFlagDTO flag) {
-        ItemFlagResponseDTO createResult = itemService.createFlagById(itemId, flag);
-        if (createResult instanceof ItemFlagResponseDTO.ItemFlagErrorDTO) {
-            return HttpResponse.notFound(createResult);
-        }
-        return HttpResponse.ok(createResult);
+    public HttpResponse<ItemFlagResponseDTO.ItemFlagDTO> createFlag(@PathVariable("itemId") UUID itemId, @Body ItemFlagDTO flag) {
+        return HttpResponse.ok(itemService.createFlagById(itemId, flag));
     }
 
 
@@ -153,20 +162,16 @@ public class ItemFlagController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete(uris = {
             "/flag/{itemId}/{flagId}",
             "/{itemId}/flag/{flagId}"
     })
-    public HttpResponse<ItemFlagResponseDTO> deleteFlag(@PathVariable("itemId") UUID itemId, @PathVariable("flagId") UUID flagId) {
-        var deleteResult = itemService.deleteFlagById(itemId, flagId);
-        if (deleteResult instanceof ItemFlagResponseDTO.ItemFlagErrorDTO) {
-            return HttpResponse.notFound(deleteResult);
-        }
-        return HttpResponse.ok(deleteResult);
+    public HttpResponse<ItemFlagResponseDTO.ItemFlagDTO> deleteFlag(@PathVariable("itemId") UUID itemId, @PathVariable("flagId") UUID flagId) {
+        return HttpResponse.ok(itemService.deleteFlagById(itemId, flagId));
     }
 
     @Operation(
@@ -189,15 +194,15 @@ public class ItemFlagController {
             responseCode = "404",
             description = "Item for the given ID was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = ItemFlagResponseDTO.ItemFlagErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete(uris = {
             "/flag/{itemId}",
             "/{itemId}/flag"
     })
-    public HttpResponse<List<ItemFlagResponseDTO>> deleteFlags(@PathVariable("itemId") UUID itemId) {
+    public HttpResponse<List<ItemFlagResponseDTO.ItemFlagDTO>> deleteFlags(@PathVariable("itemId") UUID itemId) {
         var deletedFlags = itemService.deleteAllFlagsById(itemId);
         return HttpResponse.ok(deletedFlags);
     }

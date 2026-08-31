@@ -2,35 +2,40 @@ package net.onelitefeather.vulpes.backend.service;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
  * Generic CRUD service interface providing common persistence operations.
  *
- * @param <E>       the entity type
- * @param <ID>      the entity identifier type
- * @param <REQ>     the request DTO type
- * @param <RES>     the response DTO interface type
- * @param <SUCCESS> the concrete success response DTO type
+ * <p>Every operation either succeeds and returns the response DTO, or raises an {@link ApiException}
+ * naming the HTTP status and the machine-readable error code the caller should see. Failures are not
+ * encoded in the return type, so a controller never has to test what it got back before answering.
+ *
+ * @param <E>   the entity type
+ * @param <ID>  the entity identifier type
+ * @param <REQ> the request DTO type
+ * @param <RES> the response DTO type
  */
-public interface CrudService<E, ID, REQ, RES, SUCCESS extends RES> {
+public interface CrudService<E, ID, REQ, RES> {
 
     /**
      * Creates a new entity from the given request DTO.
      *
      * @param dto the request DTO
-     * @return the created entity mapped to the success DTO
+     * @return the created entity mapped to the response DTO
      */
-    SUCCESS create(REQ dto);
+    RES create(REQ dto);
 
     /**
      * Updates an existing entity with the data from the given request DTO.
      *
      * @param dto the request DTO
-     * @return the updated entity mapped to the success DTO, or an error DTO if not found
+     * @return the updated entity mapped to the response DTO
+     * @throws ApiException {@code INVALID_REQUEST} if the DTO carries no identifier,
+     *                      {@code RESOURCE_NOT_FOUND} if no entity has that identifier
      */
     RES update(REQ dto);
 
@@ -38,24 +43,23 @@ public interface CrudService<E, ID, REQ, RES, SUCCESS extends RES> {
      * Deletes an entity by its identifier.
      *
      * @param id the identifier of the entity to delete
-     * @return the deleted entity mapped to the success DTO, or an error DTO if not found
+     * @return the deleted entity mapped to the response DTO
+     * @throws ApiException {@code RESOURCE_NOT_FOUND} if no entity has that identifier
      */
     RES delete(ID id);
 
     /**
      * Deletes all entities.
-     *
-     * @return a list containing the result (or empty list)
      */
-    List<RES> deleteAll();
+    void deleteAll();
 
     /**
      * Retrieves all entities with pagination support.
      *
      * @param pageable pagination details
-     * @return a page of success DTOs
+     * @return a page of response DTOs
      */
-    Page<SUCCESS> getAll(Pageable pageable);
+    Page<RES> getAll(Pageable pageable);
 
     /**
      * Finds an entity by its identifier.
@@ -70,7 +74,8 @@ public interface CrudService<E, ID, REQ, RES, SUCCESS extends RES> {
      *
      * @param projectId the identifier of the owning project
      * @param dto       the request DTO
-     * @return the created entity mapped to the success DTO, or an error DTO if the project does not exist
+     * @return the created entity mapped to the response DTO
+     * @throws ApiException {@code PROJECT_NOT_FOUND} if the project does not exist
      */
     RES create(UUID projectId, REQ dto);
 
@@ -79,7 +84,10 @@ public interface CrudService<E, ID, REQ, RES, SUCCESS extends RES> {
      *
      * @param projectId the identifier of the owning project
      * @param dto       the request DTO
-     * @return the updated entity mapped to the success DTO, or an error DTO if not found or not owned by the project
+     * @return the updated entity mapped to the response DTO
+     * @throws ApiException {@code INVALID_REQUEST} if the DTO carries no identifier,
+     *                      {@code RESOURCE_NOT_FOUND} if no such entity exists or it belongs to a
+     *                      different project, {@code PROJECT_NOT_FOUND} if the project does not exist
      */
     RES update(UUID projectId, REQ dto);
 
@@ -88,7 +96,9 @@ public interface CrudService<E, ID, REQ, RES, SUCCESS extends RES> {
      *
      * @param projectId the identifier of the owning project
      * @param id        the identifier of the entity to delete
-     * @return the deleted entity mapped to the success DTO, or an error DTO if not found or not owned by the project
+     * @return the deleted entity mapped to the response DTO
+     * @throws ApiException {@code RESOURCE_NOT_FOUND} if no such entity exists or it belongs to a
+     *                      different project
      */
     RES delete(UUID projectId, ID id);
 
@@ -96,18 +106,17 @@ public interface CrudService<E, ID, REQ, RES, SUCCESS extends RES> {
      * Deletes all entities belonging to a project.
      *
      * @param projectId the identifier of the owning project
-     * @return an empty list (matching the existing unscoped {@link #deleteAll()} convention)
      */
-    List<RES> deleteAll(UUID projectId);
+    void deleteAll(UUID projectId);
 
     /**
      * Retrieves all entities belonging to a project, with pagination support.
      *
      * @param projectId the identifier of the owning project
      * @param pageable  pagination details
-     * @return a page of success DTOs belonging to the project
+     * @return a page of response DTOs belonging to the project
      */
-    Page<SUCCESS> getAll(UUID projectId, Pageable pageable);
+    Page<RES> getAll(UUID projectId, Pageable pageable);
 
     /**
      * Finds an entity by its identifier, scoped to a project.

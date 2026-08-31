@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 @Singleton
 public class ProjectServiceImpl
-        extends AbstractCrudService<ProjectEntity, UUID, ProjectModelDTO, ProjectModelResponseDTO, ProjectModelResponseDTO.ProjectModelDTO>
+        extends AbstractCrudService<ProjectEntity, UUID, ProjectModelDTO, ProjectModelResponseDTO.ProjectModelDTO>
         implements ProjectService {
 
     private final ProjectRepository projectRepository;
@@ -28,7 +28,6 @@ public class ProjectServiceImpl
                 ProjectModelDTO::toProjectEntity,
                 ProjectModelResponseDTO.ProjectModelDTO::createDTO,
                 ProjectModelDTO::id,
-                ProjectModelResponseDTO.ProjectModelErrorDTO::new,
                 "Project"
         );
         this.projectRepository = projectRepository;

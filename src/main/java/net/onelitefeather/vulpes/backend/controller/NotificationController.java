@@ -12,14 +12,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import net.onelitefeather.vulpes.api.model.NotificationEntity;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelDTO;
 import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelResponseDTO;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.NotificationService;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -58,19 +57,23 @@ public class NotificationController {
             responseCode = "404",
             description = "The project was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<NotificationModelResponseDTO> add(@PathVariable UUID projectId, @Body NotificationModelDTO model) {
-        NotificationModelResponseDTO result = notificationService.create(projectId, model);
-        if (result instanceof NotificationModelResponseDTO.NotificationModelErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
+    public HttpResponse<NotificationModelResponseDTO.NotificationModelDTO> add(@PathVariable UUID projectId, @Body NotificationModelDTO model) {
+        return HttpResponse.ok(notificationService.create(projectId, model));
     }
 
     @Operation(
@@ -91,18 +94,16 @@ public class NotificationController {
             responseCode = "404",
             description = "The notification was not found, or does not belong to the given project.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<NotificationModelResponseDTO> getById(@PathVariable UUID projectId, @PathVariable UUID id) {
-        Optional<NotificationEntity> model = notificationService.findById(projectId, id);
-        if (model.isPresent()) {
-            return HttpResponse.ok(NotificationModelResponseDTO.NotificationModelDTO.createDTO(model.get()));
-        }
-        return HttpResponse.notFound(new NotificationModelResponseDTO.NotificationModelErrorDTO("Notification not found"));
+    public HttpResponse<NotificationModelResponseDTO.NotificationModelDTO> getById(@PathVariable UUID projectId, @PathVariable UUID id) {
+        return HttpResponse.ok(notificationService.findById(projectId, id)
+                .map(NotificationModelResponseDTO.NotificationModelDTO::createDTO)
+                .orElseThrow(() -> ApiException.notFound("Notification")));
     }
 
     @Operation(
@@ -123,18 +124,14 @@ public class NotificationController {
             responseCode = "404",
             description = "The notification was not found, or does not belong to the given project.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<NotificationModelResponseDTO> remove(@PathVariable UUID projectId, @PathVariable UUID id) {
-        NotificationModelResponseDTO result = notificationService.delete(projectId, id);
-        if (result instanceof NotificationModelResponseDTO.NotificationModelErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
+    public HttpResponse<NotificationModelResponseDTO.NotificationModelDTO> remove(@PathVariable UUID projectId, @PathVariable UUID id) {
+        return HttpResponse.ok(notificationService.delete(projectId, id));
     }
 
     @Operation(
@@ -168,18 +165,14 @@ public class NotificationController {
             tags = {"Notification"}
     )
     @ApiResponse(
-            responseCode = "200",
-            description = "All notifications were successfully deleted from the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelDTO.class)
-            )
+            responseCode = "204",
+            description = "All notifications were successfully deleted from the database."
     )
     @Delete("/delete/")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<List<NotificationModelResponseDTO>> deleteAll(@PathVariable UUID projectId) {
-        List<NotificationModelResponseDTO> result = notificationService.deleteAll(projectId);
-        return HttpResponse.ok(result);
+    public HttpResponse<Void> deleteAll(@PathVariable UUID projectId) {
+        notificationService.deleteAll(projectId);
+        return HttpResponse.noContent();
     }
 
     @Operation(
@@ -200,18 +193,22 @@ public class NotificationController {
             responseCode = "404",
             description = "The notification was not found, or does not belong to the given project.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<NotificationModelResponseDTO> update(@PathVariable UUID projectId, @Body NotificationModelDTO model) {
-        NotificationModelResponseDTO result = notificationService.update(projectId, model);
-        if (result instanceof NotificationModelResponseDTO.NotificationModelErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
+    public HttpResponse<NotificationModelResponseDTO.NotificationModelDTO> update(@PathVariable UUID projectId, @Body NotificationModelDTO model) {
+        return HttpResponse.ok(notificationService.update(projectId, model));
     }
 }

@@ -9,6 +9,8 @@ import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -138,7 +140,7 @@ class AbstractCrudServiceProjectScopedTest {
     }
 
     private static class TestAttributeService
-            extends AbstractCrudService<AttributeEntity, UUID, AttributeModelDTO, AttributeModelResponseDTO, AttributeModelResponseDTO.AttributeModelDTO> {
+            extends AbstractCrudService<AttributeEntity, UUID, AttributeModelDTO, AttributeModelResponseDTO.AttributeModelDTO> {
 
         TestAttributeService(
                 PageableRepository<AttributeEntity, UUID> repository,
@@ -153,7 +155,6 @@ class AbstractCrudServiceProjectScopedTest {
                     e -> e.getProject().getId(),
                     findByProjectFn,
                     AttributeModelDTO::id,
-                    AttributeModelResponseDTO.AttributeModelErrorDTO::new,
                     "Attribute"
             );
         }
@@ -189,44 +190,59 @@ class AbstractCrudServiceProjectScopedTest {
     void create_knownProject_savesEntity() {
         AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
 
-        AttributeModelResponseDTO result = service.create(projectA.getId(), dto);
+        AttributeModelResponseDTO.AttributeModelDTO result = service.create(projectA.getId(), dto);
 
-        assertInstanceOf(AttributeModelResponseDTO.AttributeModelDTO.class, result);
-        var success = (AttributeModelResponseDTO.AttributeModelDTO) result;
-        assertEquals(projectA.getId(), success.projectId());
+        assertEquals(projectA.getId(), result.projectId());
     }
 
     @Test
-    @DisplayName("create() with an unknown projectId returns an error DTO")
-    void create_unknownProject_returnsError() {
+    @DisplayName("create() with an unknown projectId raises PROJECT_NOT_FOUND")
+    void create_unknownProject_raisesProjectNotFound() {
         AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
+        UUID unknownProject = UUID.randomUUID();
 
-        AttributeModelResponseDTO result = service.create(UUID.randomUUID(), dto);
+        ApiException exception = assertThrows(ApiException.class, () -> service.create(unknownProject, dto));
 
-        assertInstanceOf(AttributeModelResponseDTO.AttributeModelErrorDTO.class, result);
+        assertEquals(ErrorCode.PROJECT_NOT_FOUND, exception.code());
     }
 
     @Test
-    @DisplayName("update() on an entity owned by a different project returns not-found")
-    void update_crossProject_returnsNotFound() {
+    @DisplayName("update() without an id is a client error, not a missing resource")
+    void update_withoutId_raisesInvalidRequest() {
+        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
+        UUID projectId = projectA.getId();
+
+        ApiException exception = assertThrows(ApiException.class, () -> service.update(projectId, dto));
+
+        assertEquals(ErrorCode.INVALID_REQUEST, exception.code());
+    }
+
+    @Test
+    @DisplayName("update() on an entity owned by a different project is answered as not-found")
+    void update_crossProject_raisesNotFound() {
         AttributeEntity existing = new AttributeEntity(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectA);
         attributeRepository.save(existing);
         AttributeModelDTO updateDto = new AttributeModelDTO(existing.getId(), "UI2", "var2", 2.0, 20.0);
+        UUID otherProject = projectB.getId();
 
-        AttributeModelResponseDTO result = service.update(projectB.getId(), updateDto);
+        ApiException exception = assertThrows(ApiException.class, () -> service.update(otherProject, updateDto));
 
-        assertInstanceOf(AttributeModelResponseDTO.AttributeModelErrorDTO.class, result);
+        assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
+        assertEquals("Attribute not found.", exception.detail(), "the client must not learn it exists elsewhere");
+        assertNotNull(exception.internalDetail(), "the real reason belongs in the log");
     }
 
     @Test
-    @DisplayName("delete() on an entity owned by a different project returns not-found and does not delete it")
-    void delete_crossProject_returnsNotFoundAndKeepsEntity() {
+    @DisplayName("delete() on an entity owned by a different project is answered as not-found and keeps it")
+    void delete_crossProject_raisesNotFoundAndKeepsEntity() {
         AttributeEntity existing = new AttributeEntity(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectA);
         attributeRepository.save(existing);
+        UUID otherProject = projectB.getId();
+        UUID existingId = existing.getId();
 
-        AttributeModelResponseDTO result = service.delete(projectB.getId(), existing.getId());
+        ApiException exception = assertThrows(ApiException.class, () -> service.delete(otherProject, existingId));
 
-        assertInstanceOf(AttributeModelResponseDTO.AttributeModelErrorDTO.class, result);
+        assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
         assertTrue(attributeRepository.findById(existing.getId()).isPresent());
     }
 
@@ -236,9 +252,9 @@ class AbstractCrudServiceProjectScopedTest {
         AttributeEntity existing = new AttributeEntity(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectA);
         attributeRepository.save(existing);
 
-        AttributeModelResponseDTO result = service.delete(projectA.getId(), existing.getId());
+        AttributeModelResponseDTO.AttributeModelDTO result = service.delete(projectA.getId(), existing.getId());
 
-        assertInstanceOf(AttributeModelResponseDTO.AttributeModelDTO.class, result);
+        assertEquals(existing.getId(), result.id());
         assertTrue(attributeRepository.findById(existing.getId()).isEmpty());
     }
 

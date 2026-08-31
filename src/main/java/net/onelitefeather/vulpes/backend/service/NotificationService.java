@@ -9,5 +9,5 @@ import java.util.UUID;
 /**
  * Service interface for managing notifications.
  */
-public interface NotificationService extends CrudService<NotificationEntity, UUID, NotificationModelDTO, NotificationModelResponseDTO, NotificationModelResponseDTO.NotificationModelDTO> {
+public interface NotificationService extends CrudService<NotificationEntity, UUID, NotificationModelDTO, NotificationModelResponseDTO.NotificationModelDTO> {
 }

@@ -5,9 +5,11 @@ import io.micronaut.data.model.Pageable;
 import io.micronaut.data.repository.PageableRepository;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.CrudService;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -16,21 +18,30 @@ import java.util.function.Function;
 /**
  * Abstract generic implementation of the {@link CrudService} interface.
  *
- * @param <E>       the entity type
- * @param <ID>      the identifier type
- * @param <REQ>     the request DTO type
- * @param <RES>     the response DTO interface type
- * @param <SUCCESS> the concrete success response DTO type
+ * <p>Failure paths raise {@link ApiException}, which the HTTP layer turns into a status and an
+ * RFC 9457 body. Two of them deserve attention:
+ *
+ * <ul>
+ *   <li>A request DTO without an identifier is a client bug, not a missing resource, so it answers
+ *       {@code INVALID_REQUEST} rather than {@code RESOURCE_NOT_FOUND}. The old behaviour returned a
+ *       404 here and left the frontend unable to tell the two apart.</li>
+ *   <li>An entity that exists but belongs to a different project answers exactly like one that does
+ *       not exist. Anything else would turn the endpoint into an oracle for resource ids in projects
+ *       the caller has no business addressing. The real reason is recorded in the log.</li>
+ * </ul>
+ *
+ * @param <E>   the entity type
+ * @param <ID>  the identifier type
+ * @param <REQ> the request DTO type
+ * @param <RES> the response DTO type
  */
-public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
-        implements CrudService<E, ID, REQ, RES, SUCCESS> {
+public abstract class AbstractCrudService<E, ID, REQ, RES> implements CrudService<E, ID, REQ, RES> {
 
     protected final PageableRepository<E, ID> repository;
     protected final Function<REQ, E> entityMapper;
-    protected final Function<E, SUCCESS> dtoMapper;
-    protected final Function<E, SUCCESS> dtoListMapper;
+    protected final Function<E, RES> dtoMapper;
+    protected final Function<E, RES> dtoListMapper;
     protected final Function<REQ, ID> idMapper;
-    protected final Function<String, RES> errorMapper;
     protected final String entityName;
 
     protected final boolean projectScoped;
@@ -44,20 +55,18 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
      *
      * @param repository   the pageable repository
      * @param entityMapper to convert a request DTO to an entity
-     * @param dtoMapper    to convert an entity to a success DTO
+     * @param dtoMapper    to convert an entity to a response DTO
      * @param idMapper     to extract the ID from a request DTO
-     * @param errorMapper  to create an error response DTO from an error message
      * @param entityName   the human-readable entity name for error messages
      */
     protected AbstractCrudService(
             PageableRepository<E, ID> repository,
             Function<REQ, E> entityMapper,
-            Function<E, SUCCESS> dtoMapper,
+            Function<E, RES> dtoMapper,
             Function<REQ, ID> idMapper,
-            Function<String, RES> errorMapper,
             String entityName
     ) {
-        this(repository, entityMapper, dtoMapper, dtoMapper, idMapper, errorMapper, entityName);
+        this(repository, entityMapper, dtoMapper, dtoMapper, idMapper, entityName);
     }
 
     /**
@@ -65,19 +74,17 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
      *
      * @param repository    the pageable repository
      * @param entityMapper  to convert a request DTO to an entity
-     * @param dtoMapper     to convert an entity to a single success DTO
-     * @param dtoListMapper to convert an entity to a list success DTO
+     * @param dtoMapper     to convert an entity to a single response DTO
+     * @param dtoListMapper to convert an entity to a list response DTO
      * @param idMapper      to extract the ID from a request DTO
-     * @param errorMapper   to create an error response DTO from an error message
      * @param entityName    the human-readable entity name for error messages
      */
     protected AbstractCrudService(
             PageableRepository<E, ID> repository,
             Function<REQ, E> entityMapper,
-            Function<E, SUCCESS> dtoMapper,
-            Function<E, SUCCESS> dtoListMapper,
+            Function<E, RES> dtoMapper,
+            Function<E, RES> dtoListMapper,
             Function<REQ, ID> idMapper,
-            Function<String, RES> errorMapper,
             String entityName
     ) {
         this.repository = repository;
@@ -85,7 +92,6 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
         this.dtoMapper = dtoMapper;
         this.dtoListMapper = dtoListMapper;
         this.idMapper = idMapper;
-        this.errorMapper = errorMapper;
         this.entityName = entityName;
         this.projectScoped = false;
         this.projectRepository = null;
@@ -100,27 +106,25 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
      * @param repository               the pageable repository
      * @param projectRepository        to resolve the owning {@link ProjectEntity} for a given project id
      * @param scopedEntityMapper       to convert a request DTO plus the resolved project to an entity
-     * @param dtoMapper                to convert an entity to a success DTO
+     * @param dtoMapper                to convert an entity to a response DTO
      * @param entityProjectIdExtractor to read the owning project's id off an entity
      * @param findByProjectFn          to look up a page of entities belonging to a project
      * @param idMapper                 to extract the ID from a request DTO
-     * @param errorMapper              to create an error response DTO from an error message
      * @param entityName               the human-readable entity name for error messages
      */
     protected AbstractCrudService(
             PageableRepository<E, ID> repository,
             ProjectRepository projectRepository,
             BiFunction<REQ, ProjectEntity, E> scopedEntityMapper,
-            Function<E, SUCCESS> dtoMapper,
+            Function<E, RES> dtoMapper,
             Function<E, UUID> entityProjectIdExtractor,
             BiFunction<UUID, Pageable, Page<E>> findByProjectFn,
             Function<REQ, ID> idMapper,
-            Function<String, RES> errorMapper,
             String entityName
     ) {
         this(
                 repository, projectRepository, scopedEntityMapper, dtoMapper, dtoMapper,
-                entityProjectIdExtractor, findByProjectFn, idMapper, errorMapper, entityName
+                entityProjectIdExtractor, findByProjectFn, idMapper, entityName
         );
     }
 
@@ -130,24 +134,22 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
      * @param repository               the pageable repository
      * @param projectRepository        to resolve the owning {@link ProjectEntity} for a given project id
      * @param scopedEntityMapper       to convert a request DTO plus the resolved project to an entity
-     * @param dtoMapper                to convert an entity to a single success DTO
-     * @param dtoListMapper            to convert an entity to a list success DTO
+     * @param dtoMapper                to convert an entity to a single response DTO
+     * @param dtoListMapper            to convert an entity to a list response DTO
      * @param entityProjectIdExtractor to read the owning project's id off an entity
      * @param findByProjectFn          to look up a page of entities belonging to a project
      * @param idMapper                 to extract the ID from a request DTO
-     * @param errorMapper              to create an error response DTO from an error message
      * @param entityName               the human-readable entity name for error messages
      */
     protected AbstractCrudService(
             PageableRepository<E, ID> repository,
             ProjectRepository projectRepository,
             BiFunction<REQ, ProjectEntity, E> scopedEntityMapper,
-            Function<E, SUCCESS> dtoMapper,
-            Function<E, SUCCESS> dtoListMapper,
+            Function<E, RES> dtoMapper,
+            Function<E, RES> dtoListMapper,
             Function<E, UUID> entityProjectIdExtractor,
             BiFunction<UUID, Pageable, Page<E>> findByProjectFn,
             Function<REQ, ID> idMapper,
-            Function<String, RES> errorMapper,
             String entityName
     ) {
         this.repository = repository;
@@ -155,7 +157,6 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
         this.dtoMapper = dtoMapper;
         this.dtoListMapper = dtoListMapper;
         this.idMapper = idMapper;
-        this.errorMapper = errorMapper;
         this.entityName = entityName;
         this.projectScoped = true;
         this.projectRepository = projectRepository;
@@ -178,10 +179,53 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
     }
 
     /**
+     * Reads the identifier off a request DTO, rejecting a DTO that carries none.
+     *
+     * @param dto the request DTO
+     * @return the identifier
+     * @throws ApiException {@code INVALID_REQUEST} if the DTO carries no identifier
+     */
+    private ID requireId(REQ dto) {
+        ID id = idMapper.apply(dto);
+        if (id == null) {
+            throw ApiException.invalidRequest(
+                    "An id is required to update a " + entityName.toLowerCase(Locale.ROOT) + ".");
+        }
+        return id;
+    }
+
+    /**
+     * Loads an entity that must exist and must belong to the given project.
+     *
+     * @param projectId the project the request addressed
+     * @param id        the identifier of the entity
+     * @return the entity
+     * @throws ApiException {@code RESOURCE_NOT_FOUND} if it does not exist or belongs elsewhere
+     */
+    private E requireOwnedByProject(UUID projectId, ID id) {
+        E entity = repository.findById(id).orElseThrow(() -> ApiException.notFound(entityName));
+        if (!projectId.equals(entityProjectIdExtractor.apply(entity))) {
+            throw ApiException.notOwnedByProject(entityName, id, projectId);
+        }
+        return entity;
+    }
+
+    /**
+     * Resolves the project a scoped request addressed.
+     *
+     * @param projectId the project identifier
+     * @return the project entity
+     * @throws ApiException {@code PROJECT_NOT_FOUND} if it does not exist
+     */
+    private ProjectEntity requireProject(UUID projectId) {
+        return projectRepository.findById(projectId).orElseThrow(ApiException::projectNotFound);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
-    public SUCCESS create(REQ dto) {
+    public RES create(REQ dto) {
         requireNotProjectScoped();
         E entity = entityMapper.apply(dto);
         E saved = repository.save(entity);
@@ -194,9 +238,9 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
     @Override
     public RES update(REQ dto) {
         requireNotProjectScoped();
-        ID id = idMapper.apply(dto);
-        if (id == null || repository.findById(id).isEmpty()) {
-            return errorMapper.apply(entityName + " not found");
+        ID id = requireId(dto);
+        if (repository.findById(id).isEmpty()) {
+            throw ApiException.notFound(entityName);
         }
         E entity = entityMapper.apply(dto);
         E updated = repository.update(entity);
@@ -209,29 +253,25 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
     @Override
     public RES delete(ID id) {
         requireNotProjectScoped();
-        Optional<E> existing = repository.findById(id);
-        if (existing.isPresent()) {
-            repository.deleteById(id);
-            return dtoMapper.apply(existing.get());
-        }
-        return errorMapper.apply(entityName + " not found");
+        E existing = repository.findById(id).orElseThrow(() -> ApiException.notFound(entityName));
+        repository.deleteById(id);
+        return dtoMapper.apply(existing);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<RES> deleteAll() {
+    public void deleteAll() {
         requireNotProjectScoped();
         repository.deleteAll();
-        return List.of();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Page<SUCCESS> getAll(Pageable pageable) {
+    public Page<RES> getAll(Pageable pageable) {
         requireNotProjectScoped();
         return repository.findAll(pageable).map(dtoListMapper);
     }
@@ -251,11 +291,8 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
     @Override
     public RES create(UUID projectId, REQ dto) {
         requireProjectScoped();
-        Optional<ProjectEntity> project = projectRepository.findById(projectId);
-        if (project.isEmpty()) {
-            return errorMapper.apply("Project not found");
-        }
-        E entity = scopedEntityMapper.apply(dto, project.get());
+        ProjectEntity project = requireProject(projectId);
+        E entity = scopedEntityMapper.apply(dto, project);
         E saved = repository.save(entity);
         return dtoMapper.apply(saved);
     }
@@ -266,19 +303,10 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
     @Override
     public RES update(UUID projectId, REQ dto) {
         requireProjectScoped();
-        ID id = idMapper.apply(dto);
-        if (id == null) {
-            return errorMapper.apply(entityName + " not found");
-        }
-        Optional<E> existing = repository.findById(id);
-        if (existing.isEmpty() || !projectId.equals(entityProjectIdExtractor.apply(existing.get()))) {
-            return errorMapper.apply(entityName + " not found");
-        }
-        Optional<ProjectEntity> project = projectRepository.findById(projectId);
-        if (project.isEmpty()) {
-            return errorMapper.apply("Project not found");
-        }
-        E entity = scopedEntityMapper.apply(dto, project.get());
+        ID id = requireId(dto);
+        requireOwnedByProject(projectId, id);
+        ProjectEntity project = requireProject(projectId);
+        E entity = scopedEntityMapper.apply(dto, project);
         E updated = repository.update(entity);
         return dtoMapper.apply(updated);
     }
@@ -289,30 +317,26 @@ public abstract class AbstractCrudService<E, ID, REQ, RES, SUCCESS extends RES>
     @Override
     public RES delete(UUID projectId, ID id) {
         requireProjectScoped();
-        Optional<E> existing = repository.findById(id);
-        if (existing.isEmpty() || !projectId.equals(entityProjectIdExtractor.apply(existing.get()))) {
-            return errorMapper.apply(entityName + " not found");
-        }
+        E existing = requireOwnedByProject(projectId, id);
         repository.deleteById(id);
-        return dtoMapper.apply(existing.get());
+        return dtoMapper.apply(existing);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<RES> deleteAll(UUID projectId) {
+    public void deleteAll(UUID projectId) {
         requireProjectScoped();
         List<E> toDelete = findByProjectFn.apply(projectId, Pageable.unpaged()).getContent();
         repository.deleteAll(toDelete);
-        return List.of();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Page<SUCCESS> getAll(UUID projectId, Pageable pageable) {
+    public Page<RES> getAll(UUID projectId, Pageable pageable) {
         requireProjectScoped();
         return findByProjectFn.apply(projectId, pageable).map(dtoListMapper);
     }

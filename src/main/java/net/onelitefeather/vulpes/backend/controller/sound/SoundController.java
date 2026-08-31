@@ -18,12 +18,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.SoundService;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -36,7 +37,7 @@ import java.util.UUID;
 @Controller("/project/{projectId}/sound")
 public class SoundController {
 
-    private static final String GENERIC_ERROR = "Sound event not found";
+    private static final String SOUND_EVENT = "Sound event";
     private final SoundService soundService;
 
     @Inject
@@ -62,19 +63,23 @@ public class SoundController {
             responseCode = "404",
             description = "The project was not found.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<SoundResponseDTO> add(@PathVariable UUID projectId, @Body SoundEventDTO dtoModel) {
-        SoundResponseDTO result = soundService.create(projectId, dtoModel);
-        if (result instanceof SoundResponseDTO.SoundErrorDTO) {
-            return HttpResponse.badRequest(result);
-        }
-        return HttpResponse.ok(result);
+    public HttpResponse<SoundResponseDTO.SoundModelDTO> add(@PathVariable UUID projectId, @Body SoundEventDTO dtoModel) {
+        return HttpResponse.ok(soundService.create(projectId, dtoModel));
     }
 
     @Operation(
@@ -95,18 +100,16 @@ public class SoundController {
             responseCode = "404",
             description = "The sound was not found, or does not belong to the given project.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<SoundResponseDTO> getById(@PathVariable UUID projectId, @PathVariable UUID id) {
-        var soundEvent = soundService.findById(projectId, id);
-        if (soundEvent.isPresent()) {
-            return HttpResponse.ok(SoundResponseDTO.SoundModelDTO.createDTO(soundEvent.get()));
-        }
-        return HttpResponse.notFound(new SoundResponseDTO.SoundErrorDTO(GENERIC_ERROR));
+    public HttpResponse<SoundResponseDTO.SoundModelDTO> getById(@PathVariable UUID projectId, @PathVariable UUID id) {
+        return HttpResponse.ok(soundService.findById(projectId, id)
+                .map(SoundResponseDTO.SoundModelDTO::createDTO)
+                .orElseThrow(() -> ApiException.notFound(SOUND_EVENT)));
     }
 
     @Operation(
@@ -127,18 +130,14 @@ public class SoundController {
             responseCode = "404",
             description = "The sound event was not found, or does not belong to the given project.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<SoundResponseDTO> remove(@PathVariable UUID projectId, @PathVariable UUID id) {
-        SoundResponseDTO result = soundService.delete(projectId, id);
-        if (result instanceof SoundResponseDTO.SoundErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
+    public HttpResponse<SoundResponseDTO.SoundModelDTO> remove(@PathVariable UUID projectId, @PathVariable UUID id) {
+        return HttpResponse.ok(soundService.delete(projectId, id));
     }
 
     @Operation(
@@ -172,18 +171,14 @@ public class SoundController {
             tags = {"Sound"}
     )
     @ApiResponse(
-            responseCode = "200",
-            description = "All sound events were successfully deleted from the database.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoundResponseDTO.SoundModelDTO.class)
-            )
+            responseCode = "204",
+            description = "All sound events were successfully deleted from the database."
     )
     @Delete("/delete/")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<List<SoundResponseDTO>> deleteAll(@PathVariable UUID projectId) {
-        List<SoundResponseDTO> results = soundService.deleteAll(projectId);
-        return HttpResponse.ok(results);
+    public HttpResponse<Void> deleteAll(@PathVariable UUID projectId) {
+        soundService.deleteAll(projectId);
+        return HttpResponse.noContent();
     }
 
     @Operation(
@@ -204,18 +199,22 @@ public class SoundController {
             responseCode = "404",
             description = "The sound event was not found, or does not belong to the given project.",
             content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = SoundResponseDTO.SoundErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<SoundResponseDTO> update(@PathVariable UUID projectId, @Body SoundEventDTO model) {
-        SoundResponseDTO result = soundService.update(projectId, model);
-        if (result instanceof SoundResponseDTO.SoundErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
+    public HttpResponse<SoundResponseDTO.SoundModelDTO> update(@PathVariable UUID projectId, @Body SoundEventDTO model) {
+        return HttpResponse.ok(soundService.update(projectId, model));
     }
 }

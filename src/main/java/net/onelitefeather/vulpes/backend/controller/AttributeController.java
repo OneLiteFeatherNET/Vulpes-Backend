@@ -20,10 +20,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.service.AttributeService;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
-import java.util.List;
 import java.util.UUID;
 
 @Controller("/project/{projectId}/attribute")
@@ -54,18 +54,22 @@ public class AttributeController {
             responseCode = "404",
             description = "The project was not found.",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<AttributeModelResponseDTO> add(@PathVariable UUID projectId, @Body AttributeModelDTO model) {
-        AttributeModelResponseDTO result = attributeService.create(projectId, model);
-        if (result instanceof AttributeModelResponseDTO.AttributeModelErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
+    public HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> add(@PathVariable UUID projectId, @Body AttributeModelDTO model) {
+        return HttpResponse.ok(attributeService.create(projectId, model));
     }
 
     @Operation(
@@ -86,18 +90,22 @@ public class AttributeController {
             responseCode = "404",
             description = "The attribute was not found, or does not belong to the given project.",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post("/update")
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<AttributeModelResponseDTO> update(@PathVariable UUID projectId, @Body AttributeModelDTO model) {
-        AttributeModelResponseDTO result = attributeService.update(projectId, model);
-        if (result instanceof AttributeModelResponseDTO.AttributeModelErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
+    public HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> update(@PathVariable UUID projectId, @Body AttributeModelDTO model) {
+        return HttpResponse.ok(attributeService.update(projectId, model));
     }
 
     @Operation(
@@ -118,23 +126,19 @@ public class AttributeController {
             responseCode = "404",
             description = "The attribute was not found, or does not belong to the given project.",
             content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelErrorDTO.class)
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Delete("/delete/{id}")
-    public HttpResponse<AttributeModelResponseDTO> delete(@PathVariable UUID projectId, @PathVariable UUID id) {
-        AttributeModelResponseDTO result = attributeService.delete(projectId, id);
-        if (result instanceof AttributeModelResponseDTO.AttributeModelErrorDTO) {
-            return HttpResponse.notFound(result);
-        }
-        return HttpResponse.ok(result);
+    public HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> delete(@PathVariable UUID projectId, @PathVariable UUID id) {
+        return HttpResponse.ok(attributeService.delete(projectId, id));
     }
 
     /**
      * Deletes all [AttributeModel] belonging to the given project.
      *
-     * @return a list with all deleted [AttributeModel] mapped in a [HttpResponse]
+     * @return an empty 204 response
      */
     @Operation(
             summary = "Delete all attributes",
@@ -143,17 +147,13 @@ public class AttributeController {
             tags = {"Attribute"}
     )
     @ApiResponse(
-            responseCode = "200",
-            description = "All attributes were successfully deleted.",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
-            )
+            responseCode = "204",
+            description = "All attributes were successfully deleted."
     )
     @Delete("/delete")
-    public HttpResponse<List<AttributeModelResponseDTO>> deleteAll(@PathVariable UUID projectId) {
-        List<AttributeModelResponseDTO> result = attributeService.deleteAll(projectId);
-        return HttpResponse.ok(result);
+    public HttpResponse<Void> deleteAll(@PathVariable UUID projectId) {
+        attributeService.deleteAll(projectId);
+        return HttpResponse.noContent();
     }
 
     /**

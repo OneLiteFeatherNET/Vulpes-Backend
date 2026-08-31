@@ -79,6 +79,37 @@ To set up the `CLIENT_REPO_TOKEN`:
 ./gradlew test
 ```
 
+## Error handling
+
+Every endpoint answers a failure with a single body shape, [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457), served as `application/problem+json`:
+
+```json
+{
+  "type": "https://vulpes.onelitefeather.net/errors/resource-not-found",
+  "title": "Resource not found",
+  "status": 404,
+  "detail": "Attribute not found.",
+  "instance": "/project/6f1c.../attribute/update",
+  "code": "RESOURCE_NOT_FOUND",
+  "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
+  "errors": []
+}
+```
+
+This holds for framework errors too — unbindable path variables, malformed JSON, 405, 415 — because the shape is produced by an `ErrorResponseProcessor`, which is the hook every built-in Micronaut handler routes its body through.
+
+### For clients
+
+- Branch and localize on **`code`**, never on `detail`. The codes are the `ErrorCode` enum and reach the generated Dart client as an enum; `detail` is English prose and may be reworded at any time.
+- On `VALIDATION_FAILED`, **`errors`** lists the rejected fields as `{field, code, message}`, where `field` is the request property path (`displayName`), so a form can mark the matching input.
+- Show **`traceId`** in support dialogs. It is the OpenTelemetry trace id when tracing is enabled, and always identifies the matching server log line.
+
+### For contributors
+
+- Raise failures with `ApiException`; the status, title and problem type come from the `ErrorCode` you pass.
+- The message you pass **is the response body**. Author it at the throw site from data the caller already sent us. Never forward a message from JDBC, Hibernate or any other lower layer — those carry table names, column names and SQL fragments ([CWE-209](https://cwe.mitre.org/data/definitions/209.html)). Details for 5xx are a fixed constant for the same reason.
+- When the honest reason differs from what the caller may learn — a cross-project access, for instance — pass it as `internalDetail`. It is logged and never serialized.
+
 ## License
 
 This project is licensed under the AGPL-3.0 License - see the LICENSE file for details.

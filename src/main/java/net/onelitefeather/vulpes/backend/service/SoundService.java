@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  * Service interface for managing sound events and sound sources.
  */
-public interface SoundService extends CrudService<SoundEventEntity, UUID, SoundEventDTO, SoundResponseDTO, SoundResponseDTO.SoundModelDTO> {
+public interface SoundService extends CrudService<SoundEventEntity, UUID, SoundEventDTO, SoundResponseDTO.SoundModelDTO> {
 
     /**
      * Gets all sound file sources by an ID.
@@ -21,7 +21,7 @@ public interface SoundService extends CrudService<SoundEventEntity, UUID, SoundE
      * @param pageable pagination details
      * @return the sound event response with sources
      */
-    Page<SoundResponseDTO> getSoundSourcesById(UUID id, Pageable pageable);
+    Page<SoundResponseDTO.SoundFileSourceDTO> getSoundSourcesById(UUID id, Pageable pageable);
 
     /**
      * Creates a new sound file source and links it to a sound event.
@@ -30,7 +30,7 @@ public interface SoundService extends CrudService<SoundEventEntity, UUID, SoundE
      * @param sourceDTO    the source data to create
      * @return the created source response
      */
-    SoundResponseDTO createAndLinkSource(UUID soundEventId, SoundFileSourceDTO sourceDTO);
+    SoundResponseDTO.SoundFileSourceDTO createAndLinkSource(UUID soundEventId, SoundFileSourceDTO sourceDTO);
 
     /**
      * Updates an existing sound file source linked to a sound event by ID.
@@ -39,7 +39,7 @@ public interface SoundService extends CrudService<SoundEventEntity, UUID, SoundE
      * @param sourceDTO    the source data to update
      * @return the updated source response
      */
-    SoundResponseDTO updateLinkedSource(UUID soundEventId, SoundFileSourceDTO sourceDTO);
+    SoundResponseDTO.SoundFileSourceDTO updateLinkedSource(UUID soundEventId, SoundFileSourceDTO sourceDTO);
 
     /**
      * Deletes an existing sound file source linked to a sound event by ID.
@@ -48,5 +48,5 @@ public interface SoundService extends CrudService<SoundEventEntity, UUID, SoundE
      * @param sourceId     the ID of the source to delete
      * @return the deleted source response
      */
-    SoundResponseDTO deleteLinkedSource(UUID soundEventId, UUID sourceId);
+    SoundResponseDTO.SoundFileSourceDTO deleteLinkedSource(UUID soundEventId, UUID sourceId);
 }

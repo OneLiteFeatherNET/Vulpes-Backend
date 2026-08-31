@@ -3,7 +3,6 @@ package net.onelitefeather.vulpes.backend.domain.project;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
-import net.onelitefeather.vulpes.backend.domain.error.ErrorResponse;
 
 import java.util.UUID;
 
@@ -54,20 +53,5 @@ public interface ProjectModelResponseDTO {
                     model.isLabor()
             );
         }
-    }
-
-    /**
-     * The {@link ProjectModelErrorDTO} is used to represent an error response for project models.
-     *
-     * @param errorMessage the error message describing the issue
-     */
-    @Schema(
-            name = "ProjectModelErrorDTO",
-            description = "Error message for Project Model"
-    )
-    @Serdeable
-    record ProjectModelErrorDTO(
-            @Schema(description = "Error message") String errorMessage
-    ) implements ProjectModelResponseDTO, ErrorResponse {
     }
 }

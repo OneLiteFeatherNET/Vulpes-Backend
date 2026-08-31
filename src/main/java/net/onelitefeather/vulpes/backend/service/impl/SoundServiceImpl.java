@@ -12,9 +12,9 @@ import net.onelitefeather.vulpes.api.repository.SoundRepository;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.SoundService;
 
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -22,10 +22,11 @@ import java.util.UUID;
  */
 @Singleton
 public class SoundServiceImpl
-        extends AbstractCrudService<SoundEventEntity, UUID, SoundEventDTO, SoundResponseDTO, SoundResponseDTO.SoundModelDTO>
+        extends AbstractCrudService<SoundEventEntity, UUID, SoundEventDTO, SoundResponseDTO.SoundModelDTO>
         implements SoundService {
 
-    private static final String GENERIC_ERROR = "Sound event not found";
+    private static final String SOUND_EVENT = "Sound event";
+    private static final String SOUND_SOURCE = "Sound source";
     private final SoundFileSourceRepository soundFileSourceRepository;
 
     /**
@@ -45,29 +46,54 @@ public class SoundServiceImpl
                 entity -> entity.getProject().getId(),
                 soundRepository::findByProjectId,
                 SoundEventDTO::id,
-                SoundResponseDTO.SoundErrorDTO::new,
-                "Sound event"
+                SOUND_EVENT
         );
         this.soundFileSourceRepository = soundFileSourceRepository;
     }
 
+    /**
+     * Loads the sound event a source request addressed.
+     *
+     * @param soundEventId the sound event identifier
+     * @return the sound event
+     * @throws ApiException {@code RESOURCE_NOT_FOUND} if no sound event has that identifier
+     */
+    private SoundEventEntity requireSoundEvent(UUID soundEventId) {
+        return this.repository.findById(soundEventId).orElseThrow(() -> ApiException.notFound(SOUND_EVENT));
+    }
+
+    /**
+     * Verifies that a source is linked to the given sound event.
+     *
+     * @param soundEventId the sound event the request addressed
+     * @param sourceId     the source identifier
+     * @return the source as it is currently stored
+     * @throws ApiException {@code RESOURCE_NOT_FOUND} if the source is not linked to that event
+     */
+    private SoundResponseDTO.SoundFileSourceDTO requireLinkedSource(UUID soundEventId, UUID sourceId) {
+        return getSoundSourcesById(soundEventId, Pageable.unpaged())
+                .getContent()
+                .stream()
+                .filter(source -> sourceId.equals(source.id()))
+                .findFirst()
+                .orElseThrow(() -> ApiException.notOwnedBy(SOUND_SOURCE, sourceId, "sound event", soundEventId));
+    }
+
     @Override
-    public Page<SoundResponseDTO> getSoundSourcesById(UUID id, Pageable pageable) {
-        return this.soundFileSourceRepository.findSoundFileSourcesBySoundEvent(id, pageable).map(SoundResponseDTO.SoundFileSourceDTO::createDTO);
+    public Page<SoundResponseDTO.SoundFileSourceDTO> getSoundSourcesById(UUID id, Pageable pageable) {
+        return this.soundFileSourceRepository.findSoundFileSourcesBySoundEvent(id, pageable)
+                .map(SoundResponseDTO.SoundFileSourceDTO::createDTO);
     }
 
     @Override
     @Transactional
     public SoundResponseDTO.SoundFileSourceDTO createAndLinkSource(UUID soundEventId, SoundFileSourceDTO sourceDTO) {
-        if (soundEventId == null || sourceDTO == null) {
-            throw new IllegalArgumentException("SoundEventId and SourceDTO must not be null");
+        if (sourceDTO == null) {
+            throw ApiException.invalidRequest("A sound source body is required.");
         }
-        Optional<SoundEventEntity> soundEventOpt = this.repository.findById(soundEventId);
-        if (soundEventOpt.isEmpty()) {
-            throw new IllegalArgumentException(GENERIC_ERROR);
-        }
+        var soundEvent = requireSoundEvent(soundEventId);
         var sourceEntity = sourceDTO.toEntity();
-        sourceEntity.setSoundEvent(soundEventOpt.get());
+        sourceEntity.setSoundEvent(soundEvent);
         var savedSource = soundFileSourceRepository.save(sourceEntity);
         return SoundResponseDTO.SoundFileSourceDTO.createDTO(savedSource);
     }
@@ -75,25 +101,13 @@ public class SoundServiceImpl
     @Override
     @Transactional
     public SoundResponseDTO.SoundFileSourceDTO updateLinkedSource(UUID soundEventId, SoundFileSourceDTO sourceDTO) {
-        if (soundEventId == null || sourceDTO == null || sourceDTO.id() == null) {
-            throw new IllegalArgumentException("SoundEventId and SourceDTO and SourceDTO.Id must not be null");
+        if (sourceDTO == null || sourceDTO.id() == null) {
+            throw ApiException.invalidRequest("An id is required to update a sound source.");
         }
-        Optional<SoundEventEntity> soundEventOpt = this.repository.findById(soundEventId);
-        if (soundEventOpt.isEmpty()) {
-            throw new IllegalArgumentException(GENERIC_ERROR);
-        }
-        Optional<SoundResponseDTO.SoundFileSourceDTO> existingSourceOpt = this.getSoundSourcesById(soundEventId, Pageable.unpaged())
-                .getContent()
-                .stream()
-                .filter(SoundResponseDTO.SoundFileSourceDTO.class::isInstance)
-                .map(SoundResponseDTO.SoundFileSourceDTO.class::cast)
-                .filter(s -> s.id().equals(sourceDTO.id()))
-                .findFirst();
-        if (existingSourceOpt.isEmpty()) {
-            throw new IllegalArgumentException("Sound source not found for the given sound event");
-        }
+        var soundEvent = requireSoundEvent(soundEventId);
+        requireLinkedSource(soundEventId, sourceDTO.id());
         var sourceEntity = sourceDTO.toEntity();
-        sourceEntity.setSoundEvent(soundEventOpt.get());
+        sourceEntity.setSoundEvent(soundEvent);
         var updatedSource = soundFileSourceRepository.update(sourceEntity);
         return SoundResponseDTO.SoundFileSourceDTO.createDTO(updatedSource);
     }
@@ -101,25 +115,12 @@ public class SoundServiceImpl
     @Override
     @Transactional
     public SoundResponseDTO.SoundFileSourceDTO deleteLinkedSource(UUID soundEventId, UUID sourceID) {
-        if (soundEventId == null || sourceID == null) {
-            throw new IllegalArgumentException("SoundEventId and SourceDTO and SourceDTO.Id must not be null");
+        if (sourceID == null) {
+            throw ApiException.invalidRequest("A sound source id is required.");
         }
-
-        Optional<SoundEventEntity> soundEventOpt = this.repository.findById(soundEventId);
-        if (soundEventOpt.isEmpty()) {
-            throw new IllegalArgumentException(GENERIC_ERROR);
-        }
-        Optional<SoundResponseDTO.SoundFileSourceDTO> existingSourceOpt = this.getSoundSourcesById(soundEventId, Pageable.unpaged())
-                .getContent()
-                .stream()
-                .filter(SoundResponseDTO.SoundFileSourceDTO.class::isInstance)
-                .map(SoundResponseDTO.SoundFileSourceDTO.class::cast)
-                .filter(s -> s.id().equals(sourceID))
-                .findFirst();
-        if (existingSourceOpt.isEmpty()) {
-            throw new IllegalArgumentException("Sound source not found for the given sound event");
-        }
+        requireSoundEvent(soundEventId);
+        var existingSource = requireLinkedSource(soundEventId, sourceID);
         soundFileSourceRepository.deleteById(sourceID);
-        return existingSourceOpt.get();
+        return existingSource;
     }
 }
