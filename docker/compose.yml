@@ -1,19 +1,18 @@
 version: '3.8'
 
 services:
-  mariadb:
-    image: mariadb:latest
-    container_name: vulpes-mariadb
+  postgres:
+    image: postgres:16
+    container_name: vulpes-postgres
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: vulpesdb
-      MYSQL_USER: vulpes
-      MYSQL_PASSWORD: vulpespassword
+      POSTGRES_DB: vulpesdb
+      POSTGRES_USER: vulpes
+      POSTGRES_PASSWORD: vulpespassword
     ports:
-      - "127.0.0.1:3336:3306"
+      - "127.0.0.1:5432:5432"
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
-  mariadb_data:
+  postgres_data:

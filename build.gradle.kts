@@ -45,7 +45,6 @@ dependencies {
     // so this is inert in local/dev. Needs RBAC (read services/endpoints) in-cluster.
     implementation(mn.micronaut.kubernetes.discovery.client)
     // External Dependencies
-    implementation(mn.mariadb.java.client)
     implementation(mn.postgresql)
     implementation(mn.snakeyaml)
     implementation(mn.logback.core)
@@ -69,7 +68,7 @@ dependencies {
     testImplementation(mn.junit.jupiter.api)
     testImplementation(mn.junit.jupiter.params)
     testImplementation(mn.testcontainers.core)
-    testImplementation(mn.testcontainers.mariadb)
+    testImplementation(mn.testcontainers.postgres)
     testImplementation(mn.micronaut.test.rest.assured)
     testImplementation(mn.micronaut.validation)
     testImplementation(mn.micronaut.test.resources.extensions.core)

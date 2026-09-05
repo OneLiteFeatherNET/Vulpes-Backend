@@ -72,11 +72,11 @@ otel:
 
 datasources:
   default:
-    url: jdbc:mariadb://localhost:3336/vulpes
-    driverClassName: org.mariadb.jdbc.Driver
+    url: jdbc:postgresql://localhost:5432/vulpes
+    driverClassName: org.postgresql.Driver
     username: root
     password: vulpes
-    dialect: MYSQL
+    dialect: POSTGRES
     schema-generate: CREATE_DROP  # Change to `NONE` or `UPDATE` if you don't want schema recreation
     maximum-pool-size: 10
 
@@ -87,3 +87,4 @@ jpa:
         hbm2ddl.auto: update  # Use `none` in production
         show_sql: true  # Logs SQL statements
         format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
