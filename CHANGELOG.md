@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.6.1...v3.0.0) (2026-09-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* answer every error with RFC 9457 problem details ([#184](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/184))
+
+### Features
+
+* answer every error with RFC 9457 problem details ([#184](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/184)) ([7e5dfda](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/7e5dfda545a205da6b5ec834a4ef2359e9596dda))
+* **db:** migrate to PostgreSQL and update dialect ([#186](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/186)) ([0bae47e](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/0bae47efdb8b492209297d52fb2b1be176401d7a))
+
 ## [2.6.1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.6.0...v2.6.1) (2026-08-27)
 
 
