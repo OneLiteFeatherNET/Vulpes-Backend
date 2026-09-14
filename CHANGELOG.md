@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.0.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.6.1...v3.0.0) (2026-09-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* answer every error with RFC 9457 problem details ([#184](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/184))
+
+### Features
+
+* answer every error with RFC 9457 problem details ([#184](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/184)) ([7e5dfda](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/7e5dfda545a205da6b5ec834a4ef2359e9596dda))
+* **db:** migrate to PostgreSQL and update dialect ([#186](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/186)) ([0bae47e](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/0bae47efdb8b492209297d52fb2b1be176401d7a))
+* **dimension:** add controller implementation ([#190](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/190)) ([46d5503](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/46d550300dfddb6e7c26c9117181be546aaa2a0e))
+
+
+### Bug Fixes
+
+* **deps:** update dependency net.onelitefeather:vulpes-model to v2.1.0 ([#189](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/189)) ([6f2eac1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/6f2eac13526d57b6215aa1ead48578d90bbef09a))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v2.2.0 ([#192](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/192)) ([8471376](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/84713760c90bd5cdd9d6d9b470f89257382e2eb4))
+* **docker:** update volume path ([28e5713](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/28e571303f5d21fdab109ca1452d7821a4d60cc0))
+* **model:** update variableName to key ([3cf4f77](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/3cf4f772f00e28e7201e34f45c4342f676139698))
+
 ## [2.6.1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.6.0...v2.6.1) (2026-08-27)
 
 
