@@ -21,7 +21,7 @@ import static net.onelitefeather.vulpes.backend.validation.ValidationGroup.*;
 @Schema(
         requiredProperties = {
                 "uiName",
-                "variableName",
+                "key",
                 "description",
                 "displayName",
                 "material",
@@ -40,9 +40,9 @@ public record ItemModelDTO(
         @Schema(description = "Name in the UI", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull(groups = {Create.class, Update.class})
         String uiName,
-        @Schema(description = "Variable name for the entity", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Key for the entity", requiredMode = Schema.RequiredMode.REQUIRED)
         @Null(groups = {Create.class, Update.class})
-        String variableName,
+        String key,
         @Schema(description = "Internal description of the item", requiredMode = Schema.RequiredMode.REQUIRED)
         @Nullable
         String comment,
@@ -75,7 +75,7 @@ public record ItemModelDTO(
         return new ItemEntity(
                 this.id,
                 uiName,
-                variableName,
+                key,
                 comment,
                 displayName,
                 material,

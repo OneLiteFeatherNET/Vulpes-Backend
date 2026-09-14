@@ -27,7 +27,7 @@ public record FontModelDTO(
         @Schema(description = "Name in the UI", requiredMode = Schema.RequiredMode.REQUIRED)
         @Null(groups = Create.class)
         @NotBlank(groups = Update.class)
-        String variableName,
+        String key,
         @Schema(description = "Which provider should be used", requiredMode = Schema.RequiredMode.REQUIRED)
         @Null(groups = {Create.class, Update.class})
         @NotBlank
@@ -59,7 +59,7 @@ public record FontModelDTO(
         return new FontEntity(
                 id,
                 uiName,
-                variableName,
+                key,
                 provider,
                 texturePath,
                 comment,

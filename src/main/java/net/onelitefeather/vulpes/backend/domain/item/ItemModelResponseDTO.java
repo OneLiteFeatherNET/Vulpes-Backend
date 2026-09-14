@@ -21,7 +21,7 @@ public sealed interface ItemModelResponseDTO {
      *
      * @param id              the unique identifier of the item model
      * @param uiName          the model name for the UI
-     * @param variableName    the variable name of the item
+     * @param key             the key of the item
      * @param comment         the description of the item
      * @param displayName     the display variableName of the item shown to users
      * @param material        the material type of the item
@@ -41,7 +41,7 @@ public sealed interface ItemModelResponseDTO {
     record ItemModelDTO(
             @Schema(description = "The id of the model") UUID id,
             @Schema(description = "Model Name for the UI") String uiName,
-            @Schema(description = "Variable name for the generation") String variableName,
+            @Schema(description = "Key for the generation") String key,
             @Schema(description = "Description of the item") String comment,
             @Schema(description = "Display variableName of the item shown to users") String displayName,
             @Schema(description = "Material type of the item") String material,
@@ -64,7 +64,7 @@ public sealed interface ItemModelResponseDTO {
             return new ItemModelDTO(
                     itemEntity.getId(),
                     itemEntity.getUiName(),
-                    itemEntity.getVariableName(),
+                    itemEntity.getKey(),
                     itemEntity.getComment(),
                     itemEntity.getDisplayName(),
                     itemEntity.getMaterial(),

@@ -13,7 +13,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
         ItemModelDTO dto = new ItemModelDTO(
                 UUID.randomUUID(),
                 "", // invalid
-                "variableName",
+                "key",
                 "Some comment",
                 "Display Name",
                 "minecraft:gold_shovel",
@@ -39,7 +39,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 1
         );
 
-        assertNoViolation(dto, "variableName");
+        assertNoViolation(dto, "key");
     }
 
     @Test
@@ -47,7 +47,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
         ItemModelDTO dto = new ItemModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "", // valid
                 "Display Name",
                 "minecraft:bucket",
@@ -63,7 +63,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
         ItemModelDTO dto = new ItemModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "Some comment",
                 "", // invalid
                 "minecraft:dirt",
@@ -80,7 +80,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
         ItemModelDTO dto = new ItemModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "Some comment",
                 "Display Name",
                 "", // invalid
@@ -97,7 +97,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
         ItemModelDTO dto = new ItemModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "Some comment",
                 "Display Name",
                 "minecraft:stone",
@@ -114,7 +114,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
         ItemModelDTO dto = new ItemModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "Some comment",
                 "Display Name",
                 "material:wool",
@@ -131,7 +131,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
         ItemModelDTO dto = new ItemModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "Some comment",
                 "Display Name",
                 "minecraft:dirt",

@@ -22,7 +22,7 @@ import static net.onelitefeather.vulpes.backend.validation.ValidationGroup.*;
  *
  * @param id           the unique identifier of the sound event
  * @param uiName       the name to display in the UI
- * @param variableName the name used for variable generation
+ * @param key          the key used for variable generation
  * @param keyName      the key of the sound
  * @param subTitle     the subtitle displayed when the sound is played
  * @author theEvilReaper
@@ -33,7 +33,7 @@ import static net.onelitefeather.vulpes.backend.validation.ValidationGroup.*;
         requiredProperties = {
                 "id",
                 "uiName",
-                "variableName",
+                "key",
                 "keyName",
                 "replace",
                 "subTitle"
@@ -49,9 +49,9 @@ public record SoundEventDTO(
         @Schema(description = "Name to display it in the ui", requiredMode = RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
         String uiName,
-        @Schema(description = "The name which is used for the variable generation", requiredMode = RequiredMode.REQUIRED)
+        @Schema(description = "The key which is used for the variable generation", requiredMode = RequiredMode.REQUIRED)
         @Null(groups = {Create.class, Update.class})
-        String variableName,
+        String key,
         @Schema(description = "They key of the sound", requiredMode = RequiredMode.REQUIRED)
         @Null(groups = {Create.class, Update.class})
         String keyName,
@@ -69,7 +69,7 @@ public record SoundEventDTO(
         return new SoundEventEntity(
                 id,
                 uiName,
-                variableName,
+                key,
                 keyName,
                 false,
                 subTitle,

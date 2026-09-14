@@ -13,7 +13,7 @@ class NotificationModelDTOValidationTest  extends ValidationTestBase<Notificatio
         NotificationModelDTO dto = new NotificationModelDTO(
                 UUID.randomUUID(),
                 "", // invalid
-                "variableName",
+                "key",
                 "Some comment",
                 "minecraft:dirt",
                 "Task",
@@ -35,7 +35,7 @@ class NotificationModelDTOValidationTest  extends ValidationTestBase<Notificatio
                 "Notification Title"
         );
 
-        assertNoViolation(dto, "variableName");
+        assertNoViolation(dto, "key");
     }
 
     @Test
@@ -43,7 +43,7 @@ class NotificationModelDTOValidationTest  extends ValidationTestBase<Notificatio
         NotificationModelDTO dto = new NotificationModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "Some comment",
                 "", // invalid
                 "FrameTypeA",
@@ -58,7 +58,7 @@ class NotificationModelDTOValidationTest  extends ValidationTestBase<Notificatio
         NotificationModelDTO dto = new NotificationModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "Some comment",
                 "Material1",
                 "", // invalid
@@ -73,7 +73,7 @@ class NotificationModelDTOValidationTest  extends ValidationTestBase<Notificatio
         NotificationModelDTO dto = new NotificationModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "Some comment",
                 "Material1",
                 "FrameTypeA",

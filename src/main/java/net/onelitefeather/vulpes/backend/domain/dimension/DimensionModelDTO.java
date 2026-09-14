@@ -32,9 +32,9 @@ public record DimensionModelDTO(
         @Schema(description = "User interface name of the dimension type", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
         String uiName,
-        @Schema(description = "Variable name of the dimension type", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Key of the dimension type", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
-        String variableName,
+        String key,
         @Schema(description = "Whether the dimension type has a fixed time", requiredMode = Schema.RequiredMode.REQUIRED)
         boolean hasFixedTime,
         @Schema(description = "Whether the dimension type has skylight", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -93,7 +93,7 @@ public record DimensionModelDTO(
         return new DimensionTypeEntity(
                 id,
                 uiName,
-                variableName,
+                key,
                 hasFixedTime,
                 hasSkylight,
                 hasCeiling,

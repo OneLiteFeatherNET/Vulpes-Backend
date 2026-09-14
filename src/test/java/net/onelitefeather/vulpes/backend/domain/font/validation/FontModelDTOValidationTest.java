@@ -13,7 +13,7 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
         FontModelDTO dto = new FontModelDTO(
                 UUID.randomUUID(),
                 "", // invalid
-                "variableName",
+                "key",
                 "provider",
                 "mapper",
                 "texturePath",
@@ -39,7 +39,7 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 20
         );
 
-        assertNoViolation(dto, "variableName");
+        assertNoViolation(dto, "key");
     }
 
     @Test
@@ -47,7 +47,7 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
         FontModelDTO dto = new FontModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "", // invalid
                 "mapper",
                 "texturePath",
@@ -64,7 +64,7 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
         FontModelDTO dto = new FontModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "provider",
                 "", // invalid
                 "texturePath",
@@ -81,7 +81,7 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
         FontModelDTO dto = new FontModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "provider",
                 "mapper",
                 "", // invalid
@@ -98,7 +98,7 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
         FontModelDTO dto = new FontModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "provider",
                 "mapper",
                 "texturePath",
@@ -115,7 +115,7 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
         FontModelDTO dto = new FontModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
-                "variableName",
+                "key",
                 "provider",
                 "mapper",
                 "texturePath",

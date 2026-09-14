@@ -18,7 +18,7 @@ public interface AttributeModelResponseDTO {
     record AttributeModelDTO(
             @Schema(description = "UUID of the Attribute Model") UUID id,
             @Schema(description = "The name for the ui") String uiName,
-            @Schema(description = "The name which represents the variable after the generation") String variableName,
+            @Schema(description = "The key which represents the variable after the generation") String key,
             @Schema(description = "Default value of the attribute") double defaultValue,
             @Schema(description = "Maximum value of the attribute") double maximumValue,
             @Schema(description = "ID of the project this attribute belongs to") UUID projectId
@@ -34,7 +34,7 @@ public interface AttributeModelResponseDTO {
             return new AttributeModelDTO(
                     model.getId(),
                     model.getUiName(),
-                    model.getVariableName(),
+                    model.getKey(),
                     model.getDefaultValue(),
                     model.getMaximumValue(),
                     model.getProject().getId()

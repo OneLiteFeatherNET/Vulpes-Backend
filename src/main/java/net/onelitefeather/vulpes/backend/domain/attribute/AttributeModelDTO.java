@@ -26,10 +26,10 @@ public record AttributeModelDTO(
         @Schema(description = "The name for the ui", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
         String uiName,
-        @Schema(description = "The name which represents the variable after the generation", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "The key which represents the variable after the generation", requiredMode = Schema.RequiredMode.REQUIRED)
         @Null(groups = {Create.class})
         @NotBlank(groups = {Update.class})
-        String variableName,
+        String key,
         @Schema(description = "Default value of the attribute", requiredMode = Schema.RequiredMode.REQUIRED)
         @PositiveOrZero double defaultValue,
         @Schema(description = "Maximum value of the attribute", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -42,6 +42,6 @@ public record AttributeModelDTO(
      * @return the created entity
      */
     public @NotNull AttributeEntity toAttributeModel(ProjectEntity project) {
-        return new AttributeEntity(id, uiName, variableName, defaultValue, maximumValue, project);
+        return new AttributeEntity(id, uiName, key, defaultValue, maximumValue, project);
     }
 }

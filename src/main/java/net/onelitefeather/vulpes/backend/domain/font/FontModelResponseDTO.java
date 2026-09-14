@@ -14,7 +14,7 @@ public sealed interface FontModelResponseDTO {
      *
      * @param id           the ID of the font model
      * @param uiName       the name to display in the UI
-     * @param variableName the name used for variable generation
+     * @param key          the key used for variable generation
      * @param provider     the provider of the font
      * @param mapper       the mapper for the font
      * @param texturePath  the path to the texture of the font
@@ -28,7 +28,7 @@ public sealed interface FontModelResponseDTO {
     record FontModelDTO(
             @Schema(description = "The id of the model", requiredMode = Schema.RequiredMode.REQUIRED) UUID id,
             @Schema(description = "Model Name for the UI", requiredMode = Schema.RequiredMode.REQUIRED) String uiName,
-            @Schema(description = "Variable name for the generation", requiredMode = Schema.RequiredMode.REQUIRED) String variableName,
+            @Schema(description = "Key for the generation", requiredMode = Schema.RequiredMode.REQUIRED) String key,
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) String provider,
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) String mapper,
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) String texturePath,
@@ -48,7 +48,7 @@ public sealed interface FontModelResponseDTO {
             return new FontModelDTO(
                     fontModel.getId(),
                     fontModel.getUiName(),
-                    fontModel.getVariableName(),
+                    fontModel.getKey(),
                     fontModel.getProvider(),
                     fontModel.getMapper(),
                     fontModel.getTexturePath(),

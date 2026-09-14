@@ -17,7 +17,7 @@ public interface DimensionModelResponseDTO {
      *
      * @param id                          the unique identifier of the dimension type
      * @param uiName                      the user interface name of the dimension type
-     * @param variableName                the variable name of the dimension type
+     * @param key                         the key of the dimension type
      * @param hasFixedTime                whether the dimension type has a fixed time
      * @param hasSkylight                 whether the dimension type has skylight
      * @param hasCeiling                  whether the dimension type has a ceiling
@@ -43,7 +43,7 @@ public interface DimensionModelResponseDTO {
     record DimensionModelDTO(
             @Schema(description = "UUID of the Dimension Type") UUID id,
             @Schema(description = "User interface name") String uiName,
-            @Schema(description = "Variable name") String variableName,
+            @Schema(description = "Key") String key,
             @Schema(description = "Whether it has a fixed time") boolean hasFixedTime,
             @Schema(description = "Whether it has skylight") boolean hasSkylight,
             @Schema(description = "Whether it has a ceiling") boolean hasCeiling,
@@ -72,7 +72,7 @@ public interface DimensionModelResponseDTO {
             return new DimensionModelDTO(
                     entity.getId(),
                     entity.getUiName(),
-                    entity.getVariableName(),
+                    entity.getKey(),
                     entity.isHasFixedTime(),
                     entity.isHasSkylight(),
                     entity.isHasCeiling(),

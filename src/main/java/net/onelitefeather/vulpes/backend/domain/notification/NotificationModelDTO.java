@@ -17,7 +17,7 @@ import static net.onelitefeather.vulpes.backend.validation.ValidationGroup.*;
 
 @Schema(requiredProperties = {
         "uiName",
-        "variableName",
+        "key",
         "comment",
         "material",
         "frameType",
@@ -35,7 +35,7 @@ public record NotificationModelDTO(
         uiName,
         @Schema(description = "Name in the UI", requiredMode = Schema.RequiredMode.REQUIRED)
         @Null(groups = {Create.class, Update.class})
-        String variableName,
+        String key,
         @Schema(description = "Comment of the notification", requiredMode = Schema.RequiredMode.REQUIRED)
         @Nullable
         String comment,
@@ -60,7 +60,7 @@ public record NotificationModelDTO(
         return new NotificationEntity(
                 this.id,
                 uiName,
-                variableName,
+                key,
                 comment,
                 material,
                 frameType,

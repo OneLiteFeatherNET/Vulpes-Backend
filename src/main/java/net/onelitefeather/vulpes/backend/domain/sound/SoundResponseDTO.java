@@ -47,7 +47,7 @@ public interface SoundResponseDTO {
      *
      * @param id           the unique identifier of the sound model
      * @param uiName       the name to display in the UI
-     * @param variableName the name used for variable generation
+     * @param key          the key used for variable generation
      * @param keyName      the key of the sound
      * @param subTitle     the subtitle displayed when the sound is played
      * @param projectId    the unique identifier of the project this sound event belongs to
@@ -60,7 +60,7 @@ public interface SoundResponseDTO {
     record SoundModelDTO(
             @Schema(description = "Id of the Model") UUID id,
             @Schema(description = "Name to display it in the ui") String uiName,
-            @Schema(description = "The name which is used for the variable generation") String variableName,
+            @Schema(description = "The key which is used for the variable generation") String key,
             @Schema(description = "They key of the sound") String keyName,
             @Schema(description = "The subtitle which is display when the sound is played") String subTitle,
             @Schema(description = "ID of the project this sound event belongs to") UUID projectId
@@ -76,7 +76,7 @@ public interface SoundResponseDTO {
             return new SoundModelDTO(
                     event.getId(),
                     event.getUiName(),
-                    event.getVariableName(),
+                    event.getKey(),
                     event.getKeyName(),
                     event.getSubTitle(),
                     event.getProject().getId()

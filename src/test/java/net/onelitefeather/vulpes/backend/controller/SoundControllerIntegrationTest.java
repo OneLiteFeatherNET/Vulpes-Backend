@@ -151,7 +151,7 @@ class SoundControllerIntegrationTest {
                 .body("content.size()", greaterThan(0))
                 .body("content.id.size()", greaterThan(0))
                 .body("content.uiName.size()", greaterThan(0))
-                .body("content.variableName.size()", greaterThan(0))
+                .body("content.key.size()", greaterThan(0))
                 .body("content.keyName.size()", greaterThan(0))
                 .body("content.subTitle.size()", greaterThan(0))
                 .body("pageable.size", greaterThan(0))
