@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,9 @@ public sealed interface ItemModelResponseDTO {
             @Schema(description = "Map of enchantment names and their levels") Map<String, Short> enchantments,
             @Schema(description = "List of text lines displayed in the item tooltip") List<String> lore,
             @Schema(description = "List of item flags that modify item behavior") List<String> flags,
-            @Schema(description = "ID of the project this item belongs to") UUID projectId
+            @Schema(description = "ID of the project this item belongs to") UUID projectId,
+            @Schema(description = "The point in time at which the attribute was created") Instant creationDate,
+            @Schema(description = "The point in time at which the attribute was last modified") Instant modificationDate
     ) implements ItemModelResponseDTO {
 
         /**
@@ -74,7 +77,9 @@ public sealed interface ItemModelResponseDTO {
                     Collections.emptyMap(),
                     Collections.emptyList(),
                     Collections.emptyList(),
-                    itemEntity.getProject().getId()
+                    itemEntity.getProject().getId(),
+                    itemEntity.getCreationDate(),
+                    itemEntity.getModificationDate()
             );
         }
     }
