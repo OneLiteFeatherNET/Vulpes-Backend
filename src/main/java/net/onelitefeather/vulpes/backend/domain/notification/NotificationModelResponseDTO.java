@@ -4,6 +4,7 @@ import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.onelitefeather.vulpes.api.model.NotificationEntity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Schema(description = "Response DTO for Notification Model")
@@ -35,7 +36,9 @@ public sealed interface NotificationModelResponseDTO {
             @Schema(description = "Material type of the Notification") String material,
             @Schema(description = "Frame type of the Notification") String frameType,
             @Schema(description = "Title of the Notification") String title,
-            @Schema(description = "ID of the project this notification belongs to") UUID projectId
+            @Schema(description = "ID of the project this notification belongs to") UUID projectId,
+            @Schema(description = "The point in time at which the attribute was created") Instant creationDate,
+            @Schema(description = "The point in time at which the attribute was last modified") Instant modificationDate
     ) implements NotificationModelResponseDTO {
 
         /**
@@ -53,7 +56,9 @@ public sealed interface NotificationModelResponseDTO {
                     notificationModel.getMaterial(),
                     notificationModel.getFrameType(),
                     notificationModel.getTitle(),
-                    notificationModel.getProject().getId()
+                    notificationModel.getProject().getId(),
+                    notificationModel.getCreationDate(),
+                    notificationModel.getModificationDate()
             );
         }
     }

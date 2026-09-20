@@ -12,6 +12,7 @@ import net.onelitefeather.vulpes.backend.service.NotificationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -90,7 +91,7 @@ class NotificationControllerTest {
         StubNotificationService stub = new StubNotificationService();
         UUID projectId = UUID.randomUUID();
         NotificationModelDTO dto = new NotificationModelDTO(null, "UI", "var", "comment", "STONE", "frame", "title");
-        stub.response = new NotificationModelResponseDTO.NotificationModelDTO(UUID.randomUUID(), "UI", "var", "comment", "STONE", "frame", "title", projectId);
+        stub.response = new NotificationModelResponseDTO.NotificationModelDTO(UUID.randomUUID(), "UI", "var", "comment", "STONE", "frame", "title", projectId, Instant.now(), Instant.now());
         NotificationController controller = new NotificationController(stub);
 
         HttpResponse<NotificationModelResponseDTO.NotificationModelDTO> resp = controller.add(projectId, dto);
@@ -153,7 +154,7 @@ class NotificationControllerTest {
     void getAll_returnsScopedPage() {
         StubNotificationService stub = new StubNotificationService();
         UUID projectId = UUID.randomUUID();
-        var dto = new NotificationModelResponseDTO.NotificationModelDTO(UUID.randomUUID(), "UI", "var", "comment", "STONE", "frame", "title", projectId);
+        var dto = new NotificationModelResponseDTO.NotificationModelDTO(UUID.randomUUID(), "UI", "var", "comment", "STONE", "frame", "title", projectId, Instant.now(), Instant.now());
         stub.page = Page.of(List.of(dto), Pageable.from(0, 10), 1L);
         NotificationController controller = new NotificationController(stub);
 

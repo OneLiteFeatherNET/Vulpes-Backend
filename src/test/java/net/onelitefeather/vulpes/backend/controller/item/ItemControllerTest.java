@@ -18,6 +18,7 @@ import net.onelitefeather.vulpes.backend.service.ItemService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -179,7 +180,7 @@ class ItemControllerTest {
     private static ItemModelResponseDTO.ItemModelDTO sampleResponse(UUID id, UUID projectId) {
         return new ItemModelResponseDTO.ItemModelDTO(
                 id, "UI", "var", "comment", "display", "STONE", "group", 0, 1,
-                Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), projectId
+                Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), projectId, Instant.now(), Instant.now()
         );
     }
 

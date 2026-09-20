@@ -11,6 +11,7 @@ import net.onelitefeather.vulpes.backend.service.AttributeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -88,7 +89,7 @@ class AttributeControllerTest {
         StubAttributeService stub = new StubAttributeService();
         UUID projectId = UUID.randomUUID();
         AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
-        stub.response = new AttributeModelResponseDTO.AttributeModelDTO(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectId);
+        stub.response = new AttributeModelResponseDTO.AttributeModelDTO(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectId, Instant.now(), Instant.now());
         AttributeController controller = new AttributeController(stub);
 
         HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> resp = controller.add(projectId, dto);
@@ -137,7 +138,7 @@ class AttributeControllerTest {
     void getAll_returnsScopedPage() {
         StubAttributeService stub = new StubAttributeService();
         UUID projectId = UUID.randomUUID();
-        var dto = new AttributeModelResponseDTO.AttributeModelDTO(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectId);
+        var dto = new AttributeModelResponseDTO.AttributeModelDTO(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectId, Instant.now(), Instant.now());
         stub.page = Page.of(List.of(dto), Pageable.from(0, 10), 1L);
         AttributeController controller = new AttributeController(stub);
 

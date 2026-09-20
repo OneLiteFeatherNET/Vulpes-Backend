@@ -4,6 +4,7 @@ import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Serdeable
@@ -35,7 +36,9 @@ public sealed interface FontModelResponseDTO {
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) String comment,
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) int ascent,
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) int height,
-            @Schema(description = "ID of the project this font belongs to", requiredMode = Schema.RequiredMode.REQUIRED) UUID projectId
+            @Schema(description = "ID of the project this font belongs to", requiredMode = Schema.RequiredMode.REQUIRED) UUID projectId,
+            @Schema(description = "The point in time at which the attribute was created") Instant creationDate,
+            @Schema(description = "The point in time at which the attribute was last modified") Instant modificationDate
     ) implements FontModelResponseDTO {
 
         /**
@@ -55,7 +58,9 @@ public sealed interface FontModelResponseDTO {
                     fontModel.getComment(),
                     fontModel.getAscent(),
                     fontModel.getHeight(),
-                    fontModel.getProject().getId()
+                    fontModel.getProject().getId(),
+                    fontModel.getCreationDate(),
+                    fontModel.getModificationDate()
             );
         }
 

@@ -14,6 +14,7 @@ import net.onelitefeather.vulpes.backend.service.FontService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -117,7 +118,7 @@ class FontControllerTest {
     }
 
     private static FontModelResponseDTO.FontModelDTO sampleResponse(UUID id, UUID projectId) {
-        return new FontModelResponseDTO.FontModelDTO(id, "UI", "var", "provider", "mapper", "texture", "comment", 1, 1, projectId);
+        return new FontModelResponseDTO.FontModelDTO(id, "UI", "var", "provider", "mapper", "texture", "comment", 1, 1, projectId, Instant.now(), Instant.now());
     }
 
     @Test
