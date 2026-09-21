@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.0.1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.0.0...v3.0.1) (2026-09-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency net.onelitefeather:vulpes-model to v2.3.0 ([#196](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/196)) ([5523103](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/5523103170be5456928feafbe9772a61c6f227c9))
+* **deps:** update dependency org.hibernate.validator:hibernate-validator to v9.1.4.final ([#195](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/195)) ([1247196](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/1247196837643cb00f040cfbfd4c97f6cd9d6c6e))
+* **dto:** add missing date fields ([#193](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/193)) ([292470e](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/292470e45d5c3eb82f9a08caf704fbed30d2a4d9))
+
 ## [3.0.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v2.6.1...v3.0.0) (2026-09-14)
 
 
