@@ -81,6 +81,14 @@ public class ProjectController {
                     schema = @Schema(implementation = ProblemDetail.class)
             )
     )
+    @ApiResponse(
+            responseCode = "409",
+            description = "A project with the requested key already exists.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
