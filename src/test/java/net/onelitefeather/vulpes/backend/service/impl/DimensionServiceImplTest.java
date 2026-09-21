@@ -160,6 +160,12 @@ class DimensionServiceImplTest {
                     .toList();
             return Page.of(matching, pageable, (long) matching.size());
         }
+
+        @Override
+        public boolean existsByProjectIdAndKey(UUID projectId, String key) {
+            //TODO: add implementation
+            return false;
+        }
     }
 
     private static class FakeDimensionAttributeRepository extends FakePageableRepository<DimensionAttributeEntity, UUID> implements DimensionAttributeRepository {
