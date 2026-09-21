@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.0.1...v3.0.2) (2026-09-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency net.onelitefeather:vulpes-model to v2.3.1 ([#197](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/197)) ([daeeda9](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/daeeda99e930122e998bfcabda065f39fa99bd8c))
+
 ## [3.0.1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.0.0...v3.0.1) (2026-09-21)
 
 
