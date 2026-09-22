@@ -196,7 +196,7 @@ class AttributeModelCopierTest {
         AttributeEntity source = new AttributeEntity(UUID.randomUUID(), "UI", "original-key", 1.0, 10.0, projectA);
         attributeRepository.save(source);
 
-        AttributeEntity result = copier.copy(projectA.getId(), source.getId(), null, "copied-key");
+        AttributeEntity result = copier.copy(projectA.getId(), source.getId(), null, "copied-key", null);
 
         assertNotEquals(source.getId(), result.getId());
         assertEquals("copied-key", result.getKey());
@@ -215,7 +215,7 @@ class AttributeModelCopierTest {
         AttributeEntity source = new AttributeEntity(UUID.randomUUID(), "UI", "shared-key", 1.0, 10.0, projectA);
         attributeRepository.save(source);
 
-        AttributeEntity result = copier.copy(projectA.getId(), source.getId(), projectB.getId(), null);
+        AttributeEntity result = copier.copy(projectA.getId(), source.getId(), projectB.getId(), null, null);
 
         assertEquals("shared-key", result.getKey());
         assertEquals(projectB.getId(), result.getProject().getId());
@@ -231,7 +231,7 @@ class AttributeModelCopierTest {
         attributeRepository.save(source);
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), source.getId(), null, null));
+                () -> copier.copy(projectA.getId(), source.getId(), null, null, null));
 
         assertEquals(ErrorCode.RESOURCE_CONFLICT, exception.code());
     }
@@ -245,7 +245,7 @@ class AttributeModelCopierTest {
         attributeRepository.save(existing);
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), source.getId(), projectB.getId(), "key-b"));
+                () -> copier.copy(projectA.getId(), source.getId(), projectB.getId(), "key-b", null));
 
         assertEquals(ErrorCode.RESOURCE_CONFLICT, exception.code());
     }
@@ -258,7 +258,7 @@ class AttributeModelCopierTest {
         UUID unknownProject = UUID.randomUUID();
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), source.getId(), unknownProject, null));
+                () -> copier.copy(projectA.getId(), source.getId(), unknownProject, null, null));
 
         assertEquals(ErrorCode.PROJECT_NOT_FOUND, exception.code());
     }
@@ -270,7 +270,7 @@ class AttributeModelCopierTest {
         attributeRepository.save(source);
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectB.getId(), source.getId(), null, "new-key"));
+                () -> copier.copy(projectB.getId(), source.getId(), null, "new-key", null));
 
         assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
     }
@@ -281,8 +281,31 @@ class AttributeModelCopierTest {
         UUID unknownId = UUID.randomUUID();
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), unknownId, null, null));
+                () -> copier.copy(projectA.getId(), unknownId, null, null, null));
 
         assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
+    }
+
+    @Test
+    @DisplayName("copy() with a targetName uses it instead of the source's uiName")
+    void copy_withTargetName_overridesUiName() {
+        AttributeEntity source = new AttributeEntity(UUID.randomUUID(), "Original UI", "name-key", 1.0, 10.0, projectA);
+        attributeRepository.save(source);
+
+        AttributeEntity result = copier.copy(projectA.getId(), source.getId(), null, "name-key-copy", "New UI");
+
+        assertEquals("New UI", result.getUiName());
+        assertEquals("Original UI", source.getUiName(), "the source must not have been mutated");
+    }
+
+    @Test
+    @DisplayName("copy() with a blank targetName keeps the source's uiName")
+    void copy_blankTargetName_keepsSourceUiName() {
+        AttributeEntity source = new AttributeEntity(UUID.randomUUID(), "Original UI", "blank-name-key", 1.0, 10.0, projectA);
+        attributeRepository.save(source);
+
+        AttributeEntity result = copier.copy(projectA.getId(), source.getId(), null, "blank-name-key-copy", "  ");
+
+        assertEquals("Original UI", result.getUiName());
     }
 }

@@ -18,13 +18,21 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
+import net.onelitefeather.vulpes.backend.copier.EntityCopier;
+import net.onelitefeather.vulpes.backend.domain.copy.CopyRequest;
+import net.onelitefeather.vulpes.backend.domain.copy.RelationalCopyDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
+import net.onelitefeather.vulpes.backend.domain.sound.SoundRelation;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.SoundService;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
+import io.micronaut.core.annotation.Nullable;
 
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -39,10 +47,12 @@ public class SoundController {
 
     private static final String SOUND_EVENT = "Sound event";
     private final SoundService soundService;
+    private final EntityCopier<SoundEventEntity, SoundRelation> soundCopier;
 
     @Inject
-    public SoundController(SoundService soundService) {
+    public SoundController(SoundService soundService, @Named("sound") EntityCopier<SoundEventEntity, SoundRelation> soundCopier) {
         this.soundService = soundService;
+        this.soundCopier = soundCopier;
     }
 
     @Operation(
@@ -110,6 +120,63 @@ public class SoundController {
         return HttpResponse.ok(soundService.findById(projectId, id)
                 .map(SoundResponseDTO.SoundModelDTO::createDTO)
                 .orElseThrow(() -> ApiException.notFound(SOUND_EVENT)));
+    }
+
+    @Operation(
+            summary = "Copy a sound event",
+            operationId = "copySoundEvent",
+            description = "Copies a sound event owned by the given project into the same project or another one, under a new or the same key, optionally including its sound file sources.",
+            tags = {"Sound"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The sound event was successfully copied.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = SoundResponseDTO.SoundModelDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "The sound event or the target project was not found.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The request body failed validation. 'errors' names the rejected fields.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "409",
+            description = "A sound event with the resolved key already exists in the target project.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @Post("/{id}/copy")
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse<SoundResponseDTO.SoundModelDTO> copy(
+            @PathVariable UUID projectId,
+            @PathVariable UUID id,
+            @Nullable @Body RelationalCopyDTO<SoundRelation> copyDTO
+    ) {
+        Set<SoundRelation> relations = copyDTO != null ? copyDTO.relationsOrEmpty() : Set.of();
+        var copied = soundCopier.copy(
+                projectId,
+                id,
+                CopyRequest.targetProjectId(copyDTO),
+                CopyRequest.targetKey(copyDTO),
+                CopyRequest.targetName(copyDTO),
+                relations
+        );
+        return HttpResponse.ok(SoundResponseDTO.SoundModelDTO.createDTO(copied));
     }
 
     @Operation(

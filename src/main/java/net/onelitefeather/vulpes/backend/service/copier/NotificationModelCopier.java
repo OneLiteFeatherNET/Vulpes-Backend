@@ -36,16 +36,18 @@ public class NotificationModelCopier extends AbstractModelCopier<NotificationEnt
             UUID sourceId,
             @Nullable UUID targetProjectId,
             @Nullable String targetKey,
+            @Nullable String targetName,
             Set<Void> relations
     ) {
-        return super.copy(sourceProjectId, sourceId, targetProjectId, targetKey);
+        return super.copy(sourceProjectId, sourceId, targetProjectId, targetKey, targetName);
     }
 
     @Override
-    protected NotificationEntity copyRoot(NotificationEntity source, ProjectEntity targetProject, String targetKey) {
+    protected NotificationEntity copyRoot(NotificationEntity source, ProjectEntity targetProject, String targetKey, @Nullable String targetName) {
+        String resolvedName = (targetName != null && !targetName.isBlank()) ? targetName : source.getUiName();
         return new NotificationEntity(
                 null,
-                source.getUiName(),
+                resolvedName,
                 targetKey,
                 source.getComment(),
                 source.getMaterial(),

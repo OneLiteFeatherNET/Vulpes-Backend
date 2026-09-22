@@ -4,9 +4,13 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
 import net.onelitefeather.vulpes.api.model.FontEntity;
+import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
+import net.onelitefeather.vulpes.backend.copier.EntityCopier;
+import net.onelitefeather.vulpes.backend.domain.copy.RelationalCopyDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.font.FontRelation;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringResponseDTO;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
@@ -17,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -113,6 +118,19 @@ class FontControllerTest {
         }
     }
 
+    private static class StubFontCopier implements EntityCopier<FontEntity, FontRelation> {
+        FontEntity response;
+        RuntimeException toThrow;
+
+        @Override
+        public FontEntity copy(UUID sourceProjectId, UUID sourceId, UUID targetProjectId, String targetKey, String targetName, Set<FontRelation> relations) {
+            if (toThrow != null) {
+                throw toThrow;
+            }
+            return response;
+        }
+    }
+
     private static FontModelDTO sampleDTO(UUID id) {
         return new FontModelDTO(id, "UI", "var", "provider", "mapper", "texture", "comment", 1, 1);
     }
@@ -121,12 +139,16 @@ class FontControllerTest {
         return new FontModelResponseDTO.FontModelDTO(id, "UI", "var", "provider", "mapper", "texture", "comment", 1, 1, projectId, Instant.now(), Instant.now());
     }
 
+    private static FontEntity sampleEntity(UUID id, ProjectEntity project) {
+        return new FontEntity(id, "UI", "key", "provider", "texture", "comment", 1, 1, List.of(), project);
+    }
+
     @Test
     void add_success_returnsOk() {
         StubFontService stub = new StubFontService();
         UUID projectId = UUID.randomUUID();
         stub.response = sampleResponse(UUID.randomUUID(), projectId);
-        FontController controller = new FontController(stub);
+        FontController controller = new FontController(stub, new StubFontCopier());
 
         HttpResponse<FontModelResponseDTO.FontModelDTO> resp = controller.add(projectId, sampleDTO(null));
 
@@ -143,7 +165,7 @@ class FontControllerTest {
                 throw ApiException.projectNotFound();
             }
         };
-        FontController controller = new FontController(stub);
+        FontController controller = new FontController(stub, new StubFontCopier());
         FontModelDTO dto = sampleDTO(null);
         UUID projectId = UUID.randomUUID();
 
@@ -157,7 +179,7 @@ class FontControllerTest {
     void getById_crossProject_raisesNotFound() {
         StubFontService stub = new StubFontService();
         stub.findByIdResponse = Optional.empty();
-        FontController controller = new FontController(stub);
+        FontController controller = new FontController(stub, new StubFontCopier());
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 
@@ -171,11 +193,65 @@ class FontControllerTest {
         StubFontService stub = new StubFontService();
         UUID projectId = UUID.randomUUID();
         stub.page = Page.of(List.of(sampleResponse(UUID.randomUUID(), projectId)), Pageable.from(0, 10), 1L);
-        FontController controller = new FontController(stub);
+        FontController controller = new FontController(stub, new StubFontCopier());
 
         HttpResponse<Page<FontModelResponseDTO.FontModelDTO>> resp = controller.getAll(projectId, Pageable.from(0, 10));
 
         assertEquals(200, resp.getStatus().getCode());
         assertEquals(1, resp.body().getTotalSize());
+    }
+
+    @Test
+    @DisplayName("copy() with no body returns the copier's result wrapped in 200")
+    void copy_noBody_returnsOk() {
+        StubFontCopier copierStub = new StubFontCopier();
+        ProjectEntity project = new ProjectEntity(UUID.randomUUID(), "Project A", "project-a", null, null, null, false);
+        copierStub.response = sampleEntity(UUID.randomUUID(), project);
+        FontController controller = new FontController(new StubFontService(), copierStub);
+        UUID projectId = project.getId();
+        UUID fontId = UUID.randomUUID();
+
+        HttpResponse<FontModelResponseDTO.FontModelDTO> resp = controller.copy(projectId, fontId, null);
+
+        assertEquals(200, resp.getStatus().getCode());
+        assertEquals("key", resp.body().key());
+    }
+
+    @Test
+    @DisplayName("copy() passes the DTO's fields through to the copier")
+    void copy_withBody_passesFieldsThrough() {
+        StubFontCopier copierStub = new StubFontCopier() {
+            @Override
+            public FontEntity copy(UUID sourceProjectId, UUID sourceId, UUID targetProjectId, String targetKey, String targetName, Set<FontRelation> relations) {
+                ProjectEntity project = new ProjectEntity(targetProjectId, "Target", "target", null, null, null, false);
+                return new FontEntity(UUID.randomUUID(), targetName, targetKey, "provider", "texture", "comment", 1, 1, List.of(), project);
+            }
+        };
+        FontController controller = new FontController(new StubFontService(), copierStub);
+        UUID projectId = UUID.randomUUID();
+        UUID fontId = UUID.randomUUID();
+        UUID targetProjectId = UUID.randomUUID();
+        RelationalCopyDTO<FontRelation> body = new RelationalCopyDTO<>(targetProjectId, "new-key", "New Name", Set.of(FontRelation.CHARS));
+
+        HttpResponse<FontModelResponseDTO.FontModelDTO> resp = controller.copy(projectId, fontId, body);
+
+        assertEquals(200, resp.getStatus().getCode());
+        assertEquals("new-key", resp.body().key());
+        assertEquals("New Name", resp.body().uiName());
+        assertEquals(targetProjectId, resp.body().projectId());
+    }
+
+    @Test
+    @DisplayName("copy() lets a RESOURCE_CONFLICT from the copier reach the exception handler")
+    void copy_keyTaken_propagates() {
+        StubFontCopier copierStub = new StubFontCopier();
+        copierStub.toThrow = ApiException.conflict("A font with key 'x' already exists in the target project.");
+        FontController controller = new FontController(new StubFontService(), copierStub);
+        UUID projectId = UUID.randomUUID();
+        UUID fontId = UUID.randomUUID();
+
+        ApiException exception = assertThrows(ApiException.class, () -> controller.copy(projectId, fontId, null));
+
+        assertEquals(ErrorCode.RESOURCE_CONFLICT, exception.code());
     }
 }

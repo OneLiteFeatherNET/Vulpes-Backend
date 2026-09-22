@@ -197,7 +197,7 @@ class NotificationModelCopierTest {
                 UUID.randomUUID(), "UI", "original-key", "comment", "STONE", "frame", "title", projectA);
         notificationRepository.save(source);
 
-        NotificationEntity result = copier.copy(projectA.getId(), source.getId(), null, "copied-key");
+        NotificationEntity result = copier.copy(projectA.getId(), source.getId(), null, "copied-key", null);
 
         assertNotEquals(source.getId(), result.getId());
         assertEquals("copied-key", result.getKey());
@@ -219,7 +219,7 @@ class NotificationModelCopierTest {
                 UUID.randomUUID(), "UI", "shared-key", "comment", "STONE", "frame", "title", projectA);
         notificationRepository.save(source);
 
-        NotificationEntity result = copier.copy(projectA.getId(), source.getId(), projectB.getId(), null);
+        NotificationEntity result = copier.copy(projectA.getId(), source.getId(), projectB.getId(), null, null);
 
         assertEquals("shared-key", result.getKey());
         assertEquals(projectB.getId(), result.getProject().getId());
@@ -236,7 +236,7 @@ class NotificationModelCopierTest {
         notificationRepository.save(source);
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), source.getId(), null, null));
+                () -> copier.copy(projectA.getId(), source.getId(), null, null, null));
 
         assertEquals(ErrorCode.RESOURCE_CONFLICT, exception.code());
     }
@@ -252,7 +252,7 @@ class NotificationModelCopierTest {
         notificationRepository.save(existing);
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), source.getId(), projectB.getId(), "key-b"));
+                () -> copier.copy(projectA.getId(), source.getId(), projectB.getId(), "key-b", null));
 
         assertEquals(ErrorCode.RESOURCE_CONFLICT, exception.code());
     }
@@ -266,7 +266,7 @@ class NotificationModelCopierTest {
         UUID unknownProject = UUID.randomUUID();
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), source.getId(), unknownProject, null));
+                () -> copier.copy(projectA.getId(), source.getId(), unknownProject, null, null));
 
         assertEquals(ErrorCode.PROJECT_NOT_FOUND, exception.code());
     }
@@ -279,7 +279,7 @@ class NotificationModelCopierTest {
         notificationRepository.save(source);
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectB.getId(), source.getId(), null, "new-key"));
+                () -> copier.copy(projectB.getId(), source.getId(), null, "new-key", null));
 
         assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
     }
@@ -290,8 +290,33 @@ class NotificationModelCopierTest {
         UUID unknownId = UUID.randomUUID();
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), unknownId, null, null));
+                () -> copier.copy(projectA.getId(), unknownId, null, null, null));
 
         assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
+    }
+
+    @Test
+    @DisplayName("copy() with a targetName uses it instead of the source's uiName, leaving title untouched")
+    void copy_withTargetName_overridesUiNameOnly() {
+        NotificationEntity source = new NotificationEntity(
+                UUID.randomUUID(), "Original UI", "name-key", "comment", "STONE", "frame", "title", projectA);
+        notificationRepository.save(source);
+
+        NotificationEntity result = copier.copy(projectA.getId(), source.getId(), null, "name-key-copy", "New UI");
+
+        assertEquals("New UI", result.getUiName());
+        assertEquals(source.getTitle(), result.getTitle());
+    }
+
+    @Test
+    @DisplayName("copy() with a blank targetName keeps the source's uiName")
+    void copy_blankTargetName_keepsSourceUiName() {
+        NotificationEntity source = new NotificationEntity(
+                UUID.randomUUID(), "Original UI", "blank-name-key", "comment", "STONE", "frame", "title", projectA);
+        notificationRepository.save(source);
+
+        NotificationEntity result = copier.copy(projectA.getId(), source.getId(), null, "blank-name-key-copy", "  ");
+
+        assertEquals("Original UI", result.getUiName());
     }
 }

@@ -18,6 +18,9 @@ public sealed interface CopyRequest permits CopyDTO, RelationalCopyDTO {
     @Nullable
     String targetKey();
 
+    @Nullable
+    String targetName();
+
     /**
      * Reads {@link #targetProjectId()} off a possibly-absent request body.
      *
@@ -38,5 +41,16 @@ public sealed interface CopyRequest permits CopyDTO, RelationalCopyDTO {
     @Nullable
     static String targetKey(@Nullable CopyRequest request) {
         return request != null ? request.targetKey() : null;
+    }
+
+    /**
+     * Reads {@link #targetName()} off a possibly-absent request body.
+     *
+     * @param request the request body, or {@code null} when the client sent none
+     * @return the requested target name, or {@code null} to reuse the source's own name
+     */
+    @Nullable
+    static String targetName(@Nullable CopyRequest request) {
+        return request != null ? request.targetName() : null;
     }
 }

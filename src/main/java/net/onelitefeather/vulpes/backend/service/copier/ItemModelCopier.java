@@ -65,16 +65,18 @@ public class ItemModelCopier extends AbstractRelationalModelCopier<ItemEntity, I
             UUID sourceId,
             @Nullable UUID targetProjectId,
             @Nullable String targetKey,
+            @Nullable String targetName,
             Set<ItemRelation> relations
     ) {
-        return super.copy(sourceProjectId, sourceId, targetProjectId, targetKey, relations);
+        return super.copy(sourceProjectId, sourceId, targetProjectId, targetKey, targetName, relations);
     }
 
     @Override
-    protected ItemEntity copyRoot(ItemEntity source, ProjectEntity targetProject, String targetKey) {
+    protected ItemEntity copyRoot(ItemEntity source, ProjectEntity targetProject, String targetKey, @Nullable String targetName) {
+        String resolvedName = (targetName != null && !targetName.isBlank()) ? targetName : source.getUiName();
         return new ItemEntity(
                 null,
-                source.getUiName(),
+                resolvedName,
                 targetKey,
                 source.getComment(),
                 source.getDisplayName(),

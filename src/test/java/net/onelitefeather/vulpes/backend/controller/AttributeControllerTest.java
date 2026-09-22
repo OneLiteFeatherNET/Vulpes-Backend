@@ -94,7 +94,7 @@ class AttributeControllerTest {
         RuntimeException toThrow;
 
         @Override
-        public AttributeEntity copy(UUID sourceProjectId, UUID sourceId, UUID targetProjectId, String targetKey, Set<Void> relations) {
+        public AttributeEntity copy(UUID sourceProjectId, UUID sourceId, UUID targetProjectId, String targetKey, String targetName, Set<Void> relations) {
             if (toThrow != null) {
                 throw toThrow;
             }
@@ -187,21 +187,22 @@ class AttributeControllerTest {
     void copy_withBody_passesFieldsThrough() {
         StubAttributeCopier copierStub = new StubAttributeCopier() {
             @Override
-            public AttributeEntity copy(UUID sourceProjectId, UUID sourceId, UUID targetProjectId, String targetKey) {
+            public AttributeEntity copy(UUID sourceProjectId, UUID sourceId, UUID targetProjectId, String targetKey, String targetName) {
                 ProjectEntity project = new ProjectEntity(targetProjectId, "Target", "target", null, null, null, false);
-                return new AttributeEntity(UUID.randomUUID(), "UI", targetKey, 1.0, 10.0, project);
+                return new AttributeEntity(UUID.randomUUID(), targetName, targetKey, 1.0, 10.0, project);
             }
         };
         AttributeController controller = new AttributeController(new StubAttributeService(), copierStub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
         UUID targetProjectId = UUID.randomUUID();
-        CopyDTO body = new CopyDTO(targetProjectId, "new-key");
+        CopyDTO body = new CopyDTO(targetProjectId, "new-key", "New Name");
 
         HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> resp = controller.copy(projectId, id, body);
 
         assertEquals(200, resp.getStatus().getCode());
         assertEquals("new-key", resp.body().key());
+        assertEquals("New Name", resp.body().uiName());
         assertEquals(targetProjectId, resp.body().projectId());
     }
 

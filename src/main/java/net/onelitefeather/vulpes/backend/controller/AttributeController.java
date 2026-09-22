@@ -121,7 +121,8 @@ public class AttributeController {
                 projectId,
                 id,
                 CopyRequest.targetProjectId(copyDTO),
-                CopyRequest.targetKey(copyDTO)
+                CopyRequest.targetKey(copyDTO),
+                CopyRequest.targetName(copyDTO)
         );
         return HttpResponse.ok(AttributeModelResponseDTO.AttributeModelDTO.create(copied));
     }

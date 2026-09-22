@@ -134,6 +134,7 @@ public class ItemController {
                 itemId,
                 CopyRequest.targetProjectId(copyDTO),
                 CopyRequest.targetKey(copyDTO),
+                CopyRequest.targetName(copyDTO),
                 relations
         );
         return HttpResponse.ok(ItemModelResponseDTO.ItemModelDTO.createDTO(copied));

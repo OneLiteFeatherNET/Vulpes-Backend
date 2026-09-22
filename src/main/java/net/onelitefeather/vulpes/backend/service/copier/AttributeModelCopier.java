@@ -40,16 +40,18 @@ public class AttributeModelCopier extends AbstractModelCopier<AttributeEntity> i
             UUID sourceId,
             @Nullable UUID targetProjectId,
             @Nullable String targetKey,
+            @Nullable String targetName,
             Set<Void> relations
     ) {
-        return super.copy(sourceProjectId, sourceId, targetProjectId, targetKey);
+        return super.copy(sourceProjectId, sourceId, targetProjectId, targetKey, targetName);
     }
 
     @Override
-    protected AttributeEntity copyRoot(AttributeEntity source, ProjectEntity targetProject, String targetKey) {
+    protected AttributeEntity copyRoot(AttributeEntity source, ProjectEntity targetProject, String targetKey, @Nullable String targetName) {
+        String resolvedName = (targetName != null && !targetName.isBlank()) ? targetName : source.getUiName();
         return new AttributeEntity(
                 null,
-                source.getUiName(),
+                resolvedName,
                 targetKey,
                 source.getDefaultValue(),
                 source.getMaximumValue(),

@@ -284,7 +284,7 @@ class ItemModelCopierTest {
     void copy_sameProjectNewKey_succeeds() {
         ItemEntity source = sampleItem("original-key", projectA);
 
-        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "copied-key", Set.of());
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "copied-key", null, Set.of());
 
         assertNotEquals(source.getId(), result.getId());
         assertEquals("copied-key", result.getKey());
@@ -300,7 +300,7 @@ class ItemModelCopierTest {
     void copy_otherProjectNoKey_keepsOriginalKey() {
         ItemEntity source = sampleItem("shared-key", projectA);
 
-        ItemEntity result = copier.copy(projectA.getId(), source.getId(), projectB.getId(), null, Set.of());
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), projectB.getId(), null, null, Set.of());
 
         assertEquals("shared-key", result.getKey());
         assertEquals(projectB.getId(), result.getProject().getId());
@@ -315,7 +315,7 @@ class ItemModelCopierTest {
         ItemEntity source = sampleItem("only-key", projectA);
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), source.getId(), null, null, Set.of()));
+                () -> copier.copy(projectA.getId(), source.getId(), null, null, null, Set.of()));
 
         assertEquals(ErrorCode.RESOURCE_CONFLICT, exception.code());
     }
@@ -327,7 +327,7 @@ class ItemModelCopierTest {
         sampleItem("key-b", projectB);
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), source.getId(), projectB.getId(), "key-b", Set.of()));
+                () -> copier.copy(projectA.getId(), source.getId(), projectB.getId(), "key-b", null, Set.of()));
 
         assertEquals(ErrorCode.RESOURCE_CONFLICT, exception.code());
     }
@@ -339,7 +339,7 @@ class ItemModelCopierTest {
         UUID unknownProject = UUID.randomUUID();
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), source.getId(), unknownProject, null, Set.of()));
+                () -> copier.copy(projectA.getId(), source.getId(), unknownProject, null, null, Set.of()));
 
         assertEquals(ErrorCode.PROJECT_NOT_FOUND, exception.code());
     }
@@ -350,7 +350,7 @@ class ItemModelCopierTest {
         ItemEntity source = sampleItem("key-a", projectA);
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectB.getId(), source.getId(), null, "new-key", Set.of()));
+                () -> copier.copy(projectB.getId(), source.getId(), null, "new-key", null, Set.of()));
 
         assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
     }
@@ -361,7 +361,7 @@ class ItemModelCopierTest {
         UUID unknownId = UUID.randomUUID();
 
         ApiException exception = assertThrows(ApiException.class,
-                () -> copier.copy(projectA.getId(), unknownId, null, null, Set.of()));
+                () -> copier.copy(projectA.getId(), unknownId, null, null, null, Set.of()));
 
         assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
     }
@@ -380,7 +380,7 @@ class ItemModelCopierTest {
             itemLoreRepository.save(l);
         });
 
-        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "lore-copy", Set.of(ItemRelation.LORE));
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "lore-copy", null, Set.of(ItemRelation.LORE));
 
         List<ItemLoreEntity> copiedLore = itemLoreRepository.findLoreById(result.getId(), Pageable.unpaged()).getContent();
         assertEquals(3, copiedLore.size());
@@ -402,7 +402,7 @@ class ItemModelCopierTest {
         flag.setItem(source);
         itemFlagRepository.save(flag);
 
-        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "flags-copy", Set.of(ItemRelation.FLAGS));
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "flags-copy", null, Set.of(ItemRelation.FLAGS));
 
         List<ItemFlagEntity> copiedFlags = itemFlagRepository.findFlagsById(result.getId(), Pageable.unpaged()).getContent();
         assertEquals(1, copiedFlags.size());
@@ -418,7 +418,7 @@ class ItemModelCopierTest {
         enchantment.setItem(source);
         itemEnchantmentRepository.save(enchantment);
 
-        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "enchant-copy", Set.of(ItemRelation.ENCHANTMENTS));
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "enchant-copy", null, Set.of(ItemRelation.ENCHANTMENTS));
 
         List<ItemEnchantmentEntity> copiedEnchantments = itemEnchantmentRepository.findEnchantmentsById(result.getId(), Pageable.unpaged()).getContent();
         assertEquals(1, copiedEnchantments.size());
@@ -443,7 +443,7 @@ class ItemModelCopierTest {
         itemEnchantmentRepository.save(enchantment);
 
         ItemEntity result = copier.copy(
-                projectA.getId(), source.getId(), null, "full-copy",
+                projectA.getId(), source.getId(), null, "full-copy", null,
                 EnumSet.allOf(ItemRelation.class)
         );
 
@@ -460,7 +460,7 @@ class ItemModelCopierTest {
         lore.setItem(source);
         itemLoreRepository.save(lore);
 
-        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "bare-copy", Set.of());
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "bare-copy", null, Set.of());
 
         assertTrue(itemLoreRepository.findLoreById(result.getId(), Pageable.unpaged()).getContent().isEmpty());
     }
@@ -473,7 +473,7 @@ class ItemModelCopierTest {
         flag.setItem(source);
         itemFlagRepository.save(flag);
 
-        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "guarded-copy", Set.of(ItemRelation.FLAGS));
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "guarded-copy", null, Set.of(ItemRelation.FLAGS));
 
         List<ItemFlagEntity> sourceFlagsAfter = itemFlagRepository.findFlagsById(source.getId(), Pageable.unpaged()).getContent();
         assertEquals(1, sourceFlagsAfter.size(), "the source's own flag must still be attached to the source");
@@ -482,5 +482,26 @@ class ItemModelCopierTest {
         List<ItemFlagEntity> targetFlags = itemFlagRepository.findFlagsById(result.getId(), Pageable.unpaged()).getContent();
         assertEquals(1, targetFlags.size());
         assertNotEquals(flag.getId(), targetFlags.get(0).getId());
+    }
+
+    @Test
+    @DisplayName("copy() with a targetName uses it instead of the source's uiName")
+    void copy_withTargetName_overridesUiName() {
+        ItemEntity source = sampleItem("name-item", projectA);
+
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "name-copy", "New UI", Set.of());
+
+        assertEquals("New UI", result.getUiName());
+        assertEquals("UI", source.getUiName(), "the source must not have been mutated");
+    }
+
+    @Test
+    @DisplayName("copy() with a blank targetName keeps the source's uiName")
+    void copy_blankTargetName_keepsSourceUiName() {
+        ItemEntity source = sampleItem("blank-name-item", projectA);
+
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "blank-name-copy", "  ", Set.of());
+
+        assertEquals("UI", result.getUiName());
     }
 }

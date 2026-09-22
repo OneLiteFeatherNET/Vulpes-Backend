@@ -36,7 +36,7 @@ class RelationalCopyDTOSerdeTest {
 
             UUID targetProjectId = UUID.randomUUID();
             String json = """
-                    {"targetProjectId":"%s","targetKey":"new-key","relations":["LORE","FLAGS"]}
+                    {"targetProjectId":"%s","targetKey":"new-key","targetName":"New Name","relations":["LORE","FLAGS"]}
                     """.formatted(targetProjectId);
 
             RelationalCopyDTO<ItemRelation> dto = objectMapper.readValue(
@@ -46,6 +46,7 @@ class RelationalCopyDTOSerdeTest {
 
             assertEquals(targetProjectId, dto.targetProjectId());
             assertEquals("new-key", dto.targetKey());
+            assertEquals("New Name", dto.targetName());
             assertEquals(Set.of(ItemRelation.LORE, ItemRelation.FLAGS), dto.relations());
         }
     }

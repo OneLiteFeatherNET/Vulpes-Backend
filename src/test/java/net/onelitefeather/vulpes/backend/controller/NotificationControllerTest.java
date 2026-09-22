@@ -95,7 +95,7 @@ class NotificationControllerTest {
         RuntimeException toThrow;
 
         @Override
-        public NotificationEntity copy(UUID sourceProjectId, UUID sourceId, UUID targetProjectId, String targetKey, Set<Void> relations) {
+        public NotificationEntity copy(UUID sourceProjectId, UUID sourceId, UUID targetProjectId, String targetKey, String targetName, Set<Void> relations) {
             if (toThrow != null) {
                 throw toThrow;
             }
@@ -202,21 +202,22 @@ class NotificationControllerTest {
     void copy_withBody_passesFieldsThrough() {
         StubNotificationCopier copierStub = new StubNotificationCopier() {
             @Override
-            public NotificationEntity copy(UUID sourceProjectId, UUID sourceId, UUID targetProjectId, String targetKey) {
+            public NotificationEntity copy(UUID sourceProjectId, UUID sourceId, UUID targetProjectId, String targetKey, String targetName) {
                 ProjectEntity project = new ProjectEntity(targetProjectId, "Target", "target", null, null, null, false);
-                return new NotificationEntity(UUID.randomUUID(), "UI", targetKey, "comment", "STONE", "frame", "title", project);
+                return new NotificationEntity(UUID.randomUUID(), targetName, targetKey, "comment", "STONE", "frame", "title", project);
             }
         };
         NotificationController controller = new NotificationController(new StubNotificationService(), copierStub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
         UUID targetProjectId = UUID.randomUUID();
-        CopyDTO body = new CopyDTO(targetProjectId, "new-key");
+        CopyDTO body = new CopyDTO(targetProjectId, "new-key", "New Name");
 
         HttpResponse<NotificationModelResponseDTO.NotificationModelDTO> resp = controller.copy(projectId, id, body);
 
         assertEquals(200, resp.getStatus().getCode());
         assertEquals("new-key", resp.body().key());
+        assertEquals("New Name", resp.body().uiName());
         assertEquals(targetProjectId, resp.body().projectId());
     }
 

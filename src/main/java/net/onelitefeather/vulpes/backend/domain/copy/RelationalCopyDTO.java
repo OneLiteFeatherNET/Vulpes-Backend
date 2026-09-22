@@ -16,6 +16,8 @@ public record RelationalCopyDTO<R>(
         @Nullable UUID targetProjectId,
         @Schema(description = "Key to give the copy. Defaults to the source entity's own key when omitted.", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable String targetKey,
+        @Schema(description = "Display name to give the copy. Defaults to the source entity's own name when omitted.", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Nullable String targetName,
         @Schema(description = "Which relations to copy alongside the entity. Omitted or empty copies only the entity's own fields.", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable Set<R> relations
 ) implements CopyRequest {
