@@ -55,6 +55,7 @@ public abstract class AbstractRelationalModelCopier<E extends AbstractEntity, R>
      * @param sourceId        the identifier of the entity to copy
      * @param targetProjectId the project to copy into, or {@code null} for the same project
      * @param targetKey       the key to give the copy, or {@code null}/blank to reuse the source's key
+     * @param targetName      the display name to give the copy, or {@code null}/blank to reuse the source's name
      * @param relations       which relations to copy alongside the root entity; an empty set copies
      *                        only the root
      * @return the saved copy, with the requested relations already persisted
@@ -64,6 +65,7 @@ public abstract class AbstractRelationalModelCopier<E extends AbstractEntity, R>
             UUID sourceId,
             @Nullable UUID targetProjectId,
             @Nullable String targetKey,
+            @Nullable String targetName,
             Set<R> relations
     ) {
         E source = requireOwnedByProject(sourceProjectId, sourceId);
@@ -72,7 +74,7 @@ public abstract class AbstractRelationalModelCopier<E extends AbstractEntity, R>
         String resolvedKey = (targetKey != null && !targetKey.isBlank()) ? targetKey : source.getKey();
         requireKeyAvailable(resolvedTargetProjectId, resolvedKey);
 
-        E rootCopy = copyRoot(source, targetProject, resolvedKey);
+        E rootCopy = copyRoot(source, targetProject, resolvedKey, targetName);
         E savedRoot = repository.save(rootCopy);
 
         for (R relation : relations) {

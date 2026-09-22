@@ -64,6 +64,7 @@ public abstract class AbstractModelCopier<E extends AbstractEntity> {
      * @param sourceId        the identifier of the entity to copy
      * @param targetProjectId the project to copy into, or {@code null} for the same project
      * @param targetKey       the key to give the copy, or {@code null}/blank to reuse the source's key
+     * @param targetName      the display name to give the copy, or {@code null}/blank to reuse the source's name
      * @return the saved copy
      * @throws ApiException {@code RESOURCE_NOT_FOUND} if the source does not exist or belongs to a
      *                       different project than {@code sourceProjectId},
@@ -71,14 +72,14 @@ public abstract class AbstractModelCopier<E extends AbstractEntity> {
      *                       {@code RESOURCE_CONFLICT} if the resolved key is already taken in the
      *                       target project
      */
-    public E copy(UUID sourceProjectId, UUID sourceId, @Nullable UUID targetProjectId, @Nullable String targetKey) {
+    public E copy(UUID sourceProjectId, UUID sourceId, @Nullable UUID targetProjectId, @Nullable String targetKey, @Nullable String targetName) {
         E source = requireOwnedByProject(sourceProjectId, sourceId);
         UUID resolvedTargetProjectId = targetProjectId != null ? targetProjectId : sourceProjectId;
         ProjectEntity targetProject = requireProject(resolvedTargetProjectId);
         String resolvedKey = (targetKey != null && !targetKey.isBlank()) ? targetKey : source.getKey();
         requireKeyAvailable(resolvedTargetProjectId, resolvedKey);
 
-        E copy = copyRoot(source, targetProject, resolvedKey);
+        E copy = copyRoot(source, targetProject, resolvedKey, targetName);
         return repository.save(copy);
     }
 
@@ -87,12 +88,17 @@ public abstract class AbstractModelCopier<E extends AbstractEntity> {
      * and never mutate {@code source} &mdash; {@code source} is still managed by the persistence
      * context, and mutating it would move the original instead of copying it.
      *
+     * <p>{@code targetName} is passed through raw (unresolved): only the concrete entity type
+     * knows its own display-name field, so each implementation is responsible for falling back to
+     * {@code source}'s own name when {@code targetName} is {@code null} or blank.
+     *
      * @param source        the entity being copied
      * @param targetProject the project the copy will belong to
      * @param targetKey     the key the copy will have (already checked for uniqueness in the target project)
+     * @param targetName    the display name requested for the copy, or {@code null}/blank to reuse the source's name
      * @return the new, unsaved entity
      */
-    protected abstract E copyRoot(E source, ProjectEntity targetProject, String targetKey);
+    protected abstract E copyRoot(E source, ProjectEntity targetProject, String targetKey, @Nullable String targetName);
 
     /**
      * Loads an entity that must exist and must belong to the given project.
