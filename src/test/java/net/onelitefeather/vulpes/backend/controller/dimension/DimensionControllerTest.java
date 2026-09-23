@@ -189,7 +189,7 @@ class DimensionControllerTest {
         StubDimensionService stub = new StubDimensionService();
         UUID projectId = UUID.randomUUID();
         stub.response = sampleResponse(UUID.randomUUID(), projectId);
-        DimensionController controller = new DimensionController(stub, new StubDimensionCopier());
+        DimensionController controller = new DimensionController(stub);
 
         HttpResponse<DimensionModelResponseDTO.DimensionModelDTO> resp = controller.add(projectId, sampleDTO(null));
 
@@ -206,7 +206,7 @@ class DimensionControllerTest {
                 throw ApiException.projectNotFound();
             }
         };
-        DimensionController controller = new DimensionController(stub, new StubDimensionCopier());
+        DimensionController controller = new DimensionController(stub);
         DimensionModelDTO dto = sampleDTO(null);
         UUID projectId = UUID.randomUUID();
 
@@ -220,7 +220,7 @@ class DimensionControllerTest {
     void getById_crossProject_raisesNotFound() {
         StubDimensionService stub = new StubDimensionService();
         stub.findByIdResponse = Optional.empty();
-        DimensionController controller = new DimensionController(stub, new StubDimensionCopier());
+        DimensionController controller = new DimensionController(stub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 
@@ -234,7 +234,7 @@ class DimensionControllerTest {
         StubDimensionService stub = new StubDimensionService();
         UUID projectId = UUID.randomUUID();
         stub.page = Page.of(List.of(sampleResponse(UUID.randomUUID(), projectId)), Pageable.from(0, 10), 1L);
-        DimensionController controller = new DimensionController(stub, new StubDimensionCopier());
+        DimensionController controller = new DimensionController(stub);
 
         HttpResponse<Page<DimensionModelResponseDTO.DimensionModelDTO>> resp = controller.getAll(projectId, Pageable.from(0, 10));
 
@@ -248,7 +248,7 @@ class DimensionControllerTest {
         StubDimensionCopier copierStub = new StubDimensionCopier();
         ProjectEntity project = new ProjectEntity(UUID.randomUUID(), "Project A", "project-a", null, null, null, false);
         copierStub.response = sampleEntity(UUID.randomUUID(), "key", project);
-        DimensionController controller = new DimensionController(new StubDimensionService(), copierStub);
+        DimensionCopyController controller = new DimensionCopyController(copierStub);
         UUID projectId = project.getId();
         UUID dimensionId = UUID.randomUUID();
 
@@ -270,7 +270,7 @@ class DimensionControllerTest {
                 return entity;
             }
         };
-        DimensionController controller = new DimensionController(new StubDimensionService(), copierStub);
+        DimensionCopyController controller = new DimensionCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID dimensionId = UUID.randomUUID();
         UUID targetProjectId = UUID.randomUUID();
@@ -289,7 +289,7 @@ class DimensionControllerTest {
     void copy_keyTaken_propagates() {
         StubDimensionCopier copierStub = new StubDimensionCopier();
         copierStub.toThrow = ApiException.conflict("A dimension type with key 'x' already exists in the target project.");
-        DimensionController controller = new DimensionController(new StubDimensionService(), copierStub);
+        DimensionCopyController controller = new DimensionCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID dimensionId = UUID.randomUUID();
 

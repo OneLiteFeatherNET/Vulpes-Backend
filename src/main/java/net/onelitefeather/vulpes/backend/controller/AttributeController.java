@@ -18,14 +18,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import net.onelitefeather.vulpes.api.model.AttributeEntity;
-import net.onelitefeather.vulpes.backend.copier.EntityCopier;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
-import net.onelitefeather.vulpes.backend.domain.copy.CopyDTO;
-import net.onelitefeather.vulpes.backend.domain.copy.CopyRequest;
-import io.micronaut.core.annotation.Nullable;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.service.AttributeService;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
@@ -36,12 +30,10 @@ import java.util.UUID;
 public class AttributeController {
 
     private final AttributeService attributeService;
-    private final EntityCopier<AttributeEntity, Void> attributeCopier;
 
     @Inject
-    public AttributeController(AttributeService attributeService, @Named("attribute") EntityCopier<AttributeEntity, Void> attributeCopier) {
+    public AttributeController(AttributeService attributeService) {
         this.attributeService = attributeService;
-        this.attributeCopier = attributeCopier;
     }
 
     @Operation(
@@ -78,53 +70,6 @@ public class AttributeController {
     @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> add(@PathVariable UUID projectId, @Body AttributeModelDTO model) {
         return HttpResponse.ok(attributeService.create(projectId, model));
-    }
-
-    @Operation(
-            summary = "Copy an attribute",
-            operationId = "copyAttribute",
-            description = "Copies an attribute owned by the given project into the same project or another one, under a new or the same key.",
-            tags = {"Attribute"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "The attribute was successfully copied.",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "404",
-            description = "The attribute or the target project was not found.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "409",
-            description = "An attribute with the resolved key already exists in the target project.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
-    @Post("/{id}/copy")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> copy(
-            @PathVariable UUID projectId,
-            @PathVariable UUID id,
-            @Nullable @Body CopyDTO copyDTO
-    ) {
-        var copied = attributeCopier.copy(
-                projectId,
-                id,
-                CopyRequest.targetProjectId(copyDTO),
-                CopyRequest.targetKey(copyDTO),
-                CopyRequest.targetName(copyDTO)
-        );
-        return HttpResponse.ok(AttributeModelResponseDTO.AttributeModelDTO.create(copied));
     }
 
     @Operation(

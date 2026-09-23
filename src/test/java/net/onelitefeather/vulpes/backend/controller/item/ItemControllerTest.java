@@ -211,7 +211,7 @@ class ItemControllerTest {
         StubItemService stub = new StubItemService();
         UUID projectId = UUID.randomUUID();
         stub.response = sampleResponse(UUID.randomUUID(), projectId);
-        ItemController controller = new ItemController(stub, new StubItemCopier());
+        ItemController controller = new ItemController(stub);
 
         HttpResponse<ItemModelResponseDTO.ItemModelDTO> resp = controller.add(projectId, sampleDTO(null));
 
@@ -228,7 +228,7 @@ class ItemControllerTest {
                 throw ApiException.projectNotFound();
             }
         };
-        ItemController controller = new ItemController(stub, new StubItemCopier());
+        ItemController controller = new ItemController(stub);
         ItemModelDTO dto = sampleDTO(null);
         UUID projectId = UUID.randomUUID();
 
@@ -242,7 +242,7 @@ class ItemControllerTest {
     void getById_crossProject_raisesNotFound() {
         StubItemService stub = new StubItemService();
         stub.findByIdResponse = Optional.empty();
-        ItemController controller = new ItemController(stub, new StubItemCopier());
+        ItemController controller = new ItemController(stub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 
@@ -256,7 +256,7 @@ class ItemControllerTest {
         StubItemService stub = new StubItemService();
         UUID projectId = UUID.randomUUID();
         stub.page = Page.of(List.of(sampleResponse(UUID.randomUUID(), projectId)), Pageable.from(0, 10), 1L);
-        ItemController controller = new ItemController(stub, new StubItemCopier());
+        ItemController controller = new ItemController(stub);
 
         HttpResponse<Page<ItemModelResponseDTO.ItemModelDTO>> resp = controller.getAll(projectId, Pageable.from(0, 10));
 
@@ -270,7 +270,7 @@ class ItemControllerTest {
         StubItemCopier copierStub = new StubItemCopier();
         ProjectEntity project = new ProjectEntity(UUID.randomUUID(), "Project A", "project-a", null, null, null, false);
         copierStub.response = sampleEntity(UUID.randomUUID(), project);
-        ItemController controller = new ItemController(new StubItemService(), copierStub);
+        ItemCopyController controller = new ItemCopyController(copierStub);
         UUID projectId = project.getId();
         UUID itemId = UUID.randomUUID();
 
@@ -290,7 +290,7 @@ class ItemControllerTest {
                 return new ItemEntity(UUID.randomUUID(), targetName, targetKey, "comment", "display", "STONE", "group", 0, 1, List.of(), List.of(), List.of(), project);
             }
         };
-        ItemController controller = new ItemController(new StubItemService(), copierStub);
+        ItemCopyController controller = new ItemCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID itemId = UUID.randomUUID();
         UUID targetProjectId = UUID.randomUUID();
@@ -309,7 +309,7 @@ class ItemControllerTest {
     void copy_keyTaken_propagates() {
         StubItemCopier copierStub = new StubItemCopier();
         copierStub.toThrow = ApiException.conflict("A item with key 'x' already exists in the target project.");
-        ItemController controller = new ItemController(new StubItemService(), copierStub);
+        ItemCopyController controller = new ItemCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID itemId = UUID.randomUUID();
 

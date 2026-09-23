@@ -7,6 +7,7 @@ import net.datafaker.Faker;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
 import net.onelitefeather.vulpes.backend.controller.sound.SoundController;
+import net.onelitefeather.vulpes.backend.controller.sound.SoundCopyController;
 import net.onelitefeather.vulpes.backend.controller.sound.SoundSourceController;
 import net.onelitefeather.vulpes.backend.copier.EntityCopier;
 import net.onelitefeather.vulpes.backend.domain.copy.RelationalCopyDTO;
@@ -152,7 +153,7 @@ class SoundControllerTest {
         SoundResponseDTO.SoundModelDTO expected = SoundResponseDTO.SoundModelDTO.createDTO(dto.toEntity(sampleProject(projectId)));
         stub.response = expected;
 
-        SoundController controller = new SoundController(stub, new StubSoundCopier());
+        SoundController controller = new SoundController(stub);
         HttpResponse<SoundResponseDTO.SoundModelDTO> resp = controller.add(projectId, dto);
 
         assertEquals(200, resp.getStatus().getCode());
@@ -169,7 +170,7 @@ class SoundControllerTest {
         UUID id = UUID.randomUUID();
         SoundEventEntity entity = sampleEventDTO(id).toEntity(sampleProject(projectId));
         stub.findByIdResponse = Optional.of(entity);
-        SoundController controller = new SoundController(stub, new StubSoundCopier());
+        SoundController controller = new SoundController(stub);
 
         HttpResponse<SoundResponseDTO.SoundModelDTO> resp = controller.getById(projectId, id);
         assertEquals(200, resp.getStatus().getCode());
@@ -183,7 +184,7 @@ class SoundControllerTest {
     void testGetById_notFound_raisesNotFound() {
         StubSoundService stub = new StubSoundService();
         stub.findByIdResponse = Optional.empty();
-        SoundController controller = new SoundController(stub, new StubSoundCopier());
+        SoundController controller = new SoundController(stub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 
@@ -202,7 +203,7 @@ class SoundControllerTest {
                 throw ApiException.notFound("Sound event");
             }
         };
-        SoundController controller = new SoundController(stub, new StubSoundCopier());
+        SoundController controller = new SoundController(stub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 
@@ -217,7 +218,7 @@ class SoundControllerTest {
         StubSoundCopier copierStub = new StubSoundCopier();
         ProjectEntity project = sampleProject(UUID.randomUUID());
         copierStub.response = new SoundEventEntity(UUID.randomUUID(), "UI", "key", "key-name", false, "subtitle", List.of(), project);
-        SoundController controller = new SoundController(new StubSoundService(), copierStub);
+        SoundCopyController controller = new SoundCopyController(copierStub);
         UUID projectId = project.getId();
         UUID id = UUID.randomUUID();
 
@@ -237,7 +238,7 @@ class SoundControllerTest {
                 return new SoundEventEntity(UUID.randomUUID(), targetName, targetKey, "key-name", false, "subtitle", List.of(), project);
             }
         };
-        SoundController controller = new SoundController(new StubSoundService(), copierStub);
+        SoundCopyController controller = new SoundCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
         UUID targetProjectId = UUID.randomUUID();
@@ -256,7 +257,7 @@ class SoundControllerTest {
     void testCopy_keyTaken_propagates() {
         StubSoundCopier copierStub = new StubSoundCopier();
         copierStub.toThrow = ApiException.conflict("A sound event with key 'x' already exists in the target project.");
-        SoundController controller = new SoundController(new StubSoundService(), copierStub);
+        SoundCopyController controller = new SoundCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 

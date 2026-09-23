@@ -148,7 +148,7 @@ class FontControllerTest {
         StubFontService stub = new StubFontService();
         UUID projectId = UUID.randomUUID();
         stub.response = sampleResponse(UUID.randomUUID(), projectId);
-        FontController controller = new FontController(stub, new StubFontCopier());
+        FontController controller = new FontController(stub);
 
         HttpResponse<FontModelResponseDTO.FontModelDTO> resp = controller.add(projectId, sampleDTO(null));
 
@@ -165,7 +165,7 @@ class FontControllerTest {
                 throw ApiException.projectNotFound();
             }
         };
-        FontController controller = new FontController(stub, new StubFontCopier());
+        FontController controller = new FontController(stub);
         FontModelDTO dto = sampleDTO(null);
         UUID projectId = UUID.randomUUID();
 
@@ -179,7 +179,7 @@ class FontControllerTest {
     void getById_crossProject_raisesNotFound() {
         StubFontService stub = new StubFontService();
         stub.findByIdResponse = Optional.empty();
-        FontController controller = new FontController(stub, new StubFontCopier());
+        FontController controller = new FontController(stub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 
@@ -193,7 +193,7 @@ class FontControllerTest {
         StubFontService stub = new StubFontService();
         UUID projectId = UUID.randomUUID();
         stub.page = Page.of(List.of(sampleResponse(UUID.randomUUID(), projectId)), Pageable.from(0, 10), 1L);
-        FontController controller = new FontController(stub, new StubFontCopier());
+        FontController controller = new FontController(stub);
 
         HttpResponse<Page<FontModelResponseDTO.FontModelDTO>> resp = controller.getAll(projectId, Pageable.from(0, 10));
 
@@ -207,7 +207,7 @@ class FontControllerTest {
         StubFontCopier copierStub = new StubFontCopier();
         ProjectEntity project = new ProjectEntity(UUID.randomUUID(), "Project A", "project-a", null, null, null, false);
         copierStub.response = sampleEntity(UUID.randomUUID(), project);
-        FontController controller = new FontController(new StubFontService(), copierStub);
+        FontCopyController controller = new FontCopyController(copierStub);
         UUID projectId = project.getId();
         UUID fontId = UUID.randomUUID();
 
@@ -227,7 +227,7 @@ class FontControllerTest {
                 return new FontEntity(UUID.randomUUID(), targetName, targetKey, "provider", "texture", "comment", 1, 1, List.of(), project);
             }
         };
-        FontController controller = new FontController(new StubFontService(), copierStub);
+        FontCopyController controller = new FontCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID fontId = UUID.randomUUID();
         UUID targetProjectId = UUID.randomUUID();
@@ -246,7 +246,7 @@ class FontControllerTest {
     void copy_keyTaken_propagates() {
         StubFontCopier copierStub = new StubFontCopier();
         copierStub.toThrow = ApiException.conflict("A font with key 'x' already exists in the target project.");
-        FontController controller = new FontController(new StubFontService(), copierStub);
+        FontCopyController controller = new FontCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID fontId = UUID.randomUUID();
 

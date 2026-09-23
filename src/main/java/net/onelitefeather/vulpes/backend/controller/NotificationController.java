@@ -12,15 +12,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import net.onelitefeather.vulpes.api.model.NotificationEntity;
-import net.onelitefeather.vulpes.backend.copier.EntityCopier;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelDTO;
 import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelResponseDTO;
-import net.onelitefeather.vulpes.backend.domain.copy.CopyDTO;
-import net.onelitefeather.vulpes.backend.domain.copy.CopyRequest;
-import io.micronaut.core.annotation.Nullable;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.NotificationService;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
@@ -39,12 +33,10 @@ import java.util.UUID;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private final EntityCopier<NotificationEntity, Void> notificationCopier;
 
     @Inject
-    public NotificationController(NotificationService notificationService, @Named("notification") EntityCopier<NotificationEntity, Void> notificationCopier) {
+    public NotificationController(NotificationService notificationService) {
         this.notificationService = notificationService;
-        this.notificationCopier = notificationCopier;
     }
 
     @Operation(
@@ -82,53 +74,6 @@ public class NotificationController {
     @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<NotificationModelResponseDTO.NotificationModelDTO> add(@PathVariable UUID projectId, @Body NotificationModelDTO model) {
         return HttpResponse.ok(notificationService.create(projectId, model));
-    }
-
-    @Operation(
-            summary = "Copy a notification",
-            operationId = "copyNotification",
-            description = "Copies a notification owned by the given project into the same project or another one, under a new or the same key.",
-            tags = {"Notification"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "The notification was successfully copied.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelDTO.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "404",
-            description = "The notification or the target project was not found.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "409",
-            description = "A notification with the resolved key already exists in the target project.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
-    @Post("/{id}/copy")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<NotificationModelResponseDTO.NotificationModelDTO> copy(
-            @PathVariable UUID projectId,
-            @PathVariable UUID id,
-            @Nullable @Body CopyDTO copyDTO
-    ) {
-        var copied = notificationCopier.copy(
-                projectId,
-                id,
-                CopyRequest.targetProjectId(copyDTO),
-                CopyRequest.targetKey(copyDTO),
-                CopyRequest.targetName(copyDTO)
-        );
-        return HttpResponse.ok(NotificationModelResponseDTO.NotificationModelDTO.createDTO(copied));
     }
 
     @Operation(

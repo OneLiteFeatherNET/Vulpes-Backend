@@ -108,7 +108,7 @@ class AttributeControllerTest {
         UUID projectId = UUID.randomUUID();
         AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
         stub.response = new AttributeModelResponseDTO.AttributeModelDTO(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectId, Instant.now(), Instant.now());
-        AttributeController controller = new AttributeController(stub, new StubAttributeCopier());
+        AttributeController controller = new AttributeController(stub);
 
         HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> resp = controller.add(projectId, dto);
 
@@ -125,7 +125,7 @@ class AttributeControllerTest {
                 throw ApiException.projectNotFound();
             }
         };
-        AttributeController controller = new AttributeController(stub, new StubAttributeCopier());
+        AttributeController controller = new AttributeController(stub);
         AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
         UUID projectId = UUID.randomUUID();
 
@@ -143,7 +143,7 @@ class AttributeControllerTest {
                 throw ApiException.notFound("Attribute");
             }
         };
-        AttributeController controller = new AttributeController(stub, new StubAttributeCopier());
+        AttributeController controller = new AttributeController(stub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 
@@ -158,7 +158,7 @@ class AttributeControllerTest {
         UUID projectId = UUID.randomUUID();
         var dto = new AttributeModelResponseDTO.AttributeModelDTO(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectId, Instant.now(), Instant.now());
         stub.page = Page.of(List.of(dto), Pageable.from(0, 10), 1L);
-        AttributeController controller = new AttributeController(stub, new StubAttributeCopier());
+        AttributeController controller = new AttributeController(stub);
 
         HttpResponse<Page<AttributeModelResponseDTO.AttributeModelDTO>> resp = controller.getAll(projectId, Pageable.from(0, 10));
 
@@ -172,7 +172,7 @@ class AttributeControllerTest {
         StubAttributeCopier copierStub = new StubAttributeCopier();
         ProjectEntity project = new ProjectEntity(UUID.randomUUID(), "Project A", "project-a", null, null, null, false);
         copierStub.response = new AttributeEntity(UUID.randomUUID(), "UI", "key", 1.0, 10.0, project);
-        AttributeController controller = new AttributeController(new StubAttributeService(), copierStub);
+        AttributeCopyController controller = new AttributeCopyController(copierStub);
         UUID projectId = project.getId();
         UUID id = UUID.randomUUID();
 
@@ -192,7 +192,7 @@ class AttributeControllerTest {
                 return new AttributeEntity(UUID.randomUUID(), targetName, targetKey, 1.0, 10.0, project);
             }
         };
-        AttributeController controller = new AttributeController(new StubAttributeService(), copierStub);
+        AttributeCopyController controller = new AttributeCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
         UUID targetProjectId = UUID.randomUUID();
@@ -211,7 +211,7 @@ class AttributeControllerTest {
     void copy_keyTaken_propagates() {
         StubAttributeCopier copierStub = new StubAttributeCopier();
         copierStub.toThrow = ApiException.conflict("A attribute with key 'x' already exists in the target project.");
-        AttributeController controller = new AttributeController(new StubAttributeService(), copierStub);
+        AttributeCopyController controller = new AttributeCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 

@@ -109,7 +109,7 @@ class NotificationControllerTest {
         UUID projectId = UUID.randomUUID();
         NotificationModelDTO dto = new NotificationModelDTO(null, "UI", "var", "comment", "STONE", "frame", "title");
         stub.response = new NotificationModelResponseDTO.NotificationModelDTO(UUID.randomUUID(), "UI", "var", "comment", "STONE", "frame", "title", projectId, Instant.now(), Instant.now());
-        NotificationController controller = new NotificationController(stub, new StubNotificationCopier());
+        NotificationController controller = new NotificationController(stub);
 
         HttpResponse<NotificationModelResponseDTO.NotificationModelDTO> resp = controller.add(projectId, dto);
 
@@ -126,7 +126,7 @@ class NotificationControllerTest {
                 throw ApiException.projectNotFound();
             }
         };
-        NotificationController controller = new NotificationController(stub, new StubNotificationCopier());
+        NotificationController controller = new NotificationController(stub);
         NotificationModelDTO dto = new NotificationModelDTO(null, "UI", "var", "comment", "STONE", "frame", "title");
         UUID projectId = UUID.randomUUID();
 
@@ -140,7 +140,7 @@ class NotificationControllerTest {
     void getById_crossProject_raisesNotFound() {
         StubNotificationService stub = new StubNotificationService();
         stub.findByIdResponse = Optional.empty();
-        NotificationController controller = new NotificationController(stub, new StubNotificationCopier());
+        NotificationController controller = new NotificationController(stub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 
@@ -158,7 +158,7 @@ class NotificationControllerTest {
                 throw ApiException.notFound("Notification");
             }
         };
-        NotificationController controller = new NotificationController(stub, new StubNotificationCopier());
+        NotificationController controller = new NotificationController(stub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 
@@ -173,7 +173,7 @@ class NotificationControllerTest {
         UUID projectId = UUID.randomUUID();
         var dto = new NotificationModelResponseDTO.NotificationModelDTO(UUID.randomUUID(), "UI", "var", "comment", "STONE", "frame", "title", projectId, Instant.now(), Instant.now());
         stub.page = Page.of(List.of(dto), Pageable.from(0, 10), 1L);
-        NotificationController controller = new NotificationController(stub, new StubNotificationCopier());
+        NotificationController controller = new NotificationController(stub);
 
         HttpResponse<Page<NotificationModelResponseDTO.NotificationModelDTO>> resp = controller.getAll(projectId, Pageable.from(0, 10));
 
@@ -187,7 +187,7 @@ class NotificationControllerTest {
         StubNotificationCopier copierStub = new StubNotificationCopier();
         ProjectEntity project = new ProjectEntity(UUID.randomUUID(), "Project A", "project-a", null, null, null, false);
         copierStub.response = new NotificationEntity(UUID.randomUUID(), "UI", "key", "comment", "STONE", "frame", "title", project);
-        NotificationController controller = new NotificationController(new StubNotificationService(), copierStub);
+        NotificationCopyController controller = new NotificationCopyController(copierStub);
         UUID projectId = project.getId();
         UUID id = UUID.randomUUID();
 
@@ -207,7 +207,7 @@ class NotificationControllerTest {
                 return new NotificationEntity(UUID.randomUUID(), targetName, targetKey, "comment", "STONE", "frame", "title", project);
             }
         };
-        NotificationController controller = new NotificationController(new StubNotificationService(), copierStub);
+        NotificationCopyController controller = new NotificationCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
         UUID targetProjectId = UUID.randomUUID();
@@ -226,7 +226,7 @@ class NotificationControllerTest {
     void copy_keyTaken_propagates() {
         StubNotificationCopier copierStub = new StubNotificationCopier();
         copierStub.toThrow = ApiException.conflict("A notification with key 'x' already exists in the target project.");
-        NotificationController controller = new NotificationController(new StubNotificationService(), copierStub);
+        NotificationCopyController controller = new NotificationCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID id = UUID.randomUUID();
 
