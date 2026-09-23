@@ -79,6 +79,33 @@ To set up the `CLIENT_REPO_TOKEN`:
 ./gradlew test
 ```
 
+### Seed data for manual testing
+
+The `seed` environment fills an empty database with realistic test data on startup, so every screen of the UI can be tested without creating data by hand. Start the local database (`docker compose -f docker/compose.yml up -d`) and run:
+
+```bash
+MICRONAUT_ENVIRONMENTS=local,seed ./gradlew run
+```
+
+Seeding only happens when the database contains no projects; otherwise it is skipped and the log says so. To throw away all data and seed again:
+
+```bash
+MICRONAUT_ENVIRONMENTS=local,seed VULPES_SEED_RESET=true ./gradlew run
+```
+
+> **Warning:** a reset deletes **all** Vulpes data in the database, including projects you created yourself.
+
+The data is the same on every run (`VULPES_SEED_RANDOM_SEED` changes the generated filler). It contains:
+
+| Project | Purpose |
+|---|---|
+| `eldoria_rpg` — Eldoria RPG | Fantasy RPG setup: enchanted weapons with coloured lore, icon fonts, quest sounds, custom attributes, notifications and a custom "Shadow Realm" dimension. Every entity type has children. |
+| `skyblock_lab` — Skyblock Lab | Smaller `labor` project. Shares one key per entity type with Eldoria (`starter_sword`, `hud_icons`, `ui_click`, `lobby`, `bonus_health`, `welcome`) to show project scoping. |
+| `edge_cases` — Edge Cases | More than one page per list, records without children, every enum value, validation min/max values, 255-character, Unicode and `§`-formatted texts, long lore/char lists for reordering, unsafe enchantments. |
+| `empty_project` — Empty Project | No entities at all, for empty states. |
+
+The seeder lives in `src/dev` and is only on the classpath of `./gradlew run`; it is not part of the built jars or the Docker image.
+
 ## Error handling
 
 Every endpoint answers a failure with a single body shape, [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457), served as `application/problem+json`:
