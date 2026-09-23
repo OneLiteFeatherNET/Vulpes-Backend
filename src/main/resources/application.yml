@@ -15,6 +15,39 @@ micronaut:
             - PUT
             - DELETE
             - OPTIONS
+  # Resource server: bearer tokens obtained by the UI are validated here, never issued.
+  # There is no login endpoint and no client secret. Every value below is deployment
+  # configuration -- swapping the identity provider must not require a code change.
+  #
+  # The empty fallbacks are deliberate and are not defaults in any useful sense:
+  # SecurityConfigurationCheck rejects a blank value while the application starts. Without
+  # them these beans are built lazily, so a missing variable surfaces as a 500 on every
+  # route -- /health included -- instead of as a failed startup.
+  security:
+    token:
+      jwt:
+        signatures:
+          jwks:
+            provider:
+              url: ${OIDC_JWKS_URL:}
+        claims-validators:
+          issuer: ${OIDC_ISSUER:}
+          audience: ${OIDC_AUDIENCE:}
+          subject-not-null: true
+    # Probes and metrics scraping call these without credentials. A pod whose probes
+    # receive 401 never becomes ready, and the failure looks like a stuck rollout
+    # rather than an authentication problem.
+    endpoints:
+      open:
+        - /health
+        - /prometheus
+    intercept-url-map:
+      - pattern: /swagger/**
+        access:
+          - isAnonymous()
+      - pattern: /swagger-ui/**
+        access:
+          - isAnonymous()
   logger:
     levels:
       io.micronaut.data: DEBUG
@@ -70,12 +103,25 @@ otel:
     - /swagger/.*
     - /swagger-ui/.*
 
+# Which claim identifies the caller. 'sub' is the portable default; an Entra ID
+# deployment sets 'oid', because Entra's 'sub' is unique per app registration and
+# therefore changes whenever that registration is replaced.
+vulpes:
+  security:
+    identity-claim: ${OIDC_IDENTITY_CLAIM:sub}
+
+# The connection itself -- url, username, password -- is deliberately absent. Every
+# environment supplies its own: application-local.yml for local runs, and the ConfigMap
+# and Secret mounted through MICRONAUT_CONFIG_FILES for a deployed instance. The values
+# that used to stand here matched no environment at all and were overridden everywhere,
+# while their presence stopped Micronaut Test Resources from providing a throwaway
+# database to the test suite -- Test Resources only fills in properties that are missing.
+#
+# An instance started without them now fails instead of quietly dialling a database that
+# does not exist.
 datasources:
   default:
-    url: jdbc:postgresql://localhost:5432/vulpes
     driverClassName: org.postgresql.Driver
-    username: root
-    password: vulpes
     dialect: POSTGRES
     schema-generate: CREATE_DROP  # Change to `NONE` or `UPDATE` if you don't want schema recreation
     maximum-pool-size: 10

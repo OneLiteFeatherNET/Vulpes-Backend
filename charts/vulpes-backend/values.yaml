@@ -237,6 +237,32 @@ secrets:
   #       password: ${DB_PASS}
 
 # Environment-Variablen
+# OpenID Connect. The backend validates bearer tokens the UI obtained itself; it issues
+# none. All four values are deployment configuration, which is what keeps the identity
+# provider interchangeable -- Entra ID today, Keycloak or another OIDC provider later,
+# without a code change.
+#
+# issuer, audience and jwksUrl have no defaults on purpose. A guessed issuer would accept
+# tokens from somewhere unintended, and a missing audience would accept every token the
+# issuer ever minted for any application. The application refuses to start without them,
+# so the mistake surfaces as a failed rollout rather than as an open API.
+oidc:
+  # The exact 'iss' claim of accepted tokens. On Entra ID this depends on the app
+  # registration's accessTokenAcceptedVersion: https://sts.windows.net/<tenant>/ for v1,
+  # https://login.microsoftonline.com/<tenant>/v2.0 for v2. Read it off a real token
+  # rather than deriving it; a mismatch refuses every request.
+  issuer: ""
+  # The 'aud' claim naming this backend -- the Application ID URI or client id of the
+  # backend's own registration, never the UI's.
+  audience: ""
+  # Where the issuer publishes its signing keys. Configured directly rather than
+  # discovered, so a provider outage cannot stop a pod from becoming ready.
+  jwksUrl: ""
+  # The claim identifying the caller. 'sub' is the portable default; Entra ID deployments
+  # set 'oid', because Entra's 'sub' is unique per app registration and changes whenever
+  # that registration is replaced.
+  identityClaim: "sub"
+
 env:
   - name: JAVA_TOOL_OPTIONS
     value: "-XX:MaxRAMPercentage=75.0 -Duser.timezone=UTC"

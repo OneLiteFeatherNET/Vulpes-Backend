@@ -35,6 +35,9 @@ dependencies {
     implementation(mn.micronaut.data.tx.hibernate)
     implementation(mn.micronaut.jdbc.hikari)
     implementation(mn.micronaut.runtime)
+    // Resource server: bearer tokens the UI obtained itself are validated against the
+    // configured issuer's JWKS. No login flow, no client secret, no token issuance.
+    implementation(mn.micronaut.security.jwt)
     implementation(mn.micronaut.openapi)
     implementation(mn.validation)
     implementation(mn.swagger.core)
@@ -70,6 +73,8 @@ dependencies {
     testImplementation(mn.testcontainers.core)
     testImplementation(mn.testcontainers.postgres)
     testImplementation(mn.micronaut.test.rest.assured)
+    // Drives the security filter chain over real HTTP in the authentication tests.
+    testImplementation(mn.micronaut.http.client)
     testImplementation(mn.micronaut.validation)
     testImplementation(mn.micronaut.test.resources.extensions.core)
     testImplementation(mn.micronaut.test.resources.extensions.junit.platform)
