@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.0.2...v3.1.0) (2026-09-23)
+
+
+### Features
+
+* **dev:** add data seeder for manual UI testing ([#201](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/201)) ([0775350](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/077535090b14a1536d66974ebd9b8e44759a578a))
+
 ## [3.0.2](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.0.1...v3.0.2) (2026-09-21)
 
 
