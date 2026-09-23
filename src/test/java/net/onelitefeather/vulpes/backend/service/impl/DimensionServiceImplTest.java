@@ -163,8 +163,8 @@ class DimensionServiceImplTest {
 
         @Override
         public boolean existsByProjectIdAndKey(UUID projectId, String key) {
-            //TODO: add implementation
-            return false;
+            return store.values().stream()
+                    .anyMatch(e -> e.getProject().getId().equals(projectId) && e.getKey().equals(key));
         }
     }
 

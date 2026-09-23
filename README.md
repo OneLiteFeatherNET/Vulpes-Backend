@@ -69,8 +69,13 @@ To set up the `CLIENT_REPO_TOKEN`:
 
 ### Running
 
+The base `application.yml` carries no datasource — start Postgres and
+activate the `local` environment, which points at it (see
+`application-local.yml`):
+
 ```bash
-./gradlew run
+docker compose -f docker/compose.yml up -d
+MICRONAUT_ENVIRONMENTS=local ./gradlew run
 ```
 
 ### Testing
