@@ -1,18 +1,43 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:18
     container_name: vulpes-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: vulpesdb
-      POSTGRES_USER: vulpes
-      POSTGRES_PASSWORD: vulpespassword
+      POSTGRES_DB: ${POSTGRES_DB:-vulpesdb}
+      POSTGRES_USER: ${POSTGRES_USER:-vulpes}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vulpespassword}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
+
+  # Only started with `--profile keycloak`. Without it this file behaves exactly as before:
+  # Postgres alone, and the backend falls back to accepting unauthenticated requests locally.
+  #
+  # What this proves and what it does not: a token from here exercises the validation
+  # mechanism -- signature, expiry, issuer, audience, identity claim -- but not the deployed
+  # configuration. Its issuer is a local realm, its audience is whatever this file says, and
+  # Keycloak has no 'oid' claim at all. The failures most likely to bite in production are
+  # invisible here. Only a token from the real provider tests that.
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    container_name: vulpes-keycloak
+    profiles:
+      - keycloak
+    restart: unless-stopped
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USER:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "127.0.0.1:${KEYCLOAK_PORT:-8081}:8080"
+    volumes:
+      # The realm carries the audience mapper that puts 'vulpes-backend' into the token's
+      # 'aud'. Without it Keycloak issues tokens whose audience is 'account', which this API
+      # refuses -- the same mistake the Entra setup has to avoid.
+      - ./keycloak/realm-vulpes.json:/opt/keycloak/data/import/realm-vulpes.json:ro
 
 volumes:
   postgres_data:

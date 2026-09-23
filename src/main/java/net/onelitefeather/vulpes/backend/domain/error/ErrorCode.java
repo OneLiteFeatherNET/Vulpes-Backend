@@ -71,6 +71,24 @@ public enum ErrorCode {
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported media type"),
 
     /**
+     * The request carried no bearer token, or one that failed validation.
+     *
+     * <p>The detail is a fixed constant and never names which criterion failed. Distinguishing an
+     * expired token from one aimed at the wrong audience would turn the endpoint into an oracle for
+     * probing how close a forged or stale token is to being accepted.
+     */
+    UNAUTHENTICATED(HttpStatus.UNAUTHORIZED, "Unauthenticated"),
+
+    /**
+     * The caller is authenticated, but not permitted to perform this request.
+     *
+     * <p>Nothing in this API distinguishes callers yet, so this is currently unreachable through
+     * normal use. It exists because the framework can still produce a 403, and every response this
+     * API emits has to carry a code.
+     */
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "Access denied"),
+
+    /**
      * Something failed that the client cannot act on. The response never carries details about it; the
      * cause is written to the server log under {@link ProblemDetail#traceId()}.
      */
@@ -128,6 +146,8 @@ public enum ErrorCode {
      */
     public static ErrorCode fromStatus(HttpStatus status) {
         return switch (status) {
+            case UNAUTHORIZED -> UNAUTHENTICATED;
+            case FORBIDDEN -> ACCESS_DENIED;
             case NOT_FOUND -> RESOURCE_NOT_FOUND;
             case CONFLICT -> RESOURCE_CONFLICT;
             case METHOD_NOT_ALLOWED -> METHOD_NOT_ALLOWED;

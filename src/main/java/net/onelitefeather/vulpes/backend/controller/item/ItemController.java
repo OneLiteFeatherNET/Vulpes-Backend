@@ -11,6 +11,8 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -31,6 +33,7 @@ import java.util.UUID;
  * REST controller for item resources.
  * Provides CRUD operations and nested resource management (enchantments, lore, flags).
  */
+@Secured(SecurityRule.IS_AUTHENTICATED)
 @Controller("/project/{projectId}/item")
 public class ItemController {
 

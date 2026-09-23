@@ -5,6 +5,8 @@ import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
 import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -29,6 +31,7 @@ import java.util.UUID;
  * @version 1.0.0
  * @since 1.0.0
  */
+@Secured(SecurityRule.IS_AUTHENTICATED)
 @Controller("/project/{projectId}/notification")
 public class NotificationController {
 

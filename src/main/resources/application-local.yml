@@ -1,6 +1,26 @@
 micronaut:
   server:
     port: 8085
+  # Points at the Keycloak realm from docker/compose.yml (started with `--profile keycloak`).
+  # These values only matter once a request actually carries a token: without one, the
+  # development fallback answers and Keycloak need not be running at all.
+  security:
+    token:
+      jwt:
+        signatures:
+          jwks:
+            provider:
+              url: http://localhost:8081/realms/vulpes/protocol/openid-connect/certs
+        claims-validators:
+          issuer: http://localhost:8081/realms/vulpes
+          audience: vulpes-backend
+
+# Keycloak has no 'oid' claim -- that one is Entra's. Locally the portable 'sub' is the
+# only choice, which is also the standing demonstration that this is configuration rather
+# than something wired into the code.
+vulpes:
+  security:
+    identity-claim: sub
 
 datasources:
   default:

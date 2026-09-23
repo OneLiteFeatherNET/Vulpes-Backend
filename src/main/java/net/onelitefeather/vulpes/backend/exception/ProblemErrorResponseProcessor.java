@@ -50,6 +50,21 @@ public class ProblemErrorResponseProcessor implements ErrorResponseProcessor<Pro
             + "Quote the traceId when reporting this.";
 
     /**
+     * The detail sent for every rejected request, whatever the reason.
+     *
+     * <p>Held constant on purpose. Telling a caller whether a token was expired, aimed at the wrong
+     * audience or signed by an unknown issuer turns this endpoint into an oracle for probing how
+     * close a stale or forged token is to being accepted. The server log records which criterion
+     * failed, under the traceId in this body.
+     */
+    private static final String UNAUTHENTICATED_DETAIL = "The request requires a valid bearer token.";
+
+    /**
+     * The detail sent when an authenticated caller is refused, held constant for the same reason.
+     */
+    private static final String ACCESS_DENIED_DETAIL = "The caller is not permitted to perform this request.";
+
+    /**
      * SQLSTATE class 23 is "integrity constraint violation" and is defined by the SQL standard, so
      * matching on it works across MariaDB and PostgreSQL without reading a vendor error message.
      */
@@ -156,6 +171,15 @@ public class ProblemErrorResponseProcessor implements ErrorResponseProcessor<Pro
      * @return the detail to send
      */
     private String clientDetail(ErrorContext errorContext, ErrorCode code) {
+        // Authentication failures never inherit the framework's message. Today it is the constant
+        // "Unauthorized", but that is the framework's choice to change, and a message naming the
+        // failed criterion would leak through this path the moment it did.
+        if (code == ErrorCode.UNAUTHENTICATED) {
+            return UNAUTHENTICATED_DETAIL;
+        }
+        if (code == ErrorCode.ACCESS_DENIED) {
+            return ACCESS_DENIED_DETAIL;
+        }
         return errorContext.getErrors().stream()
                 .map(io.micronaut.http.server.exceptions.response.Error::getMessage)
                 .filter(message -> message != null && !message.isBlank())

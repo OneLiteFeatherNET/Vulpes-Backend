@@ -1,0 +1,51 @@
+micronaut:
+  server:
+    port: 0
+  security:
+    # The suite signs its own tokens with a symmetric secret, so the whole filter chain runs
+    # without a network call or a running identity provider. The JWKS entry stays configured
+    # because production uses it and SecurityConfigurationCheck requires it; nothing in the
+    # suite presents a token that would send Micronaut to that URL.
+    token:
+      jwt:
+        signatures:
+          secret:
+            test:
+              secret: test-only-secret-never-used-outside-the-test-suite
+              jws-algorithm: HS256
+          jwks:
+            provider:
+              url: http://jwks.unused.invalid/keys
+        claims-validators:
+          issuer: https://issuer.test.invalid/realms/vulpes
+          audience: vulpes-backend-test
+          subject-not-null: true
+
+# Reads 'oid' rather than the portable 'sub', matching the Entra deployment, so the
+# configurable path is what the suite exercises.
+vulpes:
+  security:
+    identity-claim: oid
+
+datasources:
+  default:
+    driverClassName: org.postgresql.Driver
+    # Hibernate builds the schema here (hbm2ddl below), as it does for local runs.
+    # Micronaut Data's own generator cannot map every entity in vulpes-model.
+    schema-generate: NONE
+    dialect: POSTGRES
+    db-type: postgresql
+
+jpa:
+  default:
+    entity-scan:
+      packages:
+        - net.onelitefeather.vulpes.api.model
+    properties:
+      hibernate:
+        hbm2ddl.auto: update
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+test-resources:
+  containers:
+    postgresql:
+      image-name: postgres:16

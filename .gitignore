@@ -40,5 +40,12 @@ out/
 .kotlin
 
 ## Docker ##
-docker/
+# Not the whole directory: docker/compose.yml is tracked, and git cannot re-include a file
+# whose parent directory is excluded, so an ignored `docker/` would silently swallow every
+# file added beside it -- absent from `git status` and from a fresh clone.
+docker/data/
+docker/*.env
+!docker/*.env.example
+# Compose would not read it from here, but nobody should be able to commit one by accident.
+/.env
 /.micronaut/test-resources/test-resources-port.txt

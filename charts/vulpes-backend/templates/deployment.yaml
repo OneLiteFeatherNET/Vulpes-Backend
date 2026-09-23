@@ -88,6 +88,16 @@ spec:
               value: "{{ join "," .Values.profiles }}"
             - name: MICRONAUT_CONFIG_FILES
               value: "/config/application.yml{{- range $p := .Values.profiles }},/config/application-{{$p}}.yml{{- end }}{{- if and .Values.secrets.enabled .Values.secrets.files }}{{- range $p := .Values.profiles }},/secrets/application-{{$p}}.yml{{- end }}{{- end }}"
+            {{- with .Values.oidc }}
+            - name: OIDC_ISSUER
+              value: {{ .issuer | quote }}
+            - name: OIDC_AUDIENCE
+              value: {{ .audience | quote }}
+            - name: OIDC_JWKS_URL
+              value: {{ .jwksUrl | quote }}
+            - name: OIDC_IDENTITY_CLAIM
+              value: {{ .identityClaim | default "sub" | quote }}
+            {{- end }}
             {{- range .Values.env }}
             - name: {{ .name }}
               value: {{ .value | quote }}
