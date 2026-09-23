@@ -15,6 +15,16 @@ java {
     }
 }
 
+// Development-only code (e.g. the data seeder). It is compiled against `main` and put on
+// the `developmentOnly` classpath, which `./gradlew run` uses but the runtime jars and the
+// Docker image do not.
+val dev: SourceSet by sourceSets.creating {
+    compileClasspath += sourceSets.main.get().output
+    runtimeClasspath += sourceSets.main.get().output
+}
+configurations[dev.implementationConfigurationName].extendsFrom(configurations.implementation.get())
+configurations[dev.runtimeOnlyConfigurationName].extendsFrom(configurations.runtimeOnly.get())
+
 dependencies {
     //Micronaut
     annotationProcessor(mn.micronaut.serde.processor)
@@ -80,6 +90,14 @@ dependencies {
     testImplementation(libs.jakarta.validation)
 
     testRuntimeOnly(mn.junit.jupiter.engine)
+
+    // Development-only: data seeder (see src/dev)
+    "devAnnotationProcessor"(mn.micronaut.inject.java)
+    "devAnnotationProcessor"(mn.micronaut.data.processor) // maps jakarta.transaction.Transactional
+    "devImplementation"(libs.datafaker)
+    developmentOnly(dev.output)
+    developmentOnly(libs.datafaker)
+    testImplementation(dev.output)
 }
 
 application {
@@ -111,6 +129,14 @@ micronaut {
 tasks {
     named("internalStartTestResourcesService") { // Workaround for Java 25 Graal: https://github.com/micronaut-projects/micronaut-gradle-plugin/issues/1195#issuecomment-3714801163
         setProperty("useClassDataSharing", false)
+    }
+    // Keep the development-only source set compiling against model/API changes in CI.
+    check {
+        dependsOn(dev.classesTaskName)
+    }
+    named<JavaCompile>(dev.compileJavaTaskName) {
+        options.encoding = "UTF-8"
+        options.release = 25
     }
     compileJava {
         options.encoding = "UTF-8"
