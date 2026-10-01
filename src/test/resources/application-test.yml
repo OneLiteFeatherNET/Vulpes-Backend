@@ -1,0 +1,38 @@
+micronaut:
+  server:
+    port: 0
+
+# Concrete (non-placeholder) values, not inherited from the base config's
+# ${OTEL_TRACES_EXPORTER:none}/${OTEL_EXPORTER_OTLP_ENDPOINT:...} placeholders:
+# DefaultOpenTelemetryFactory resolves every otel.exporter.otlp.* sub-property
+# eagerly regardless of whether the otlp exporter is active, and a placeholder
+# expression sends that resolution through micronaut-test-resources' generic
+# property resolver — which has no provider for it and times out. A literal
+# value here short-circuits that placeholder-resolution path for tests only.
+otel:
+  traces:
+    exporter: none
+  exporter:
+    otlp:
+      endpoint: http://localhost:4317
+
+datasources:
+  default:
+    driverClassName: org.postgresql.Driver
+    schema-generate: CREATE_DROP
+    dialect: POSTGRES
+    db-type: postgresql
+
+jpa:
+  default:
+    entity-scan:
+      packages:
+        - net.onelitefeather.vulpes.api.model
+    properties:
+      hibernate:
+        hbm2ddl.auto: update
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+test-resources:
+  containers:
+    postgresql:
+      image-name: postgres:16

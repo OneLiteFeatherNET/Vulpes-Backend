@@ -70,15 +70,15 @@ otel:
     - /swagger/.*
     - /swagger-ui/.*
 
-datasources:
-  default:
-    url: jdbc:postgresql://localhost:5432/vulpes
-    driverClassName: org.postgresql.Driver
-    username: root
-    password: vulpes
-    dialect: POSTGRES
-    schema-generate: CREATE_DROP  # Change to `NONE` or `UPDATE` if you don't want schema recreation
-    maximum-pool-size: 10
+# No `datasources` block here on purpose: this file is the base config, active in
+# every environment including `test`. A hardcoded connection here would permanently
+# satisfy Micronaut's property lookup for `datasources.default.*`, which stops
+# micronaut-test-resources from ever kicking in — it only supplies a
+# Testcontainers-provisioned connection when those keys are otherwise unresolved.
+# Local development gets its connection from `application-local.yml` (against the
+# docker/compose.yml Postgres); tests get theirs from `application-test.yml`
+# (test-resources-provisioned); a real deployment supplies its own via environment
+# variables, which win over any YAML value regardless.
 
 jpa:
   default:

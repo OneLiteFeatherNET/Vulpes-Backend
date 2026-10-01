@@ -3,6 +3,7 @@ package net.onelitefeather.vulpes.backend.controller;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
+import net.onelitefeather.vulpes.api.model.AttributeEntity;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
@@ -50,7 +51,7 @@ class AttributeControllerTest {
         }
 
         @Override
-        public Optional<net.onelitefeather.vulpes.api.model.AttributeEntity> findById(UUID id) {
+        public Optional<AttributeEntity> findById(UUID id) {
             return Optional.empty();
         }
 
@@ -79,7 +80,7 @@ class AttributeControllerTest {
         }
 
         @Override
-        public Optional<net.onelitefeather.vulpes.api.model.AttributeEntity> findById(UUID projectId, UUID id) {
+        public Optional<AttributeEntity> findById(UUID projectId, UUID id) {
             return Optional.empty();
         }
     }

@@ -37,7 +37,8 @@ public class DimensionController {
     private final DimensionService dimensionService;
 
     @Inject
-    public DimensionController(DimensionService dimensionService) {
+    public DimensionController(
+            DimensionService dimensionService) {
         this.dimensionService = dimensionService;
     }
 

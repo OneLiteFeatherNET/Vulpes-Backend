@@ -6,9 +6,12 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import net.datafaker.Faker;
+import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
+import net.onelitefeather.vulpes.backend.domain.project.ProjectModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +27,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Disabled
 @MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("Integration tests for SoundController endpoints with Testcontainers")
@@ -36,9 +38,37 @@ class SoundControllerIntegrationTest {
 
     private static final Faker FAKER = new Faker();
 
+    /**
+     * {@link SoundController} is project-scoped ({@code /project/{projectId}/sound}); every request in
+     * this class needs a real, persisted project to route through. Created once for the whole class —
+     * the tests below don't need isolation from each other, only from other projects.
+     */
+    private UUID projectId;
+
+    @BeforeAll
+    void createProject() {
+        RestAssured.baseURI = server.getURL().toString();
+        ProjectModelDTO project = new ProjectModelDTO(
+                null, FAKER.company().name(), "sound-it-" + UUID.randomUUID(), null, null, null, false);
+        ProjectModelResponseDTO.ProjectModelDTO created =
+                given()
+                        .contentType(ContentType.JSON)
+                        .body(project)
+                .when()
+                        .post("/project")
+                .then()
+                        .statusCode(200)
+                        .extract().as(ProjectModelResponseDTO.ProjectModelDTO.class);
+        projectId = created.id();
+    }
+
     @BeforeEach
     void setup() {
         RestAssured.baseURI = server.getURL().toString();
+    }
+
+    private String soundPath(String suffix) {
+        return "/project/" + projectId + "/sound" + suffix;
     }
 
     private static SoundEventDTO sampleEventDTO(UUID id) {
@@ -57,6 +87,15 @@ class SoundControllerIntegrationTest {
         return new SoundEventDTO(null, uiName, varName, key, subtitle);
     }
 
+    /**
+     * An update DTO's {@code key}/{@code keyName}/{@code subTitle} are {@code @Null} for the Update
+     * validation group (only {@code id} and {@code uiName} are settable on update) — unlike
+     * {@link #sampleEventDTO}, which builds a Create-shaped DTO that would fail validation here.
+     */
+    private static SoundEventDTO sampleUpdateDTO(UUID id) {
+        return new SoundEventDTO(id, FAKER.rockBand().name(), null, null, null);
+    }
+
     @Test
     void testPostSound_returnsOk() {
         SoundEventDTO dto = sampleEventDTOWithoutId();
@@ -66,7 +105,7 @@ class SoundControllerIntegrationTest {
                         .contentType(ContentType.JSON)
                         .body(dto)
                 .when()
-                        .post("/sound")
+                        .post(soundPath(""))
                 .then()
                         .extract().response();
         if (response.statusCode() != 200) {
@@ -84,13 +123,13 @@ class SoundControllerIntegrationTest {
         // create first
         SoundResponseDTO.SoundModelDTO created = given().contentType(ContentType.JSON)
                 .body(sampleEventDTOWithoutId())
-                .when().post("/sound").then().statusCode(200)
+                .when().post(soundPath("")).then().statusCode(200)
                 .extract().as(SoundResponseDTO.SoundModelDTO.class);
 
         SoundResponseDTO.SoundModelDTO resp =
                 given()
                 .when()
-                        .get("/sound/" + created.id())
+                        .get(soundPath("/" + created.id()))
                 .then()
                         .statusCode(200)
                         .extract().as(SoundResponseDTO.SoundModelDTO.class);
@@ -101,7 +140,7 @@ class SoundControllerIntegrationTest {
     void testGetSoundById_notFound() {
         given()
         .when()
-                .get("/sound/" + UUID.randomUUID())
+                .get(soundPath("/" + UUID.randomUUID()))
         .then()
                 .statusCode(404);
     }
@@ -110,12 +149,12 @@ class SoundControllerIntegrationTest {
     void testDeleteSoundById_found() {
         SoundResponseDTO.SoundModelDTO created = given().contentType(ContentType.JSON)
                 .body(sampleEventDTOWithoutId())
-                .when().post("/sound").then().statusCode(200)
+                .when().post(soundPath("")).then().statusCode(200)
                 .extract().as(SoundResponseDTO.SoundModelDTO.class);
 
         given()
         .when()
-                .delete("/sound/delete/" + created.id())
+                .delete(soundPath("/delete/" + created.id()))
         .then()
                 .statusCode(200);
     }
@@ -124,7 +163,7 @@ class SoundControllerIntegrationTest {
     void testDeleteSoundById_notFound() {
         given()
         .when()
-                .delete("/sound/delete/" + UUID.randomUUID())
+                .delete(soundPath("/delete/" + UUID.randomUUID()))
         .then()
                 .statusCode(404);
     }
@@ -133,18 +172,18 @@ class SoundControllerIntegrationTest {
     void testDeleteAll_returnsOk() {
         given()
         .when()
-                .delete("/sound/delete/all")
+                .delete(soundPath("/delete/"))
         .then()
-                .statusCode(200);
+                .statusCode(204);
     }
 
     @Test
     void testGetAll_returnsOk() {
-        given().contentType(ContentType.JSON).body(sampleEventDTOWithoutId()).when().post("/sound").then().statusCode(200);
+        given().contentType(ContentType.JSON).body(sampleEventDTOWithoutId()).when().post(soundPath("")).then().statusCode(200);
 
         given()
         .when()
-                .get("/sound/all")
+                .get(soundPath("/"))
         .then()
                 .statusCode(200)
                 .body("totalSize", greaterThan(0))
@@ -161,12 +200,12 @@ class SoundControllerIntegrationTest {
 
     @Test
     void testPostUpdate_notFound_returns404() {
-        SoundEventDTO dto = sampleEventDTO(UUID.randomUUID());
+        SoundEventDTO dto = sampleUpdateDTO(UUID.randomUUID());
         given()
                 .contentType(ContentType.JSON)
                 .body(dto)
         .when()
-                .post("/sound/update")
+                .post(soundPath("/update"))
         .then()
                 .statusCode(404);
     }
@@ -174,9 +213,12 @@ class SoundControllerIntegrationTest {
     @Disabled("Source E2E disabled: mapping/cascade behavior depends on external API model; covered by unit tests")
     @Test
     void testCreateSource_and_GetSources_returnsOk() {
-        UUID soundId = UUID.randomUUID();
-        // ensure parent exists
-        given().contentType(ContentType.JSON).body(sampleEventDTO(soundId)).when().post("/sound").then().statusCode(200);
+        // create parent first
+        SoundResponseDTO.SoundModelDTO createdSound = given().contentType(ContentType.JSON)
+                .body(sampleEventDTOWithoutId())
+                .when().post(soundPath("")).then().statusCode(200)
+                .extract().as(SoundResponseDTO.SoundModelDTO.class);
+        UUID soundId = createdSound.id();
 
         String fileName = FAKER.internet().slug() + ".ogg";
         SoundFileSourceDTO requestDTO = new SoundFileSourceDTO(null, fileName, 1.0f, 1.0f, 1, false, 16, false, "file");
@@ -185,7 +227,7 @@ class SoundControllerIntegrationTest {
                         .contentType(ContentType.JSON)
                         .body(requestDTO)
                 .when()
-                        .post("/sound/" + soundId + "/sources")
+                        .post(soundPath("/" + soundId + "/sources"))
                 .then()
                         .statusCode(200)
                         .extract().as(SoundResponseDTO.SoundFileSourceDTO.class);
@@ -196,7 +238,7 @@ class SoundControllerIntegrationTest {
         // fetch page
         given()
         .when()
-                .get("/sound/" + soundId + "/sources?page=0&size=10")
+                .get(soundPath("/" + soundId + "/sources?page=0&size=10"))
         .then()
                 .statusCode(200);
     }
@@ -204,13 +246,16 @@ class SoundControllerIntegrationTest {
     @Disabled("Source E2E disabled: mapping/cascade behavior depends on external API model; covered by unit tests")
     @Test
     void testUpdateSource_returnsOk() {
-        UUID soundId = UUID.randomUUID();
-        given().contentType(ContentType.JSON).body(sampleEventDTO(soundId)).when().post("/sound").then().statusCode(200);
+        SoundResponseDTO.SoundModelDTO createdSound = given().contentType(ContentType.JSON)
+                .body(sampleEventDTOWithoutId())
+                .when().post(soundPath("")).then().statusCode(200)
+                .extract().as(SoundResponseDTO.SoundModelDTO.class);
+        UUID soundId = createdSound.id();
         // create first
         SoundResponseDTO.SoundFileSourceDTO created =
                 given().contentType(ContentType.JSON)
                         .body(new SoundFileSourceDTO(null, "file2.ogg", 0.8f, 1.1f, 2, true, 32, true, "file"))
-                        .when().post("/sound/" + soundId + "/sources").then().statusCode(200)
+                        .when().post(soundPath("/" + soundId + "/sources")).then().statusCode(200)
                         .extract().as(SoundResponseDTO.SoundFileSourceDTO.class);
         // now update
         SoundFileSourceDTO update = new SoundFileSourceDTO(created.id(), "file2.ogg", 0.9f, 1.0f, 3, true, 32, true, "file");
@@ -218,7 +263,7 @@ class SoundControllerIntegrationTest {
                 .contentType(ContentType.JSON)
                 .body(update)
         .when()
-                .post("/sound/" + soundId + "/sources/update")
+                .post(soundPath("/" + soundId + "/sources/update"))
         .then()
                 .statusCode(200);
     }
