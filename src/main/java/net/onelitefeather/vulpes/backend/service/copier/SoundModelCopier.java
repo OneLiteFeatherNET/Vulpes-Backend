@@ -75,6 +75,7 @@ public class SoundModelCopier extends AbstractRelationalModelCopier<SoundEventEn
                 // has the same gap and passes false for the same reason.
                 false,
                 source.getSubTitle(),
+                source.getComment(),
                 List.of(),
                 targetProject
         );

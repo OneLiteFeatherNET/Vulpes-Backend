@@ -188,7 +188,7 @@ class AbstractCrudServiceProjectScopedTest {
     @Test
     @DisplayName("create() with a known projectId resolves the project and saves the entity")
     void create_knownProject_savesEntity() {
-        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
+        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0, null);
 
         AttributeModelResponseDTO.AttributeModelDTO result = service.create(projectA.getId(), dto);
 
@@ -198,7 +198,7 @@ class AbstractCrudServiceProjectScopedTest {
     @Test
     @DisplayName("create() with an unknown projectId raises PROJECT_NOT_FOUND")
     void create_unknownProject_raisesProjectNotFound() {
-        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
+        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0, null);
         UUID unknownProject = UUID.randomUUID();
 
         ApiException exception = assertThrows(ApiException.class, () -> service.create(unknownProject, dto));
@@ -209,7 +209,7 @@ class AbstractCrudServiceProjectScopedTest {
     @Test
     @DisplayName("update() without an id is a client error, not a missing resource")
     void update_withoutId_raisesInvalidRequest() {
-        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
+        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0, null);
         UUID projectId = projectA.getId();
 
         ApiException exception = assertThrows(ApiException.class, () -> service.update(projectId, dto));
@@ -222,7 +222,7 @@ class AbstractCrudServiceProjectScopedTest {
     void update_crossProject_raisesNotFound() {
         AttributeEntity existing = new AttributeEntity(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectA);
         attributeRepository.save(existing);
-        AttributeModelDTO updateDto = new AttributeModelDTO(existing.getId(), "UI2", "var2", 2.0, 20.0);
+        AttributeModelDTO updateDto = new AttributeModelDTO(existing.getId(), "UI2", "var2", 2.0, 20.0, null);
         UUID otherProject = projectB.getId();
 
         ApiException exception = assertThrows(ApiException.class, () -> service.update(otherProject, updateDto));
@@ -299,7 +299,7 @@ class AbstractCrudServiceProjectScopedTest {
     @Test
     @DisplayName("the unscoped create(dto) still throws for a project-scoped service")
     void unscopedCreate_throwsUnsupported() {
-        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
+        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0, null);
         assertThrows(UnsupportedOperationException.class, () -> service.create(dto));
     }
 }

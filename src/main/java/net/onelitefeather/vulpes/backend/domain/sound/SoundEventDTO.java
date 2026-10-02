@@ -1,6 +1,7 @@
 package net.onelitefeather.vulpes.backend.domain.sound;
 
 import io.micronaut.core.annotation.Introspected;
+import jakarta.annotation.Nullable;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -25,6 +26,7 @@ import static net.onelitefeather.vulpes.backend.validation.ValidationGroup.*;
  * @param key          the key used for variable generation
  * @param keyName      the key of the sound
  * @param subTitle     the subtitle displayed when the sound is played
+ * @param comment      an internal description of the sound event
  * @author theEvilReaper
  * @version 1.0.0
  * @since 0.1.0
@@ -57,7 +59,10 @@ public record SoundEventDTO(
         String keyName,
         @Schema(description = "The subtitle which is display when the sound is played", requiredMode = RequiredMode.REQUIRED)
         @Null(groups = {Create.class, Update.class})
-        String subTitle
+        String subTitle,
+        @Schema(description = "Internal description of the sound event", requiredMode = RequiredMode.NOT_REQUIRED)
+        @Nullable
+        String comment
 ) {
     /**
      * Converts this DTO to a {@link SoundEventEntity}.
@@ -73,6 +78,7 @@ public record SoundEventDTO(
                 keyName,
                 false,
                 subTitle,
+                comment,
                 List.of(),
                 project
         );

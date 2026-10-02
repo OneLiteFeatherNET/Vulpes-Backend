@@ -123,7 +123,7 @@ class SoundControllerTest {
         String varName = FAKER.internet().slug();
         String key = "key." + FAKER.lorem().word();
         String subtitle = FAKER.book().title();
-        return new SoundEventDTO(id, uiName, varName, key, subtitle);
+        return new SoundEventDTO(id, uiName, varName, key, subtitle, null);
     }
 
     @Test

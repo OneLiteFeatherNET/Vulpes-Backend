@@ -15,7 +15,8 @@ class SoundEventDTOValidationTest extends ValidationTestBase<SoundEventDTO> {
                 "", // invalid
                 "key",
                 "keyName",
-                "SubTitle"
+                "SubTitle",
+                null
         );
 
         assertNoViolation(dto, "uiName");
@@ -28,7 +29,8 @@ class SoundEventDTOValidationTest extends ValidationTestBase<SoundEventDTO> {
                 "UI Name",
                 "", // invalid
                 "keyName",
-                "SubTitle"
+                "SubTitle",
+                null
         );
 
         assertNoViolation(dto, "key");
@@ -41,7 +43,8 @@ class SoundEventDTOValidationTest extends ValidationTestBase<SoundEventDTO> {
                 "UI Name",
                 "key",
                 "", // invalid
-                "subTitle"
+                "subTitle",
+                null
         );
         assertNoViolation(dto, "keyName");
     }
@@ -53,7 +56,8 @@ class SoundEventDTOValidationTest extends ValidationTestBase<SoundEventDTO> {
                 "UI Name",
                 "key",
                 "keyName",
-                "" // invalid
+                "", // invalid
+                null
         );
 
         assertNoViolation(dto, "subTitle");

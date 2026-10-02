@@ -76,7 +76,7 @@ class SoundControllerIntegrationTest {
         String varName = FAKER.internet().slug();
         String key = "key." + FAKER.lorem().word();
         String subtitle = FAKER.book().title();
-        return new SoundEventDTO(id, uiName, varName, key, subtitle);
+        return new SoundEventDTO(id, uiName, varName, key, subtitle, null);
     }
 
     private static SoundEventDTO sampleEventDTOWithoutId() {
@@ -84,7 +84,7 @@ class SoundControllerIntegrationTest {
         String varName = FAKER.internet().slug();
         String key = "key." + FAKER.lorem().word();
         String subtitle = FAKER.book().title();
-        return new SoundEventDTO(null, uiName, varName, key, subtitle);
+        return new SoundEventDTO(null, uiName, varName, key, subtitle, null);
     }
 
     /**
@@ -93,7 +93,7 @@ class SoundControllerIntegrationTest {
      * {@link #sampleEventDTO}, which builds a Create-shaped DTO that would fail validation here.
      */
     private static SoundEventDTO sampleUpdateDTO(UUID id) {
-        return new SoundEventDTO(id, FAKER.rockBand().name(), null, null, null);
+        return new SoundEventDTO(id, FAKER.rockBand().name(), null, null, null, null);
     }
 
     @Test
