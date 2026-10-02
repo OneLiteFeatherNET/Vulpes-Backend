@@ -3,6 +3,7 @@ package net.onelitefeather.vulpes.backend.service.impl;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.data.repository.PageableRepository;
+import net.onelitefeather.vulpes.api.model.IdentifiableEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
@@ -211,6 +212,22 @@ public abstract class AbstractCrudService<E, ID, REQ, RES> implements CrudServic
     }
 
     /**
+     * Reads a just written entity back from the database. Micronaut Data fills in
+     * {@code @DateCreated}/{@code @DateUpdated} only in the state Hibernate writes, not on the
+     * instance itself, so a response built from that instance would miss both dates.
+     *
+     * @param written the entity returned by a save or update
+     * @return the stored entity, or {@code written} if it can't be read back
+     */
+    @SuppressWarnings("unchecked")
+    private E reload(E written) {
+        if (!(written instanceof IdentifiableEntity identifiable)) {
+            return written;
+        }
+        return repository.findById((ID) identifiable.getId()).orElse(written);
+    }
+
+    /**
      * Resolves the project a scoped request addressed.
      *
      * @param projectId the project identifier
@@ -229,7 +246,7 @@ public abstract class AbstractCrudService<E, ID, REQ, RES> implements CrudServic
         requireNotProjectScoped();
         E entity = entityMapper.apply(dto);
         E saved = repository.save(entity);
-        return dtoMapper.apply(saved);
+        return dtoMapper.apply(reload(saved));
     }
 
     /**
@@ -244,7 +261,7 @@ public abstract class AbstractCrudService<E, ID, REQ, RES> implements CrudServic
         }
         E entity = entityMapper.apply(dto);
         E updated = repository.update(entity);
-        return dtoMapper.apply(updated);
+        return dtoMapper.apply(reload(updated));
     }
 
     /**
@@ -294,7 +311,7 @@ public abstract class AbstractCrudService<E, ID, REQ, RES> implements CrudServic
         ProjectEntity project = requireProject(projectId);
         E entity = scopedEntityMapper.apply(dto, project);
         E saved = repository.save(entity);
-        return dtoMapper.apply(saved);
+        return dtoMapper.apply(reload(saved));
     }
 
     /**
@@ -308,7 +325,7 @@ public abstract class AbstractCrudService<E, ID, REQ, RES> implements CrudServic
         ProjectEntity project = requireProject(projectId);
         E entity = scopedEntityMapper.apply(dto, project);
         E updated = repository.update(entity);
-        return dtoMapper.apply(updated);
+        return dtoMapper.apply(reload(updated));
     }
 
     /**
