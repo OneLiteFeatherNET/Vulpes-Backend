@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.1.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.0.2...v3.1.0) (2026-10-02)
+
+
+### Features
+
+* **dev:** add data seeder for manual UI testing ([#201](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/201)) ([0775350](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/077535090b14a1536d66974ebd9b8e44759a578a))
+* **entity:** expose the comment field ([#206](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/206)) ([bf501ed](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/bf501edf69db178ffae9aabdee4d5b41e867c4d2))
+* **model:** add ability to copy models ([#199](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/199)) ([14356a4](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/14356a460fd7e689beaa9b3b9a2fda062a63a7c6))
+
+
+### Bug Fixes
+
+* **deps:** update dependency net.onelitefeather:vulpes-model to v2.4.0 ([#205](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/205)) ([845cb9a](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/845cb9a1f7d1d8db7fedaa91ef70618e887d8e4b))
+* **entity:** return the stored timestamps after create and update ([#208](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/208)) ([899c2ba](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/899c2ba8ad996781186f6cac7fe3864edd839a60))
+
 ## [3.0.2](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.0.1...v3.0.2) (2026-09-21)
 
 
