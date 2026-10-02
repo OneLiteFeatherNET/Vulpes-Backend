@@ -50,6 +50,7 @@ public interface SoundResponseDTO {
      * @param key          the key used for variable generation
      * @param keyName      the key of the sound
      * @param subTitle     the subtitle displayed when the sound is played
+     * @param comment      an internal description of the sound event
      * @param projectId    the unique identifier of the project this sound event belongs to
      */
     @Schema(
@@ -63,6 +64,7 @@ public interface SoundResponseDTO {
             @Schema(description = "The key which is used for the variable generation") String key,
             @Schema(description = "They key of the sound") String keyName,
             @Schema(description = "The subtitle which is display when the sound is played") String subTitle,
+            @Schema(description = "Internal description of the sound event") String comment,
             @Schema(description = "ID of the project this sound event belongs to") UUID projectId
     ) implements SoundResponseDTO {
 
@@ -79,6 +81,7 @@ public interface SoundResponseDTO {
                     event.getKey(),
                     event.getKeyName(),
                     event.getSubTitle(),
+                    event.getComment(),
                     event.getProject().getId()
             );
         }

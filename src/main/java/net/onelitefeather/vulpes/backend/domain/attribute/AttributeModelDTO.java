@@ -1,6 +1,7 @@
 package net.onelitefeather.vulpes.backend.domain.attribute;
 
 import io.micronaut.core.annotation.Introspected;
+import jakarta.annotation.Nullable;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -33,7 +34,10 @@ public record AttributeModelDTO(
         @Schema(description = "Default value of the attribute", requiredMode = Schema.RequiredMode.REQUIRED)
         @PositiveOrZero double defaultValue,
         @Schema(description = "Maximum value of the attribute", requiredMode = Schema.RequiredMode.REQUIRED)
-        @Positive double maximumValue
+        @Positive double maximumValue,
+        @Schema(description = "Internal description of the attribute", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Nullable
+        String comment
 ) {
     /**
      * Converts the dto class to a {@link AttributeEntity}.
@@ -42,6 +46,6 @@ public record AttributeModelDTO(
      * @return the created entity
      */
     public @NotNull AttributeEntity toAttributeModel(ProjectEntity project) {
-        return new AttributeEntity(id, uiName, key, defaultValue, maximumValue, project);
+        return new AttributeEntity(id, uiName, key, defaultValue, maximumValue, comment, project);
     }
 }

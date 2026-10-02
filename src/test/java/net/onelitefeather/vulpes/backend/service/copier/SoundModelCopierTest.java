@@ -212,7 +212,7 @@ class SoundModelCopierTest {
 
     private SoundEventEntity sampleSound(String key, ProjectEntity project) {
         SoundEventEntity sound = new SoundEventEntity(
-                UUID.randomUUID(), "UI", key, "key-name", false, "subtitle", List.of(), project
+                UUID.randomUUID(), "UI", key, "key-name", false, "subtitle", "a note", List.of(), project
         );
         soundRepository.save(sound);
         return sound;
@@ -229,6 +229,7 @@ class SoundModelCopierTest {
         assertEquals("copied-key", result.getKey());
         assertEquals(projectA.getId(), result.getProject().getId());
         assertEquals(source.getUiName(), result.getUiName());
+        assertEquals("a note", result.getComment());
         SoundEventEntity stillThere = soundRepository.findById(source.getId()).orElseThrow();
         assertEquals("original-key", stillThere.getKey());
         assertEquals(projectA.getId(), stillThere.getProject().getId());

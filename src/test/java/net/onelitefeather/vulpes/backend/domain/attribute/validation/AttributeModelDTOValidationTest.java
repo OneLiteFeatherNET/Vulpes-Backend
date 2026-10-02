@@ -15,7 +15,8 @@ class AttributeModelDTOValidationTest extends ValidationTestBase<AttributeModelD
                 "",
                 "empty_value", // invalid
                 1.0,
-                5.0
+                5.0,
+                null
         );
 
         assertNoViolation(dto, "uiName");
@@ -28,7 +29,8 @@ class AttributeModelDTOValidationTest extends ValidationTestBase<AttributeModelD
                 "Speed",
                 "playerSpeed",
                 -1.0,
-                5.0
+                5.0,
+                null
         );
 
         assertViolation(dto, "defaultValue");
@@ -41,7 +43,8 @@ class AttributeModelDTOValidationTest extends ValidationTestBase<AttributeModelD
                 "Speed",
                 "playerSpeed",
                 0.0,
-                0.0 // must be strictly positive
+                0.0, // must be strictly positive
+                null
         );
 
         assertViolation(dto, "maximumValue");
@@ -54,7 +57,8 @@ class AttributeModelDTOValidationTest extends ValidationTestBase<AttributeModelD
                 "Speed",
                 "",
                 0.0,
-                5.0
+                5.0,
+                null
         );
 
         assertNoViolation(dto, "key");

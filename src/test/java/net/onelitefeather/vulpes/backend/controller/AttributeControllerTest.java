@@ -89,8 +89,8 @@ class AttributeControllerTest {
     void add_success_returnsOk() {
         StubAttributeService stub = new StubAttributeService();
         UUID projectId = UUID.randomUUID();
-        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
-        stub.response = new AttributeModelResponseDTO.AttributeModelDTO(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectId, Instant.now(), Instant.now());
+        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0, null);
+        stub.response = new AttributeModelResponseDTO.AttributeModelDTO(UUID.randomUUID(), "UI", "var", 1.0, 10.0, null, projectId, Instant.now(), Instant.now());
         AttributeController controller = new AttributeController(stub);
 
         HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> resp = controller.add(projectId, dto);
@@ -109,7 +109,7 @@ class AttributeControllerTest {
             }
         };
         AttributeController controller = new AttributeController(stub);
-        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0);
+        AttributeModelDTO dto = new AttributeModelDTO(null, "UI", "var", 1.0, 10.0, null);
         UUID projectId = UUID.randomUUID();
 
         ApiException exception = assertThrows(ApiException.class, () -> controller.add(projectId, dto));
@@ -139,7 +139,7 @@ class AttributeControllerTest {
     void getAll_returnsScopedPage() {
         StubAttributeService stub = new StubAttributeService();
         UUID projectId = UUID.randomUUID();
-        var dto = new AttributeModelResponseDTO.AttributeModelDTO(UUID.randomUUID(), "UI", "var", 1.0, 10.0, projectId, Instant.now(), Instant.now());
+        var dto = new AttributeModelResponseDTO.AttributeModelDTO(UUID.randomUUID(), "UI", "var", 1.0, 10.0, null, projectId, Instant.now(), Instant.now());
         stub.page = Page.of(List.of(dto), Pageable.from(0, 10), 1L);
         AttributeController controller = new AttributeController(stub);
 

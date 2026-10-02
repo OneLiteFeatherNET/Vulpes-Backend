@@ -22,6 +22,7 @@ public interface AttributeModelResponseDTO {
             @Schema(description = "The key which represents the variable after the generation") String key,
             @Schema(description = "Default value of the attribute") double defaultValue,
             @Schema(description = "Maximum value of the attribute") double maximumValue,
+            @Schema(description = "Internal description of the attribute") String comment,
             @Schema(description = "ID of the project this attribute belongs to") UUID projectId,
             @Schema(description = "The point in time at which the attribute was created") Instant creationDate,
             @Schema(description = "The point in time at which the attribute was last modified") Instant modificationDate
@@ -40,6 +41,7 @@ public interface AttributeModelResponseDTO {
                     model.getKey(),
                     model.getDefaultValue(),
                     model.getMaximumValue(),
+                    model.getComment(),
                     model.getProject().getId(),
                     model.getCreationDate(),
                     model.getModificationDate()

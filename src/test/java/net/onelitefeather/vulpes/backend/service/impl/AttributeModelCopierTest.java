@@ -193,7 +193,7 @@ class AttributeModelCopierTest {
     @Test
     @DisplayName("copy() into the same project with a new key succeeds and does not touch the source")
     void copy_sameProjectNewKey_succeeds() {
-        AttributeEntity source = new AttributeEntity(UUID.randomUUID(), "UI", "original-key", 1.0, 10.0, projectA);
+        AttributeEntity source = new AttributeEntity(UUID.randomUUID(), "UI", "original-key", 1.0, 10.0, "a note", projectA);
         attributeRepository.save(source);
 
         AttributeEntity result = copier.copy(projectA.getId(), source.getId(), null, "copied-key", null);
@@ -204,6 +204,7 @@ class AttributeModelCopierTest {
         assertEquals(source.getUiName(), result.getUiName());
         assertEquals(source.getDefaultValue(), result.getDefaultValue());
         assertEquals(source.getMaximumValue(), result.getMaximumValue());
+        assertEquals("a note", result.getComment());
         AttributeEntity stillThere = attributeRepository.findById(source.getId()).orElseThrow();
         assertEquals("original-key", stillThere.getKey());
         assertEquals(projectA.getId(), stillThere.getProject().getId());
