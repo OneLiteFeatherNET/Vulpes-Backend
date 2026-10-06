@@ -80,6 +80,22 @@ otel:
 # (test-resources-provisioned); a real deployment supplies its own via environment
 # variables, which win over any YAML value regardless.
 
+vulpes:
+  item-components:
+    # Stored and edited through their own endpoints, rejected as components
+    managed:
+      - minecraft:lore
+      - minecraft:enchantments
+    # The components Stelaris adds; other keys in this namespace are rejected
+    custom-namespace: stelaris
+    custom:
+      - stelaris:material
+      - stelaris:amount
+    # Created with every item with this JSON value; they can't be removed or renamed
+    required:
+      - key: stelaris:material
+        value: '"minecraft:dirt"'
+
 jpa:
   default:
     properties:
