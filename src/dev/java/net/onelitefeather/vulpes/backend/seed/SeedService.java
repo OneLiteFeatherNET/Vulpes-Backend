@@ -1,6 +1,7 @@
 package net.onelitefeather.vulpes.backend.seed;
 
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.json.JsonMapper;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 import net.onelitefeather.vulpes.backend.seed.data.Filler;
@@ -42,11 +43,13 @@ public class SeedService {
     private final SeedRepositories repositories;
     private final SeedWiper wiper;
     private final SeedValidator validator;
+    private final JsonMapper jsonMapper;
 
-    public SeedService(SeedRepositories repositories, SeedWiper wiper, SeedValidator validator) {
+    public SeedService(SeedRepositories repositories, SeedWiper wiper, SeedValidator validator, JsonMapper jsonMapper) {
         this.repositories = repositories;
         this.wiper = wiper;
         this.validator = validator;
+        this.jsonMapper = jsonMapper;
     }
 
     @Transactional
@@ -59,7 +62,7 @@ public class SeedService {
             wiper.wipeAll();
         }
 
-        SeedWriter writer = new SeedWriter(repositories, validator);
+        SeedWriter writer = new SeedWriter(repositories, validator, jsonMapper);
         Filler filler = new Filler(randomSeed);
         FIXTURES.forEach(fixture -> fixture.seed(writer, filler));
 

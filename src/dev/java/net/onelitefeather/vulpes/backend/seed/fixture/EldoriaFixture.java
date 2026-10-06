@@ -40,7 +40,7 @@ public final class EldoriaFixture implements ProjectFixture {
                 .uiName("Starter Sword").displayName("§fRusty Blade").material("minecraft:iron_sword")
                 .group("weapon").customModelData(1000)
                 .lore("§7Every hero starts somewhere.", "§8Soulbound")
-                .flags("HIDE_ATTRIBUTES")
+                .hide("minecraft:attribute_modifiers")
                 .save();
         w.item(p, "frostmourne")
                 .uiName("Frostmourne").displayName("§b§lFrostmourne").material("minecraft:netherite_sword")
@@ -48,14 +48,14 @@ public final class EldoriaFixture implements ProjectFixture {
                 .enchant("minecraft:sharpness", 5).enchant("minecraft:unbreaking", 3).enchant("minecraft:mending", 1)
                 .lore("§3Whomsoever takes up this blade", "§3shall wield power eternal.", "§r",
                         "§6Legendary", "§7Requires level §e60")
-                .flags("HIDE_ENCHANTS", "HIDE_ATTRIBUTES")
+                .hide("minecraft:enchantments", "minecraft:attribute_modifiers")
                 .save();
         w.item(p, "stormcaller_bow")
                 .uiName("Stormcaller").displayName("§eStormcaller").material("minecraft:bow")
                 .group("weapon").customModelData(1002)
                 .enchant("minecraft:power", 5).enchant("minecraft:flame", 1).enchant("minecraft:infinity", 1)
                 .lore("§7Arrows crackle with lightning.", "§5Epic")
-                .flags("HIDE_ENCHANTS")
+                .hide("minecraft:enchantments")
                 .save();
         w.item(p, "aegis_of_dawn")
                 .uiName("Aegis of Dawn").displayName("§6Aegis of Dawn").material("minecraft:shield")
@@ -69,14 +69,14 @@ public final class EldoriaFixture implements ProjectFixture {
                 .enchant("minecraft:protection", 4).enchant("minecraft:respiration", 3)
                 .enchant("minecraft:aqua_affinity", 1)
                 .lore("§7Worn by the guardians of the deep halls.", "§5Epic")
-                .flags("HIDE_ENCHANTS", "HIDE_ARMOR_TRIM")
+                .hide("minecraft:enchantments", "minecraft:trim")
                 .save();
         w.item(p, "traveler_boots")
                 .uiName("Traveler's Boots").displayName("§aTraveler's Boots").material("minecraft:leather_boots")
                 .group("armor").customModelData(1005)
                 .enchant("minecraft:feather_falling", 4)
                 .lore("§7Light as a feather, dyed forest green.")
-                .flags("HIDE_DYE")
+                .hide("minecraft:dyed_color")
                 .save();
         w.item(p, "ember_pickaxe")
                 .uiName("Ember Pickaxe").displayName("§cEmber Pickaxe").material("minecraft:diamond_pickaxe")
@@ -88,7 +88,7 @@ public final class EldoriaFixture implements ProjectFixture {
                 .uiName("Healing Draught").displayName("§dHealing Draught").material("minecraft:potion")
                 .group("consumable").customModelData(1007).amount(3)
                 .lore("§7Restores §c6 ❤§7 over 5 seconds.")
-                .flags("HIDE_ADDITIONAL_TOOLTIP")
+                .hide("minecraft:potion_contents")
                 .save();
         w.item(p, "quest_scroll")
                 .uiName("Quest Scroll").displayName("§fSealed Quest Scroll").material("minecraft:paper")

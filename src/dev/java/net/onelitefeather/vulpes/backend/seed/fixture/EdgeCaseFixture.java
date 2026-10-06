@@ -16,7 +16,7 @@ import static net.onelitefeather.vulpes.backend.seed.data.MinecraftCatalog.CLOCK
 import static net.onelitefeather.vulpes.backend.seed.data.MinecraftCatalog.ENCHANTMENTS;
 import static net.onelitefeather.vulpes.backend.seed.data.MinecraftCatalog.FRAME_TYPES;
 import static net.onelitefeather.vulpes.backend.seed.data.MinecraftCatalog.INFINIBURN_END;
-import static net.onelitefeather.vulpes.backend.seed.data.MinecraftCatalog.ITEM_FLAGS;
+import static net.onelitefeather.vulpes.backend.seed.data.MinecraftCatalog.HIDDEN_COMPONENTS;
 import static net.onelitefeather.vulpes.backend.seed.data.MinecraftCatalog.ITEM_GROUPS;
 import static net.onelitefeather.vulpes.backend.seed.data.MinecraftCatalog.MATERIALS;
 import static net.onelitefeather.vulpes.backend.seed.data.MinecraftCatalog.SOUND_EVENTS;
@@ -60,7 +60,7 @@ public final class EdgeCaseFixture implements ProjectFixture {
 
     private static void seedItems(SeedWriter w, Filler f, ProjectEntity p) {
         w.item(p, "no_children")
-                .uiName("No Children").displayName("Plain Stone").comment("No lore, enchantments or flags")
+                .uiName("No Children").displayName("Plain Stone").comment("No lore, enchantments or extra components")
                 .save();
         w.item(p, "long_texts")
                 .uiName(longText("Long UI name ")).displayName(longText("§c§lLong §r§edisplay §kname "))
@@ -77,9 +77,9 @@ public final class EdgeCaseFixture implements ProjectFixture {
                 .uiName("Many Lore Lines").displayName("§fChronicle").material("minecraft:writable_book")
                 .group("quest").lore(numbered("§7Chapter %02d: ", 30, f))
                 .save();
-        w.item(p, "all_flags")
-                .uiName("All Flags").displayName("§8Hidden Tooltip").material("minecraft:diamond_boots")
-                .flags(ITEM_FLAGS.toArray(String[]::new))
+        w.item(p, "all_hidden_components")
+                .uiName("All Hidden Components").displayName("§8Hidden Tooltip").material("minecraft:diamond_boots")
+                .hide(HIDDEN_COMPONENTS.toArray(String[]::new))
                 .save();
         var allEnchantments = w.item(p, "all_enchantments")
                 .uiName("All Enchantments").displayName("§5Everything").material("minecraft:book");
@@ -118,7 +118,7 @@ public final class EdgeCaseFixture implements ProjectFixture {
                 item.lore("§7" + f.faker().lorem().sentence(6));
             }
             if (f.chance(0.3)) {
-                item.flags(f.pick(ITEM_FLAGS));
+                item.hide(f.pick(HIDDEN_COMPONENTS));
             }
             item.save();
         }

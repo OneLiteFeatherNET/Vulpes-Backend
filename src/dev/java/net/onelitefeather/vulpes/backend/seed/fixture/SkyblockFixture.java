@@ -34,7 +34,7 @@ public final class SkyblockFixture implements ProjectFixture {
                 .group("currency").customModelData(3001)
                 .enchant("minecraft:unbreaking", 1)
                 .lore("§7Right-click to expand your island.", "§8Tier II")
-                .flags("HIDE_ENCHANTS")
+                .hide("minecraft:enchantments")
                 .save();
         w.item(p, "cobble_minion")
                 .uiName("Cobblestone Minion").displayName("§aCobblestone Minion I").material("minecraft:clock")

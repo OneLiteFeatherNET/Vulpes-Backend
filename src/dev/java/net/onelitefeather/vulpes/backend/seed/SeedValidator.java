@@ -1,6 +1,8 @@
 package net.onelitefeather.vulpes.backend.seed;
 
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.json.JsonMapper;
+import io.micronaut.json.tree.JsonNode;
 import io.micronaut.validation.validator.Validator;
 import jakarta.inject.Singleton;
 import jakarta.validation.ConstraintViolation;
@@ -18,6 +20,7 @@ import net.onelitefeather.vulpes.backend.domain.dimension.DimensionModelDTO;
 import net.onelitefeather.vulpes.backend.domain.dimension.DimensionTimelineDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemComponentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
@@ -25,7 +28,9 @@ import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelDT
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
+import net.onelitefeather.vulpes.backend.service.item.ItemComponentRules;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,9 +47,13 @@ import java.util.List;
 public class SeedValidator {
 
     private final Validator validator;
+    private final ItemComponentRules componentRules;
+    private final JsonMapper jsonMapper;
 
-    public SeedValidator(Validator validator) {
+    public SeedValidator(Validator validator, ItemComponentRules componentRules, JsonMapper jsonMapper) {
         this.validator = validator;
+        this.componentRules = componentRules;
+        this.jsonMapper = jsonMapper;
     }
 
     void project(ProjectEntity project) {
@@ -59,14 +68,16 @@ public class SeedValidator {
         List<String> problems = new ArrayList<>();
         String where = where("item", item);
         check(problems, where, new ItemModelDTO(item.getId(), item.getUiName(), item.getKey(), item.getComment(),
-                item.getDisplayName(), item.getMaterial(), item.getGroupName(), item.getCustomModelData(),
-                item.getAmount()));
+                item.getGroupName()));
         item.getEnchantments().forEach(e -> check(problems, where + " enchantment " + e.getName(),
                 new ItemEnchantmentDTO(e.getId(), e.getName(), e.getLevel(), e.isUnsafe())));
         item.getLore().forEach(l -> check(problems, where + " lore #" + l.getOrderIndex(),
                 new ItemLoreDTO(l.getId(), l.getText())));
-        item.getFlags().forEach(f -> check(problems, where + " flag " + f.getFlag(),
-                new ItemFlagDTO(f.getId(), f.getFlag())));
+        item.getComponents().forEach(c -> component(problems, where + " component " + c.getComponentKey(),
+                c.getComponentKey(), c.getComponentValue()));
+        componentRules.required().keySet().stream()
+                .filter(key -> item.getComponents().stream().noneMatch(c -> c.getComponentKey().equals(key)))
+                .forEach(key -> problems.add(where + ": the required component " + key + " is missing"));
         fail(problems);
     }
 
@@ -119,6 +130,26 @@ public class SeedValidator {
         d.getTimelines().forEach(t -> check(problems, where + " timeline " + t.getTimelineKey(),
                 new DimensionTimelineDTO(t.getId(), t.getTimelineKey())));
         fail(problems);
+    }
+
+    /**
+     * Checks a component like the component endpoints do: the DTO constraints and the configured rules.
+     */
+    private void component(List<String> problems, String where, String key, String value) {
+        JsonNode node;
+        try {
+            node = jsonMapper.readValue(value, JsonNode.class);
+        } catch (IOException exception) {
+            problems.add(where + ": the value is no JSON (was " + value + ")");
+            return;
+        }
+        check(problems, where, new ItemComponentDTO(null, key, node));
+        if (componentRules.isManaged(key)) {
+            problems.add(where + ": the component has its own storage and can't be set as a component");
+        }
+        if (componentRules.isUnknownCustom(key)) {
+            problems.add(where + ": the component is not a known component of its namespace");
+        }
     }
 
     private static void fail(List<String> problems) {
