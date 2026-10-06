@@ -35,20 +35,17 @@ import java.util.UUID;
 public class ItemModelCopier extends AbstractRelationalModelCopier<ItemEntity, ItemRelation> implements EntityCopier<ItemEntity, ItemRelation> {
 
     private final ItemLoreRepository itemLoreRepository;
-    private final ItemFlagRepository itemFlagRepository;
     private final ItemEnchantmentRepository itemEnchantmentRepository;
 
     @Inject
     public ItemModelCopier(
             ItemRepository itemRepository,
             ItemLoreRepository itemLoreRepository,
-            ItemFlagRepository itemFlagRepository,
             ItemEnchantmentRepository itemEnchantmentRepository,
             ProjectRepository projectRepository
     ) {
         super(itemRepository, projectRepository, itemRepository::existsByProjectIdAndKey, "Item");
         this.itemLoreRepository = itemLoreRepository;
-        this.itemFlagRepository = itemFlagRepository;
         this.itemEnchantmentRepository = itemEnchantmentRepository;
     }
 
@@ -95,7 +92,6 @@ public class ItemModelCopier extends AbstractRelationalModelCopier<ItemEntity, I
     protected void copyRelation(ItemRelation relation, ItemEntity source, ItemEntity target) {
         switch (relation) {
             case LORE -> copyLore(source, target);
-            case FLAGS -> copyFlags(source, target);
             case ENCHANTMENTS -> copyEnchantments(source, target);
         }
     }
@@ -109,16 +105,6 @@ public class ItemModelCopier extends AbstractRelationalModelCopier<ItemEntity, I
             copies.add(copy);
         }
         itemLoreRepository.saveAll(copies);
-    }
-
-    private void copyFlags(ItemEntity source, ItemEntity target) {
-        List<ItemFlagEntity> copies = new ArrayList<>();
-        for (ItemFlagEntity flag : itemFlagRepository.findFlagsById(source.getId(), Pageable.unpaged()).getContent()) {
-            ItemFlagEntity copy = new ItemFlagEntity(null, flag.getFlag());
-            copy.setItem(target);
-            copies.add(copy);
-        }
-        itemFlagRepository.saveAll(copies);
     }
 
     private void copyEnchantments(ItemEntity source, ItemEntity target) {

@@ -6,6 +6,5 @@ package net.onelitefeather.vulpes.backend.domain.item;
  */
 public enum ItemRelation {
     LORE,
-    FLAGS,
     ENCHANTMENTS
 }
