@@ -7,8 +7,6 @@ import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
-import net.onelitefeather.vulpes.backend.domain.item.ItemFlagDTO;
-import net.onelitefeather.vulpes.backend.domain.item.ItemFlagResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
@@ -90,31 +88,6 @@ class ItemControllerTest {
         @Override
         public Optional<ItemEntity> findById(UUID projectId, UUID id) {
             return findByIdResponse;
-        }
-
-        @Override
-        public Page<ItemFlagResponseDTO.ItemFlagDTO> findFlagsById(UUID id, Pageable pageable) {
-            return Page.empty();
-        }
-
-        @Override
-        public ItemFlagResponseDTO.ItemFlagDTO createFlagById(UUID id, ItemFlagDTO itemFlagDTO) {
-            return null;
-        }
-
-        @Override
-        public ItemFlagResponseDTO.ItemFlagDTO deleteFlagById(UUID id, UUID flagId) {
-            return null;
-        }
-
-        @Override
-        public List<ItemFlagResponseDTO.ItemFlagDTO> deleteAllFlagsById(UUID id) {
-            return List.of();
-        }
-
-        @Override
-        public ItemFlagResponseDTO.ItemFlagDTO updateFlagById(UUID id, ItemFlagDTO flag) {
-            return null;
         }
 
         @Override
