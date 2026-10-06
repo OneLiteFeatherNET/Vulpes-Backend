@@ -13,8 +13,8 @@ import net.onelitefeather.vulpes.api.repository.dimension.DimensionAttributeRepo
 import net.onelitefeather.vulpes.api.repository.dimension.DimensionTimelineRepository;
 import net.onelitefeather.vulpes.api.repository.dimension.DimensionTypeRepository;
 import net.onelitefeather.vulpes.api.repository.font.FontStringRepository;
+import net.onelitefeather.vulpes.api.repository.item.ItemComponentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
-import net.onelitefeather.vulpes.api.repository.item.ItemFlagRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemLoreRepository;
 
 /**
@@ -27,7 +27,7 @@ public record SeedRepositories(
         ItemRepository items,
         ItemLoreRepository itemLore,
         ItemEnchantmentRepository itemEnchantments,
-        ItemFlagRepository itemFlags,
+        ItemComponentRepository itemComponents,
         FontRepository fonts,
         FontStringRepository fontChars,
         SoundRepository sounds,

@@ -6,6 +6,9 @@ package net.onelitefeather.vulpes.backend.domain.item;
  */
 public enum ItemRelation {
     LORE,
-    FLAGS,
-    ENCHANTMENTS
+    ENCHANTMENTS,
+    /**
+     * All data components. The required ones, like the material, are copied in any case.
+     */
+    COMPONENTS
 }

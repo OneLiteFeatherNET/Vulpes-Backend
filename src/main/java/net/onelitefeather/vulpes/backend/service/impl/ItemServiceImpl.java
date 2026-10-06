@@ -2,29 +2,31 @@ package net.onelitefeather.vulpes.backend.service.impl;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import io.micronaut.json.JsonMapper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
+import net.onelitefeather.vulpes.api.model.item.ItemComponentEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
-import net.onelitefeather.vulpes.api.model.item.ItemFlagEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemLoreEntity;
 import net.onelitefeather.vulpes.api.repository.ItemRepository;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
+import net.onelitefeather.vulpes.api.repository.item.ItemComponentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
-import net.onelitefeather.vulpes.api.repository.item.ItemFlagRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemLoreRepository;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
-import net.onelitefeather.vulpes.backend.domain.item.ItemFlagDTO;
-import net.onelitefeather.vulpes.backend.domain.item.ItemFlagResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ItemService;
+import net.onelitefeather.vulpes.backend.service.item.ItemComponentRules;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -44,18 +46,21 @@ public class ItemServiceImpl
 
     private static final String ITEM = "Item";
     private static final String LORE_ENTRY = "Lore entry";
-    private static final String FLAG = "Flag";
     private static final String ENCHANTMENT = "Enchantment";
 
     private final ItemEnchantmentRepository itemEnchantmentRepository;
     private final ItemLoreRepository itemLoreRepository;
-    private final ItemFlagRepository itemFlagRepository;
+    private final ItemComponentRepository itemComponentRepository;
+    private final ItemComponentRules componentRules;
+    private final JsonMapper jsonMapper;
 
     @Inject
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemEnchantmentRepository itemEnchantmentRepository,
                            ItemLoreRepository itemLoreRepository,
-                           ItemFlagRepository itemFlagRepository,
+                           ItemComponentRepository itemComponentRepository,
+                           ItemComponentRules componentRules,
+                           JsonMapper jsonMapper,
                            ProjectRepository projectRepository) {
         super(
                 itemRepository,
@@ -69,7 +74,36 @@ public class ItemServiceImpl
         );
         this.itemEnchantmentRepository = itemEnchantmentRepository;
         this.itemLoreRepository = itemLoreRepository;
-        this.itemFlagRepository = itemFlagRepository;
+        this.itemComponentRepository = itemComponentRepository;
+        this.componentRules = componentRules;
+        this.jsonMapper = jsonMapper;
+    }
+
+    /**
+     * Creates the item together with the components every item has, e.g. its material, in one
+     * transaction, so there is never an item without them.
+     */
+    @Override
+    @Transactional
+    public ItemModelResponseDTO.ItemModelDTO create(UUID projectId, ItemModelDTO dto) {
+        var created = super.create(projectId, dto);
+        var item = requireItem(created.id());
+        List<ItemComponentEntity> components = new ArrayList<>();
+        this.componentRules.required().forEach((key, value) -> {
+            var component = new ItemComponentEntity(null, key, writeJson(value));
+            component.setItem(item);
+            components.add(component);
+        });
+        this.itemComponentRepository.saveAll(components);
+        return created;
+    }
+
+    private String writeJson(Object value) {
+        try {
+            return this.jsonMapper.writeValueAsString(value);
+        } catch (IOException exception) {
+            throw new UncheckedIOException("Could not write the value of a required component", exception);
+        }
     }
 
     /**
@@ -87,50 +121,6 @@ public class ItemServiceImpl
     public Page<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> findEnchantmentsById(UUID id, Pageable pageable) {
         return this.itemEnchantmentRepository.findEnchantmentsById(id, pageable)
                 .map(ItemEnchantmentResponseDTO.ItemEnchantmentDTO::createDTO);
-    }
-
-    @Override
-    public Page<ItemFlagResponseDTO.ItemFlagDTO> findFlagsById(UUID id, Pageable pageable) {
-        return this.itemFlagRepository.findFlagsById(id, pageable).map(ItemFlagResponseDTO.ItemFlagDTO::createDTO);
-    }
-
-    @Override
-    public ItemFlagResponseDTO.ItemFlagDTO createFlagById(UUID id, ItemFlagDTO itemFlagDTO) {
-        var item = requireItem(id);
-        var entity = itemFlagDTO.toEntity();
-        entity.setItem(item);
-        var saved = this.itemFlagRepository.save(entity);
-        return ItemFlagResponseDTO.ItemFlagDTO.createDTO(saved);
-    }
-
-    @Override
-    public ItemFlagResponseDTO.ItemFlagDTO deleteFlagById(UUID id, UUID flagId) {
-        var item = requireItem(id);
-        var flag = this.itemFlagRepository.findById(flagId).orElseThrow(() -> ApiException.notFound(FLAG));
-        if (!flag.getItem().getId().equals(item.getId())) {
-            throw ApiException.notOwnedBy(FLAG, flagId, "item", id);
-        }
-        this.itemFlagRepository.deleteById(flag.getId());
-        return ItemFlagResponseDTO.ItemFlagDTO.createDTO(flag);
-    }
-
-    @Override
-    public List<ItemFlagResponseDTO.ItemFlagDTO> deleteAllFlagsById(UUID id) {
-        var item = requireItem(id);
-        List<ItemFlagEntity> flags = this.itemFlagRepository.findFlagsById(item.getId(), Pageable.unpaged()).getContent();
-        this.itemFlagRepository.deleteAll(flags);
-        return flags.stream()
-                .map(ItemFlagResponseDTO.ItemFlagDTO::createDTO)
-                .toList();
-    }
-
-    @Override
-    public ItemFlagResponseDTO.ItemFlagDTO updateFlagById(UUID id, ItemFlagDTO flag) {
-        var item = requireItem(id);
-        var entity = flag.toEntity();
-        entity.setItem(item);
-        var saved = this.itemFlagRepository.update(entity);
-        return ItemFlagResponseDTO.ItemFlagDTO.createDTO(saved);
     }
 
     @Override

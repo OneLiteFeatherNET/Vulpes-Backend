@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.seed;
 
+import io.micronaut.json.JsonMapper;
 import net.onelitefeather.vulpes.api.model.AttributeEntity;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
@@ -12,16 +13,20 @@ import net.onelitefeather.vulpes.api.model.dimension.DimensionTypeEntity;
 import net.onelitefeather.vulpes.api.model.dimension.EnvironmentAttributeKey;
 import net.onelitefeather.vulpes.api.model.dimension.Skybox;
 import net.onelitefeather.vulpes.api.model.font.FontStringEntity;
+import net.onelitefeather.vulpes.api.model.item.ItemComponentEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
-import net.onelitefeather.vulpes.api.model.item.ItemFlagEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemLoreEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
 import net.onelitefeather.vulpes.api.model.sound.SoundFileSource;
 import net.onelitefeather.vulpes.backend.seed.data.MinecraftCatalog;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Validates and persists seed aggregates, and counts what it wrote.
@@ -34,6 +39,7 @@ public final class SeedWriter {
 
     private final SeedRepositories repositories;
     private final SeedValidator validator;
+    private final JsonMapper jsonMapper;
 
     final List<ProjectEntity> projects = new ArrayList<>();
     final List<ItemEntity> items = new ArrayList<>();
@@ -43,9 +49,10 @@ public final class SeedWriter {
     final List<AttributeEntity> attributes = new ArrayList<>();
     final List<NotificationEntity> notifications = new ArrayList<>();
 
-    public SeedWriter(SeedRepositories repositories, SeedValidator validator) {
+    public SeedWriter(SeedRepositories repositories, SeedValidator validator, JsonMapper jsonMapper) {
         this.repositories = repositories;
         this.validator = validator;
+        this.jsonMapper = jsonMapper;
     }
 
     public ProjectEntity project(String key, String displayName, String description, boolean labor,
@@ -95,21 +102,28 @@ public final class SeedWriter {
         return notification;
     }
 
+    /**
+     * Builds an item. Everything about the item stack, like its material, name and amount, is written as
+     * a data component.
+     */
     public final class ItemBuilder {
+
+        private static final String MATERIAL = "stelaris:material";
+        private static final String AMOUNT = "stelaris:amount";
+        private static final String CUSTOM_NAME = "minecraft:custom_name";
 
         private final ItemEntity item = new ItemEntity();
         private final List<ItemEnchantmentEntity> enchantments = new ArrayList<>();
         private final List<ItemLoreEntity> lore = new ArrayList<>();
-        private final List<ItemFlagEntity> flags = new ArrayList<>();
+        private final Map<String, Object> components = new LinkedHashMap<>();
 
         private ItemBuilder(ProjectEntity project, String key) {
             item.setProject(project);
             item.setKey(key);
             item.setUiName(key);
-            item.setDisplayName(key);
-            item.setMaterial("minecraft:stone");
             item.setGroupName("misc");
-            item.setAmount(1);
+            components.put(MATERIAL, "minecraft:stone");
+            components.put(CUSTOM_NAME, key);
         }
 
         public ItemBuilder uiName(String uiName) {
@@ -118,13 +132,11 @@ public final class SeedWriter {
         }
 
         public ItemBuilder displayName(String displayName) {
-            item.setDisplayName(displayName);
-            return this;
+            return component(CUSTOM_NAME, displayName);
         }
 
         public ItemBuilder material(String material) {
-            item.setMaterial(material);
-            return this;
+            return component(MATERIAL, material);
         }
 
         public ItemBuilder group(String groupName) {
@@ -132,14 +144,22 @@ public final class SeedWriter {
             return this;
         }
 
+        /**
+         * Sets the custom model data the way the legacy integer is written in the vanilla format.
+         */
         public ItemBuilder customModelData(int customModelData) {
-            item.setCustomModelData(customModelData);
-            return this;
+            return component("minecraft:custom_model_data", Map.of("floats", List.of((float) customModelData)));
         }
 
+        /**
+         * Sets the amount; an amount of 1 is the default and isn't stored.
+         */
         public ItemBuilder amount(int amount) {
-            item.setAmount(amount);
-            return this;
+            if (amount == 1) {
+                components.remove(AMOUNT);
+                return this;
+            }
+            return component(AMOUNT, amount);
         }
 
         public ItemBuilder comment(String comment) {
@@ -167,36 +187,58 @@ public final class SeedWriter {
             return this;
         }
 
-        public ItemBuilder flags(String... names) {
-            for (String name : names) {
-                flags.add(new ItemFlagEntity(null, name));
-            }
+        /**
+         * Hides the given components from the tooltip, which the item flags did before.
+         */
+        public ItemBuilder hide(String... componentKeys) {
+            return component("minecraft:tooltip_display", Map.of("hidden_components", List.of(componentKeys)));
+        }
+
+        /**
+         * Sets a data component.
+         *
+         * @param key   the key of the component, e.g. {@code minecraft:food}
+         * @param value the value, written as JSON
+         */
+        public ItemBuilder component(String key, Object value) {
+            components.put(key, value);
             return this;
         }
 
         public ItemEntity save() {
+            List<ItemComponentEntity> componentEntities = new ArrayList<>();
+            components.forEach((key, value) -> componentEntities.add(new ItemComponentEntity(null, key, json(value))));
+
             item.setEnchantments(enchantments);
             item.setLore(lore);
-            item.setFlags(flags);
+            item.setComponents(componentEntities);
             validator.item(item);
 
             item.setEnchantments(new ArrayList<>());
             item.setLore(new ArrayList<>());
-            item.setFlags(new ArrayList<>());
+            item.setComponents(new ArrayList<>());
             repositories.items().save(item);
 
             enchantments.forEach(enchantment -> enchantment.setItem(item));
             lore.forEach(line -> line.setItem(item));
-            flags.forEach(flag -> flag.setItem(item));
+            componentEntities.forEach(component -> component.setItem(item));
             repositories.itemEnchantments().saveAll(enchantments);
             repositories.itemLore().saveAll(lore);
-            repositories.itemFlags().saveAll(flags);
+            repositories.itemComponents().saveAll(componentEntities);
 
             item.setEnchantments(enchantments);
             item.setLore(lore);
-            item.setFlags(flags);
+            item.setComponents(componentEntities);
             items.add(item);
             return item;
+        }
+
+        private String json(Object value) {
+            try {
+                return jsonMapper.writeValueAsString(value);
+            } catch (IOException exception) {
+                throw new UncheckedIOException("Could not write the seed component value " + value, exception);
+            }
         }
     }
 

@@ -5,8 +5,6 @@ import io.micronaut.data.model.Pageable;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
-import net.onelitefeather.vulpes.backend.domain.item.ItemFlagDTO;
-import net.onelitefeather.vulpes.backend.domain.item.ItemFlagResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
@@ -19,50 +17,6 @@ import java.util.UUID;
  * Service interface for managing items.
  */
 public interface ItemService extends CrudService<ItemEntity, UUID, ItemModelDTO, ItemModelResponseDTO.ItemModelDTO> {
-
-    /**
-     * Gets the flags of an item by its ID.
-     *
-     * @param id       the ID of the item
-     * @param pageable pagination information
-     * @return a list of flags
-     */
-    Page<ItemFlagResponseDTO.ItemFlagDTO> findFlagsById(UUID id, Pageable pageable);
-
-    /**
-     * Creates the flag of an item by its ID.
-     *
-     * @param id          the ID of the item to update the flag of
-     * @param itemFlagDTO the flag to create
-     * @return the created flag
-     */
-    ItemFlagResponseDTO.ItemFlagDTO createFlagById(UUID id, ItemFlagDTO itemFlagDTO);
-
-    /**
-     * Delete the flag of an item by its ID.
-     *
-     * @param id     the ID of the item to update the flag of
-     * @param flagId the flag to delete
-     * @return the deleted flag
-     */
-    ItemFlagResponseDTO.ItemFlagDTO deleteFlagById(UUID id, UUID flagId);
-
-    /**
-     * Delete the flags of an item by its ID.
-     *
-     * @param id the ID of the item to update the flags of
-     * @return the deleted flags
-     */
-    List<ItemFlagResponseDTO.ItemFlagDTO> deleteAllFlagsById(UUID id);
-
-    /**
-     * Updates the flag of an item by its ID.
-     *
-     * @param id   the ID of the item to update the flag of
-     * @param flag the new flag to set
-     * @return the updated flag
-     */
-    ItemFlagResponseDTO.ItemFlagDTO updateFlagById(UUID id, ItemFlagDTO flag);
 
     /**
      * Gets the enchantments of an item by its ID.

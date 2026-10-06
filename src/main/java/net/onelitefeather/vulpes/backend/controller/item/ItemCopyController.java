@@ -41,7 +41,7 @@ public class ItemCopyController {
     @Operation(
             summary = "Copy an item",
             operationId = "copyItem",
-            description = "Copies an item owned by the given project into the same project or another one, under a new or the same key, optionally including its lore, flags, and enchantments.",
+            description = "Copies an item owned by the given project into the same project or another one, under a new or the same key, optionally including its lore, enchantments and data components. The required components, like the material, are always copied.",
             tags = {"Item"}
     )
     @ApiResponse(

@@ -19,7 +19,7 @@ public class SeedWiper {
     void wipeAll() {
         repositories.itemLore().deleteAll();
         repositories.itemEnchantments().deleteAll();
-        repositories.itemFlags().deleteAll();
+        repositories.itemComponents().deleteAll();
         repositories.fontChars().deleteAll();
         repositories.soundSources().deleteAll();
         repositories.dimensionAttributes().deleteAll();

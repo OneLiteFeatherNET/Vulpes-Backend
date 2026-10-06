@@ -29,16 +29,19 @@ public class ItemComponentServiceImpl implements ItemComponentService {
 
     private final ItemRepository itemRepository;
     private final ItemComponentRepository componentRepository;
+    private final ItemComponentRules rules;
     private final JsonMapper jsonMapper;
 
     @Inject
     public ItemComponentServiceImpl(
             ItemRepository itemRepository,
             ItemComponentRepository componentRepository,
+            ItemComponentRules rules,
             JsonMapper jsonMapper
     ) {
         this.itemRepository = itemRepository;
         this.componentRepository = componentRepository;
+        this.rules = rules;
         this.jsonMapper = jsonMapper;
     }
 
@@ -52,7 +55,7 @@ public class ItemComponentServiceImpl implements ItemComponentService {
     @Transactional
     public ItemComponentResponseDTO.ItemComponentDTO createComponent(UUID itemId, ItemComponentDTO component) {
         var item = requireItem(itemId);
-        requireUnmanaged(component.componentKey());
+        requireAllowedKey(component.componentKey());
         if (this.componentRepository.findByItemIdAndComponentKey(item.getId(), component.componentKey()).isPresent()) {
             throw duplicate(component.componentKey(), itemId);
         }
@@ -68,9 +71,12 @@ public class ItemComponentServiceImpl implements ItemComponentService {
         if (component.id() == null) {
             throw ApiException.invalidRequest("An id is required to update a component.");
         }
-        requireUnmanaged(component.componentKey());
+        requireAllowedKey(component.componentKey());
         var entity = requireOwnedComponent(item, component.id());
         var keyChanged = !entity.getComponentKey().equals(component.componentKey());
+        if (keyChanged && this.rules.isRequired(entity.getComponentKey())) {
+            throw required(entity.getComponentKey(), "renamed");
+        }
         if (keyChanged && this.componentRepository.findByItemIdAndComponentKey(item.getId(), component.componentKey()).isPresent()) {
             throw duplicate(component.componentKey(), itemId);
         }
@@ -83,6 +89,9 @@ public class ItemComponentServiceImpl implements ItemComponentService {
     public ItemComponentResponseDTO.ItemComponentDTO deleteComponent(UUID itemId, UUID componentId) {
         var item = requireItem(itemId);
         var entity = requireOwnedComponent(item, componentId);
+        if (this.rules.isRequired(entity.getComponentKey())) {
+            throw required(entity.getComponentKey(), "removed");
+        }
         this.componentRepository.deleteById(entity.getId());
         return toDTO(entity);
     }
@@ -90,8 +99,11 @@ public class ItemComponentServiceImpl implements ItemComponentService {
     @Override
     public List<ItemComponentResponseDTO.ItemComponentDTO> deleteAllComponents(UUID itemId) {
         var item = requireItem(itemId);
+        // The required components stay, an item without them is incomplete
         List<ItemComponentEntity> components =
-                this.componentRepository.findComponentsById(item.getId(), Pageable.unpaged()).getContent();
+                this.componentRepository.findComponentsById(item.getId(), Pageable.unpaged()).getContent().stream()
+                        .filter(component -> !this.rules.isRequired(component.getComponentKey()))
+                        .toList();
         this.componentRepository.deleteAll(components);
         return components.stream().map(this::toDTO).toList();
     }
@@ -109,12 +121,19 @@ public class ItemComponentServiceImpl implements ItemComponentService {
         return entity;
     }
 
-    private static void requireUnmanaged(String componentKey) {
-        if (MANAGED_COMPONENTS.contains(componentKey)) {
+    private void requireAllowedKey(String componentKey) {
+        if (this.rules.isManaged(componentKey)) {
             throw ApiException.invalidRequest(
                     "The component " + componentKey + " has a dedicated field on the item and can't be set as a component."
             );
         }
+        if (this.rules.isUnknownCustom(componentKey)) {
+            throw ApiException.invalidRequest("The component " + componentKey + " is not a known component of its namespace.");
+        }
+    }
+
+    private static ApiException required(String componentKey, String action) {
+        return ApiException.invalidRequest("The component " + componentKey + " is required and can't be " + action + ".");
     }
 
     private static ApiException duplicate(String componentKey, UUID itemId) {

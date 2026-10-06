@@ -75,11 +75,12 @@ public final class MinecraftCatalog {
     );
 
     /**
-     * Item flag names as used by the Paper/Bukkit {@code ItemFlag} API.
+     * Components the {@code minecraft:tooltip_display} component can hide, the ones the item flags hid before.
      */
-    public static final List<String> ITEM_FLAGS = List.of(
-            "HIDE_ENCHANTS", "HIDE_ATTRIBUTES", "HIDE_UNBREAKABLE", "HIDE_DESTROYS", "HIDE_PLACED_ON",
-            "HIDE_ADDITIONAL_TOOLTIP", "HIDE_DYE", "HIDE_ARMOR_TRIM", "HIDE_STORED_ENCHANTS"
+    public static final List<String> HIDDEN_COMPONENTS = List.of(
+            "minecraft:enchantments", "minecraft:attribute_modifiers", "minecraft:unbreakable", "minecraft:can_break",
+            "minecraft:can_place_on", "minecraft:potion_contents", "minecraft:dyed_color", "minecraft:trim",
+            "minecraft:stored_enchantments"
     );
 
     public static final List<String> ITEM_GROUPS = List.of(

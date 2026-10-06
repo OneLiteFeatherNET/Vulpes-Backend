@@ -80,8 +80,21 @@ public abstract class AbstractRelationalModelCopier<E extends AbstractEntity, R>
         for (R relation : relations) {
             copyRelation(relation, source, savedRoot);
         }
+        copyAlways(source, savedRoot, relations);
 
         return savedRoot;
+    }
+
+    /**
+     * Copies the children every copy needs, whichever relations were requested. Runs after the
+     * requested relations, in the same transaction. The default copies nothing.
+     *
+     * @param source    the entity being copied
+     * @param target    the already-saved copy
+     * @param relations the relations which were copied already
+     */
+    protected void copyAlways(E source, E target, Set<R> relations) {
+        // Nothing every copy needs by default
     }
 
     /**

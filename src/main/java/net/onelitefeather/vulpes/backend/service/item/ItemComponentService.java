@@ -6,28 +6,17 @@ import net.onelitefeather.vulpes.backend.domain.item.ItemComponentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemComponentResponseDTO;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 /**
  * Manages the data components of an item.
  * <p>
- * Only components without a dedicated field on the item are stored here. The lore, the enchantments, the names and
- * the custom model data have their own fields and endpoints, so their keys are rejected.
+ * Everything about the item stack is stored here, the vanilla components as well as the ones Stelaris adds. The
+ * {@link ItemComponentRules} decide which keys are rejected and which components every item has; those can't be
+ * removed or renamed.
  * </p>
  */
 public interface ItemComponentService {
-
-    /**
-     * The components with a dedicated field on the item. Mirrors the managed components of the vulpes catalog.
-     */
-    Set<String> MANAGED_COMPONENTS = Set.of(
-            "minecraft:lore",
-            "minecraft:enchantments",
-            "minecraft:custom_name",
-            "minecraft:item_name",
-            "minecraft:custom_model_data"
-    );
 
     /**
      * Returns a page of the components of an item.

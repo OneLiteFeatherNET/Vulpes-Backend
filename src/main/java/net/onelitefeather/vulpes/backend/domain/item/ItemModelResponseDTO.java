@@ -24,14 +24,9 @@ public sealed interface ItemModelResponseDTO {
      * @param uiName          the model name for the UI
      * @param key             the key of the item
      * @param comment         the description of the item
-     * @param displayName     the display variableName of the item shown to users
-     * @param material        the material type of the item
      * @param groupName       the group category variableName for the item
-     * @param customModelData the custom model data value for resource packs
-     * @param amount          the quantity of the item
      * @param enchantments    the map of enchantment names and their levels
      * @param lore            the list of text lines displayed in the item tooltip
-     * @param flags           the list of item flags that modify item behavior
      * @param projectId       the ID of the project this item belongs to
      */
     @Schema(
@@ -44,14 +39,9 @@ public sealed interface ItemModelResponseDTO {
             @Schema(description = "Model Name for the UI") String uiName,
             @Schema(description = "Key for the generation") String key,
             @Schema(description = "Description of the item") String comment,
-            @Schema(description = "Display variableName of the item shown to users") String displayName,
-            @Schema(description = "Material type of the item") String material,
             @Schema(description = "Group category variableName for the item") String groupName,
-            @Schema(description = "Custom model data value for resource packs") int customModelData,
-            @Schema(description = "Quantity of the item") int amount,
             @Schema(description = "Map of enchantment names and their levels") Map<String, Short> enchantments,
             @Schema(description = "List of text lines displayed in the item tooltip") List<String> lore,
-            @Schema(description = "List of item flags that modify item behavior") List<String> flags,
             @Schema(description = "ID of the project this item belongs to") UUID projectId,
             @Schema(description = "The point in time at which the attribute was created") Instant creationDate,
             @Schema(description = "The point in time at which the attribute was last modified") Instant modificationDate
@@ -69,13 +59,8 @@ public sealed interface ItemModelResponseDTO {
                     itemEntity.getUiName(),
                     itemEntity.getKey(),
                     itemEntity.getComment(),
-                    itemEntity.getDisplayName(),
-                    itemEntity.getMaterial(),
                     itemEntity.getGroupName(),
-                    itemEntity.getCustomModelData(),
-                    itemEntity.getAmount(),
                     Collections.emptyMap(),
-                    Collections.emptyList(),
                     Collections.emptyList(),
                     itemEntity.getProject().getId(),
                     itemEntity.getCreationDate(),
