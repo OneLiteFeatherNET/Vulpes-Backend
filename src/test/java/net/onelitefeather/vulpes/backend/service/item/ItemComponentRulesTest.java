@@ -33,7 +33,7 @@ class ItemComponentRulesTest {
 
     @Test
     @DisplayName("the application configuration is read as written")
-    void applicationConfiguration_isReadAsWritten() {
+    void applicationConfigurationIsReadAsWritten() {
         ItemComponentRules rules = rulesWith(Map.of());
 
         assertTrue(rules.isManaged("minecraft:lore"));
@@ -53,7 +53,7 @@ class ItemComponentRulesTest {
 
     @Test
     @DisplayName("an inconsistent configuration stops the start")
-    void inconsistentConfiguration_isRejected() {
+    void inconsistentConfigurationIsRejected() {
         JsonMapper mapper = JsonMapper.createDefault();
         ItemComponentConfiguration valid = new ItemComponentConfiguration(
                 List.of("minecraft:lore"), "stelaris", List.of("stelaris:material"));
@@ -78,7 +78,7 @@ class ItemComponentRulesTest {
 
     @Test
     @DisplayName("a broken value in the configuration fails the application start")
-    void brokenRequiredValue_failsTheStart() {
+    void brokenRequiredValueFailsTheStart() {
         Map<String, Object> properties = new HashMap<>(NO_DATABASE);
         properties.put("vulpes.item-components.required[0].value", "minecraft:dirt");
         RuntimeException exception = assertThrows(RuntimeException.class, () -> ApplicationContext.run(properties).close());

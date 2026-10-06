@@ -16,7 +16,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
 
     @Test
     @DisplayName("a blank uiName is accepted")
-    void blankUiName_isAccepted() {
+    void blankUiNameIsAccepted() {
         ItemModelDTO dto = new ItemModelDTO(UUID.randomUUID(), "", "key", "Some comment", "weapon");
 
         assertNoViolation(dto, "uiName");
@@ -24,7 +24,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
 
     @Test
     @DisplayName("a blank key is accepted")
-    void blankKey_isAccepted() {
+    void blankKeyIsAccepted() {
         ItemModelDTO dto = new ItemModelDTO(UUID.randomUUID(), "UI Name", "", "Some comment", "misc");
 
         assertNoViolation(dto, "key");
@@ -32,7 +32,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
 
     @Test
     @DisplayName("a blank comment is accepted")
-    void blankComment_isAccepted() {
+    void blankCommentIsAccepted() {
         ItemModelDTO dto = new ItemModelDTO(UUID.randomUUID(), "UI Name", "key", "", "misc");
 
         assertNoViolation(dto, "comment");
@@ -40,7 +40,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
 
     @Test
     @DisplayName("a blank groupName is accepted")
-    void blankGroupName_isAccepted() {
+    void blankGroupNameIsAccepted() {
         ItemModelDTO dto = new ItemModelDTO(UUID.randomUUID(), "UI Name", "key", "Some comment", "");
 
         assertNoViolation(dto, "groupName");
