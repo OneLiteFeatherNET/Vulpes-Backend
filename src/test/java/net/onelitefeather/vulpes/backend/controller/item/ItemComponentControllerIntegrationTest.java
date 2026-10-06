@@ -82,7 +82,7 @@ class ItemComponentControllerIntegrationTest {
 
     @Test
     @DisplayName("a new item starts with its required components")
-    void create_addsTheRequiredComponents() {
+    void newItem_hasTheRequiredComponents() {
         JsonPath page = components();
         assertEquals(List.of("stelaris:material"), page.getList("content.componentKey"));
         assertEquals("minecraft:dirt", page.getString("content[0].value"));
@@ -139,7 +139,7 @@ class ItemComponentControllerIntegrationTest {
 
     @Test
     @DisplayName("the stelaris components are accepted, other keys in their namespace are rejected")
-    void create_acceptsOnlyKnownStelarisComponents() {
+    void create_rejectsUnknownStelarisKeys() {
         assertEquals(5, create("{\"componentKey\":\"stelaris:amount\",\"value\":5}").getInt("value"));
         given().contentType(ContentType.JSON)
                 .body("{\"componentKey\":\"stelaris:foo\",\"value\":1}")
@@ -149,7 +149,7 @@ class ItemComponentControllerIntegrationTest {
 
     @Test
     @DisplayName("the material can't be removed")
-    void delete_keepsTheMaterial() {
+    void delete_rejectsTheMaterial() {
         String id = material();
         given().delete(componentPath + "/component/" + id).then().statusCode(400);
         assertTrue(componentRepository.findById(UUID.fromString(id)).isPresent());
@@ -179,7 +179,7 @@ class ItemComponentControllerIntegrationTest {
 
     @Test
     @DisplayName("another component can't be renamed into the material")
-    void update_rejectsASecondMaterial() {
+    void update_rejectsRenamingIntoTheMaterial() {
         material();
         String id = create(FOOD).getString("id");
         given().contentType(ContentType.JSON)
