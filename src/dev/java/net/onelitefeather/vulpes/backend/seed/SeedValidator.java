@@ -19,7 +19,6 @@ import net.onelitefeather.vulpes.backend.domain.dimension.DimensionTimelineDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
-import net.onelitefeather.vulpes.backend.domain.item.ItemFlagDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
 import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelDTO;
