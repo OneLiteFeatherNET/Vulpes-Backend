@@ -153,7 +153,7 @@ class ItemControllerTest {
     private static ItemModelResponseDTO.ItemModelDTO sampleResponse(UUID id, UUID projectId) {
         return new ItemModelResponseDTO.ItemModelDTO(
                 id, "UI", "var", "comment", "group",
-                Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), projectId, Instant.now(), Instant.now()
+                Collections.emptyMap(), Collections.emptyList(), projectId, Instant.now(), Instant.now()
         );
     }
 
