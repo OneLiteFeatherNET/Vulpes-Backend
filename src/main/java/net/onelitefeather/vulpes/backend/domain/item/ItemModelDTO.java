@@ -58,7 +58,6 @@ public record ItemModelDTO(
                 groupName,
                 List.of(),
                 List.of(),
-                List.of(),
                 project
         );
     }

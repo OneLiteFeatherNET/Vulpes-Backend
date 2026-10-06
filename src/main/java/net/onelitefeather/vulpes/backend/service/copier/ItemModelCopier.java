@@ -74,12 +74,7 @@ public class ItemModelCopier extends AbstractRelationalModelCopier<ItemEntity, I
                 resolvedName,
                 targetKey,
                 source.getComment(),
-                source.getDisplayName(),
-                source.getMaterial(),
                 source.getGroupName(),
-                source.getCustomModelData(),
-                source.getAmount(),
-                List.of(),
                 List.of(),
                 List.of(),
                 targetProject
