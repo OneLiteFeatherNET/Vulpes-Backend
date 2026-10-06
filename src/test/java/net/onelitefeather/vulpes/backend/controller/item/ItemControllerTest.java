@@ -147,12 +147,12 @@ class ItemControllerTest {
     }
 
     private static ItemModelDTO sampleDTO(UUID id) {
-        return new ItemModelDTO(id, "UI", "var", "comment", "display", "STONE", "group", 0, 1);
+        return new ItemModelDTO(id, "UI", "var", "comment", "group");
     }
 
     private static ItemModelResponseDTO.ItemModelDTO sampleResponse(UUID id, UUID projectId) {
         return new ItemModelResponseDTO.ItemModelDTO(
-                id, "UI", "var", "comment", "display", "STONE", "group", 0, 1,
+                id, "UI", "var", "comment", "group",
                 Collections.emptyMap(), Collections.emptyList(), Collections.emptyList(), projectId, Instant.now(), Instant.now()
         );
     }
