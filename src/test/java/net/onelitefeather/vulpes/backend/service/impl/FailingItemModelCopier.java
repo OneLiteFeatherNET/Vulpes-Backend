@@ -8,11 +8,13 @@ import jakarta.inject.Singleton;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.api.repository.ItemRepository;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
+import net.onelitefeather.vulpes.api.repository.item.ItemComponentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemLoreRepository;
 import net.onelitefeather.vulpes.backend.domain.item.ItemRelation;
 import net.onelitefeather.vulpes.backend.service.copier.AbstractRelationalModelCopier;
 import net.onelitefeather.vulpes.backend.service.copier.ItemModelCopier;
+import net.onelitefeather.vulpes.backend.service.item.ItemComponentRules;
 
 /**
  * Test-only double that deliberately fails while copying any relation, active only under the
@@ -39,9 +41,12 @@ public class FailingItemModelCopier extends ItemModelCopier {
             ItemRepository itemRepository,
             ItemLoreRepository itemLoreRepository,
             ItemEnchantmentRepository itemEnchantmentRepository,
+            ItemComponentRepository itemComponentRepository,
+            ItemComponentRules componentRules,
             ProjectRepository projectRepository
     ) {
-        super(itemRepository, itemLoreRepository, itemEnchantmentRepository, projectRepository);
+        super(itemRepository, itemLoreRepository, itemEnchantmentRepository, itemComponentRepository, componentRules,
+                projectRepository);
     }
 
     @Override

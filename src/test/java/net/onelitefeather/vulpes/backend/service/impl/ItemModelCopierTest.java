@@ -4,18 +4,24 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.data.model.Sort;
 import io.micronaut.data.repository.PageableRepository;
+import io.micronaut.json.JsonMapper;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
+import net.onelitefeather.vulpes.api.model.item.ItemComponentEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemLoreEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.repository.ItemRepository;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
+import net.onelitefeather.vulpes.api.repository.item.ItemComponentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemLoreRepository;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.item.ItemRelation;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.copier.ItemModelCopier;
+import net.onelitefeather.vulpes.backend.service.item.ItemComponentConfiguration;
+import net.onelitefeather.vulpes.backend.service.item.ItemComponentRules;
+import net.onelitefeather.vulpes.backend.service.item.RequiredComponentConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -216,6 +222,48 @@ class ItemModelCopierTest {
         }
     }
 
+    private static class FakeItemComponentRepository extends FakePageableRepository<ItemComponentEntity, UUID> implements ItemComponentRepository {
+        FakeItemComponentRepository() {
+            super(ItemComponentEntity::getId);
+        }
+
+        @Override
+        public <S extends ItemComponentEntity> S save(S entity) {
+            if (entity.getId() == null) {
+                entity.setId(UUID.randomUUID());
+            }
+            return super.save(entity);
+        }
+
+        @Override
+        public Page<ItemComponentEntity> findComponentsById(UUID id, Pageable pageable) {
+            List<ItemComponentEntity> matching = store.values().stream()
+                    .filter(e -> e.getItem().getId().equals(id))
+                    .toList();
+            return Page.of(matching, pageable, (long) matching.size());
+        }
+
+        @Override
+        public Optional<ItemComponentEntity> findByItemIdAndComponentKey(UUID itemId, String componentKey) {
+            return store.values().stream()
+                    .filter(e -> e.getItem().getId().equals(itemId) && e.getComponentKey().equals(componentKey))
+                    .findFirst();
+        }
+    }
+
+    /**
+     * The rules of the application configuration: the material is required.
+     */
+    private static final ItemComponentRules RULES = new ItemComponentRules(
+            new ItemComponentConfiguration(
+                    List.of("minecraft:lore", "minecraft:enchantments"),
+                    "stelaris",
+                    List.of("stelaris:material", "stelaris:amount")
+            ),
+            List.of(new RequiredComponentConfiguration("stelaris:material", "\"minecraft:dirt\"")),
+            JsonMapper.createDefault()
+    );
+
     private static class FakeProjectRepository extends FakePageableRepository<ProjectEntity, UUID> implements ProjectRepository {
         FakeProjectRepository() {
             super(ProjectEntity::getId);
@@ -225,6 +273,7 @@ class ItemModelCopierTest {
     private FakeItemRepository itemRepository;
     private FakeItemLoreRepository itemLoreRepository;
     private FakeItemEnchantmentRepository itemEnchantmentRepository;
+    private FakeItemComponentRepository itemComponentRepository;
     private FakeProjectRepository projectRepository;
     private ItemModelCopier copier;
     private ProjectEntity projectA;
@@ -235,8 +284,10 @@ class ItemModelCopierTest {
         itemRepository = new FakeItemRepository();
         itemLoreRepository = new FakeItemLoreRepository();
         itemEnchantmentRepository = new FakeItemEnchantmentRepository();
+        itemComponentRepository = new FakeItemComponentRepository();
         projectRepository = new FakeProjectRepository();
-        copier = new ItemModelCopier(itemRepository, itemLoreRepository, itemEnchantmentRepository, projectRepository);
+        copier = new ItemModelCopier(itemRepository, itemLoreRepository, itemEnchantmentRepository,
+                itemComponentRepository, RULES, projectRepository);
 
         projectA = new ProjectEntity(UUID.randomUUID(), "Project A", "project-a", null, null, null, false);
         projectB = new ProjectEntity(UUID.randomUUID(), "Project B", "project-b", null, null, null, false);
@@ -436,6 +487,74 @@ class ItemModelCopierTest {
         List<ItemLoreEntity> targetLore = itemLoreRepository.findLoreById(result.getId(), Pageable.unpaged()).getContent();
         assertEquals(1, targetLore.size());
         assertNotEquals(lore.getId(), targetLore.get(0).getId());
+    }
+
+    private ItemComponentEntity component(ItemEntity item, String key, String value) {
+        ItemComponentEntity component = new ItemComponentEntity(UUID.randomUUID(), key, value);
+        component.setItem(item);
+        return itemComponentRepository.save(component);
+    }
+
+    private Map<String, String> componentsOf(ItemEntity item) {
+        Map<String, String> byKey = new LinkedHashMap<>();
+        itemComponentRepository.findComponentsById(item.getId(), Pageable.unpaged())
+                .forEach(component -> byKey.put(component.getComponentKey(), component.getComponentValue()));
+        return byKey;
+    }
+
+    @Test
+    @DisplayName("copy() with COMPONENTS copies every component under a new id")
+    void copyWithComponentsRelationCopiesEveryComponent() {
+        ItemEntity source = sampleItem("component-item", projectA);
+        ItemComponentEntity material = component(source, "stelaris:material", "\"minecraft:stone\"");
+        component(source, "minecraft:food", "{\"nutrition\":4,\"saturation\":2.4}");
+
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "component-copy", null,
+                Set.of(ItemRelation.COMPONENTS));
+
+        assertEquals(Map.of("stelaris:material", "\"minecraft:stone\"",
+                "minecraft:food", "{\"nutrition\":4,\"saturation\":2.4}"), componentsOf(result));
+        assertNotEquals(material.getId(),
+                itemComponentRepository.findByItemIdAndComponentKey(result.getId(), "stelaris:material").orElseThrow().getId());
+        assertEquals(2, componentsOf(source).size(), "the source keeps its own components");
+    }
+
+    @Test
+    @DisplayName("copy() without COMPONENTS copies only the required components, with the source's values")
+    void copyWithoutComponentsRelationCopiesOnlyTheRequiredComponents() {
+        ItemEntity source = sampleItem("required-item", projectA);
+        component(source, "stelaris:material", "\"minecraft:stone\"");
+        component(source, "minecraft:food", "{\"nutrition\":4,\"saturation\":2.4}");
+
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "required-copy", null,
+                Set.of(ItemRelation.LORE));
+
+        assertEquals(Map.of("stelaris:material", "\"minecraft:stone\""), componentsOf(result));
+    }
+
+    @Test
+    @DisplayName("copy() without any relation still keeps the material")
+    void copyWithoutRelationsKeepsTheMaterial() {
+        ItemEntity source = sampleItem("plain-item", projectA);
+        component(source, "stelaris:material", "\"minecraft:diamond_sword\"");
+
+        ItemEntity withEmptySet = copier.copy(projectA.getId(), source.getId(), null, "plain-copy", null, Set.of());
+        ItemEntity withoutSet = copier.copy(projectA.getId(), source.getId(), null, "plain-copy-2", null);
+
+        assertEquals(Map.of("stelaris:material", "\"minecraft:diamond_sword\""), componentsOf(withEmptySet));
+        assertEquals(Map.of("stelaris:material", "\"minecraft:diamond_sword\""), componentsOf(withoutSet));
+    }
+
+    @Test
+    @DisplayName("copy() with COMPONENTS doesn't copy the material twice")
+    void copyWithComponentsRelationCopiesTheMaterialOnce() {
+        ItemEntity source = sampleItem("once-item", projectA);
+        component(source, "stelaris:material", "\"minecraft:stone\"");
+
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "once-copy", null,
+                EnumSet.allOf(ItemRelation.class));
+
+        assertEquals(1, itemComponentRepository.findComponentsById(result.getId(), Pageable.unpaged()).getContent().size());
     }
 
     @Test
