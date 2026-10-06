@@ -58,7 +58,7 @@ public class ItemComponentController {
     )
     @ApiResponse(
             responseCode = "400",
-            description = "The request body failed validation, or the component has a dedicated field on the item.",
+            description = "The request body failed validation, the component has a dedicated field on the item, the key is in the stelaris namespace but no Stelaris component, or a required component would be renamed.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_PROBLEM,
                     schema = @Schema(implementation = ProblemDetail.class)
@@ -139,7 +139,7 @@ public class ItemComponentController {
     )
     @ApiResponse(
             responseCode = "400",
-            description = "The request body failed validation, or the component has a dedicated field on the item.",
+            description = "The request body failed validation, the component has a dedicated field on the item, the key is in the stelaris namespace but no Stelaris component, or a required component would be renamed.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_PROBLEM,
                     schema = @Schema(implementation = ProblemDetail.class)
@@ -173,7 +173,7 @@ public class ItemComponentController {
     @Operation(
             summary = "Remove a component from an item",
             operationId = "deleteComponent",
-            description = "Removes a data component (componentId) from the item identified by itemId.",
+            description = "Removes a data component (componentId) from the item identified by itemId. Required components like stelaris:material can't be removed.",
             tags = {"Item"}
     )
     @ApiResponse(
@@ -182,6 +182,14 @@ public class ItemComponentController {
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ItemComponentResponseDTO.ItemComponentDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "The component is required and can't be removed.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @ApiResponse(
@@ -203,7 +211,7 @@ public class ItemComponentController {
     @Operation(
             summary = "Remove all components from an item",
             operationId = "deleteComponents",
-            description = "Removes all data components from the item identified by itemId.",
+            description = "Removes all data components from the item identified by itemId, except the required ones like stelaris:material.",
             tags = {"Item"}
     )
     @ApiResponse(

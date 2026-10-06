@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.testcontainers.junit.jupiter.EnabledIfDockerAvailable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -54,7 +55,7 @@ class ItemComponentControllerIntegrationTest {
                 .extract().as(ProjectModelResponseDTO.ProjectModelDTO.class);
         ItemModelResponseDTO.ItemModelDTO item = given()
                 .contentType(ContentType.JSON)
-                .body(new ItemModelDTO(null, "Apple", "apple", null, null, "minecraft:apple", "group", 0, 1))
+                .body(new ItemModelDTO(null, "Apple", "apple", null, "group"))
                 .post("/project/" + project.id() + "/item")
                 .then().statusCode(200)
                 .extract().as(ItemModelResponseDTO.ItemModelDTO.class);
@@ -66,6 +67,19 @@ class ItemComponentControllerIntegrationTest {
                 .put(componentPath + "/component")
                 .then().statusCode(200)
                 .extract().jsonPath();
+    }
+
+    private JsonPath components() {
+        return given().get(componentPath + "/components").then().statusCode(200).extract().jsonPath();
+    }
+
+    /**
+     * Returns the id of the item's material, which is created here as long as new items don't have one yet.
+     */
+    private String material() {
+        String id = components().getString("content.find { it.componentKey == 'stelaris:material' }.id");
+        if (id != null) return id;
+        return create("{\"componentKey\":\"stelaris:material\",\"value\":\"minecraft:dirt\"}").getString("id");
     }
 
     @Test
@@ -106,6 +120,66 @@ class ItemComponentControllerIntegrationTest {
                 .body("{\"componentKey\":\"minecraft:lore\",\"value\":[\"text\"]}")
                 .put(componentPath + "/component")
                 .then().statusCode(400);
+    }
+
+    @Test
+    @DisplayName("the name and the model data are plain components")
+    void create_acceptsNameAndModelData() {
+        assertEquals("Apple", create("{\"componentKey\":\"minecraft:custom_name\",\"value\":\"Apple\"}").getString("value"));
+        assertEquals("Apple", create("{\"componentKey\":\"minecraft:item_name\",\"value\":\"Apple\"}").getString("value"));
+        assertEquals(List.of(1.5f), create("{\"componentKey\":\"minecraft:custom_model_data\",\"value\":{\"floats\":[1.5]}}")
+                .getList("value.floats"));
+    }
+
+    @Test
+    @DisplayName("the stelaris components are accepted, other keys in their namespace are rejected")
+    void create_acceptsOnlyKnownStelarisComponents() {
+        assertEquals(5, create("{\"componentKey\":\"stelaris:amount\",\"value\":5}").getInt("value"));
+        given().contentType(ContentType.JSON)
+                .body("{\"componentKey\":\"stelaris:foo\",\"value\":1}")
+                .put(componentPath + "/component")
+                .then().statusCode(400);
+    }
+
+    @Test
+    @DisplayName("the material can't be removed")
+    void delete_keepsTheMaterial() {
+        String id = material();
+        given().delete(componentPath + "/component/" + id).then().statusCode(400);
+        assertTrue(componentRepository.findById(UUID.fromString(id)).isPresent());
+    }
+
+    @Test
+    @DisplayName("removing all components keeps the material")
+    void deleteAll_keepsTheMaterial() {
+        String id = material();
+        create(FOOD);
+        given().delete(componentPath + "/component").then().statusCode(200);
+        JsonPath page = components();
+        assertEquals(List.of("stelaris:material"), page.getList("content.componentKey"));
+        assertEquals(id, page.getString("content[0].id"));
+    }
+
+    @Test
+    @DisplayName("the material can't be renamed into another component")
+    void update_rejectsRenamingTheMaterial() {
+        String id = material();
+        given().contentType(ContentType.JSON)
+                .body("{\"id\":\"" + id + "\",\"componentKey\":\"minecraft:food\",\"value\":{\"nutrition\":4,\"saturation\":2.4}}")
+                .post(componentPath + "/component")
+                .then().statusCode(400);
+        assertEquals("stelaris:material", componentRepository.findById(UUID.fromString(id)).orElseThrow().getComponentKey());
+    }
+
+    @Test
+    @DisplayName("another component can't be renamed into the material")
+    void update_rejectsASecondMaterial() {
+        material();
+        String id = create(FOOD).getString("id");
+        given().contentType(ContentType.JSON)
+                .body("{\"id\":\"" + id + "\",\"componentKey\":\"stelaris:material\",\"value\":\"minecraft:stone\"}")
+                .post(componentPath + "/component")
+                .then().statusCode(409);
     }
 
     @Test
