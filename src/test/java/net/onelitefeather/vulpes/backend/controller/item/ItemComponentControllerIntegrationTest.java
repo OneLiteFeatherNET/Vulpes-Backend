@@ -74,12 +74,18 @@ class ItemComponentControllerIntegrationTest {
     }
 
     /**
-     * Returns the id of the item's material, which is created here as long as new items don't have one yet.
+     * Returns the id of the item's material, which every new item has.
      */
     private String material() {
-        String id = components().getString("content.find { it.componentKey == 'stelaris:material' }.id");
-        if (id != null) return id;
-        return create("{\"componentKey\":\"stelaris:material\",\"value\":\"minecraft:dirt\"}").getString("id");
+        return components().getString("content.find { it.componentKey == 'stelaris:material' }.id");
+    }
+
+    @Test
+    @DisplayName("a new item starts with its required components")
+    void create_addsTheRequiredComponents() {
+        JsonPath page = components();
+        assertEquals(List.of("stelaris:material"), page.getList("content.componentKey"));
+        assertEquals("minecraft:dirt", page.getString("content[0].value"));
     }
 
     @Test
@@ -89,10 +95,10 @@ class ItemComponentControllerIntegrationTest {
         assertEquals("minecraft:food", created.getString("componentKey"));
         assertEquals(4, created.getInt("value.nutrition"));
 
-        JsonPath page = given().get(componentPath + "/components").then().statusCode(200).extract().jsonPath();
-        assertEquals(1, page.getList("content").size());
-        assertEquals(Map.of("nutrition", 4, "saturation", 2.4f), page.getMap("content[0].value"));
-        assertEquals(created.getString("id"), page.getString("content[0].id"));
+        JsonPath page = components();
+        assertEquals(Map.of("nutrition", 4, "saturation", 2.4f),
+                page.getMap("content.find { it.componentKey == 'minecraft:food' }.value"));
+        assertEquals(created.getString("id"), page.getString("content.find { it.componentKey == 'minecraft:food' }.id"));
     }
 
     @Test

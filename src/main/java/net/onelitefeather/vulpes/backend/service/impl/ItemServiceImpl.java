@@ -2,14 +2,17 @@ package net.onelitefeather.vulpes.backend.service.impl;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import io.micronaut.json.JsonMapper;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
+import net.onelitefeather.vulpes.api.model.item.ItemComponentEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemLoreEntity;
 import net.onelitefeather.vulpes.api.repository.ItemRepository;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
+import net.onelitefeather.vulpes.api.repository.item.ItemComponentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemLoreRepository;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
@@ -20,7 +23,10 @@ import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ItemService;
+import net.onelitefeather.vulpes.backend.service.item.ItemComponentRules;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -44,11 +50,17 @@ public class ItemServiceImpl
 
     private final ItemEnchantmentRepository itemEnchantmentRepository;
     private final ItemLoreRepository itemLoreRepository;
+    private final ItemComponentRepository itemComponentRepository;
+    private final ItemComponentRules componentRules;
+    private final JsonMapper jsonMapper;
 
     @Inject
     public ItemServiceImpl(ItemRepository itemRepository,
                            ItemEnchantmentRepository itemEnchantmentRepository,
                            ItemLoreRepository itemLoreRepository,
+                           ItemComponentRepository itemComponentRepository,
+                           ItemComponentRules componentRules,
+                           JsonMapper jsonMapper,
                            ProjectRepository projectRepository) {
         super(
                 itemRepository,
@@ -62,6 +74,36 @@ public class ItemServiceImpl
         );
         this.itemEnchantmentRepository = itemEnchantmentRepository;
         this.itemLoreRepository = itemLoreRepository;
+        this.itemComponentRepository = itemComponentRepository;
+        this.componentRules = componentRules;
+        this.jsonMapper = jsonMapper;
+    }
+
+    /**
+     * Creates the item together with the components every item has, e.g. its material, in one
+     * transaction, so there is never an item without them.
+     */
+    @Override
+    @Transactional
+    public ItemModelResponseDTO.ItemModelDTO create(UUID projectId, ItemModelDTO dto) {
+        var created = super.create(projectId, dto);
+        var item = requireItem(created.id());
+        List<ItemComponentEntity> components = new ArrayList<>();
+        this.componentRules.required().forEach((key, value) -> {
+            var component = new ItemComponentEntity(null, key, writeJson(value));
+            component.setItem(item);
+            components.add(component);
+        });
+        this.itemComponentRepository.saveAll(components);
+        return created;
+    }
+
+    private String writeJson(Object value) {
+        try {
+            return this.jsonMapper.writeValueAsString(value);
+        } catch (IOException exception) {
+            throw new UncheckedIOException("Could not write the value of a required component", exception);
+        }
     }
 
     /**
