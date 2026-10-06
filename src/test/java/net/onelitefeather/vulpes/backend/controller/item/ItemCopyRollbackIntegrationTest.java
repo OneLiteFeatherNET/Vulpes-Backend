@@ -79,7 +79,7 @@ class ItemCopyRollbackIntegrationTest {
     @DisplayName("a failure copying a relation rolls back the root save too")
     void copyFailure_rollsBackEverything() {
         ItemModelDTO sourceDto = new ItemModelDTO(
-                null, "UI", "rollback-source", "comment", "display", "STONE", "group", 0, 1);
+                null, "UI", "rollback-source", "comment", "group");
         ItemModelResponseDTO.ItemModelDTO source =
                 given()
                         .contentType(ContentType.JSON)
@@ -96,13 +96,13 @@ class ItemCopyRollbackIntegrationTest {
         // copy that reuses the source's key would 409 on the conflict check before ever reaching
         // copyRoot/copyRelation, and the simulated failure would never fire at all. relations only
         // needs to be non-empty: FailingItemModelCopier throws unconditionally on the first
-        // relation it's asked to copy, regardless of whether the source actually has any lore,
-        // flags, or enchantments — the point being proven is "root save + the relation loop are
+        // relation it's asked to copy, regardless of whether the source actually has any lore
+        // or enchantments — the point being proven is "root save + the relation loop are
         // one atomic unit," which a relation copy failing before it writes anything already
         // establishes just as well as one failing partway through would.
         given()
                 .contentType(ContentType.JSON)
-                .body("{\"targetKey\":\"rollback-copy\",\"relations\":[\"FLAGS\"]}")
+                .body("{\"targetKey\":\"rollback-copy\",\"relations\":[\"LORE\"]}")
         .when()
                 .post("/project/" + projectId + "/item/" + source.id() + "/copy")
         .then()

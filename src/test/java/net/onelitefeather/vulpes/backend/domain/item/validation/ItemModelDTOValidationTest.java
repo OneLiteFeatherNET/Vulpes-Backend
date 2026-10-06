@@ -15,11 +15,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "", // invalid
                 "key",
                 "Some comment",
-                "Display Name",
-                "minecraft:gold_shovel",
-                "weapon",
-                1,
-                1
+                "weapon"
         );
 
         assertNoViolation(dto, "uiName");
@@ -32,11 +28,7 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "UI Name",
                 "", // invalid
                 "Some comment",
-                "Display Name",
-                "minecraft:dirt",
-                "misc",
-                1,
-                1
+                "misc"
         );
 
         assertNoViolation(dto, "key");
@@ -49,47 +41,9 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "UI Name",
                 "key",
                 "", // valid
-                "Display Name",
-                "minecraft:bucket",
-                "misc",
-                1,
-                1
+                "misc"
         );
         assertNoViolation(dto, "comment");
-    }
-
-    @Test
-    void testBlankDisplayNameNoValidation() {
-        ItemModelDTO dto = new ItemModelDTO(
-                UUID.randomUUID(),
-                "UI Name",
-                "key",
-                "Some comment",
-                "", // invalid
-                "minecraft:dirt",
-                "misc",
-                1,
-                1
-        );
-
-        assertNoViolation(dto, "displayName");
-    }
-
-    @Test
-    void testBlankMaterialNoValidation() {
-        ItemModelDTO dto = new ItemModelDTO(
-                UUID.randomUUID(),
-                "UI Name",
-                "key",
-                "Some comment",
-                "Display Name",
-                "", // invalid
-                "weapon",
-                1,
-                1
-        );
-
-        assertNoViolation(dto, "material");
     }
 
     @Test
@@ -99,47 +53,9 @@ class ItemModelDTOValidationTest extends ValidationTestBase<ItemModelDTO> {
                 "UI Name",
                 "key",
                 "Some comment",
-                "Display Name",
-                "minecraft:stone",
-                "", // invalid
-                1,
-                1
+                "" // invalid
         );
 
         assertNoViolation(dto, "groupName");
-    }
-
-    @Test
-    void testNegativeCustomModelDataValidation() {
-        ItemModelDTO dto = new ItemModelDTO(
-                UUID.randomUUID(),
-                "UI Name",
-                "key",
-                "Some comment",
-                "Display Name",
-                "material:wool",
-                "misc",
-                -1, // invalid
-                1
-        );
-
-        assertViolation(dto, "customModelData");
-    }
-
-    @Test
-    void testNegativeAmountValidation() {
-        ItemModelDTO dto = new ItemModelDTO(
-                UUID.randomUUID(),
-                "UI Name",
-                "key",
-                "Some comment",
-                "Display Name",
-                "minecraft:dirt",
-                "tools",
-                1,
-                -1
-        );
-
-        assertViolation(dto, "amount");
     }
 }

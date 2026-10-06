@@ -36,7 +36,7 @@ class ItemCopyControllerTest {
     }
 
     private static ItemEntity sampleEntity(UUID id, ProjectEntity project) {
-        return new ItemEntity(id, "UI", "key", "comment", "display", "STONE", "group", 0, 1, List.of(), List.of(), List.of(), project);
+        return new ItemEntity(id, "UI", "key", "comment", "group", List.of(), List.of(), project);
     }
 
     @Test
@@ -62,14 +62,14 @@ class ItemCopyControllerTest {
             @Override
             public ItemEntity copy(UUID sourceProjectId, UUID sourceId, UUID targetProjectId, String targetKey, String targetName, Set<ItemRelation> relations) {
                 ProjectEntity project = new ProjectEntity(targetProjectId, "Target", "target", null, null, null, false);
-                return new ItemEntity(UUID.randomUUID(), targetName, targetKey, "comment", "display", "STONE", "group", 0, 1, List.of(), List.of(), List.of(), project);
+                return new ItemEntity(UUID.randomUUID(), targetName, targetKey, "comment", "group", List.of(), List.of(), project);
             }
         };
         ItemCopyController controller = new ItemCopyController(copierStub);
         UUID projectId = UUID.randomUUID();
         UUID itemId = UUID.randomUUID();
         UUID targetProjectId = UUID.randomUUID();
-        RelationalCopyDTO<ItemRelation> body = new RelationalCopyDTO<>(targetProjectId, "new-key", "New Name", Set.of(ItemRelation.LORE, ItemRelation.FLAGS));
+        RelationalCopyDTO<ItemRelation> body = new RelationalCopyDTO<>(targetProjectId, "new-key", "New Name", Set.of(ItemRelation.LORE, ItemRelation.ENCHANTMENTS));
 
         HttpResponse<ItemModelResponseDTO.ItemModelDTO> resp = controller.copy(projectId, itemId, body);
 

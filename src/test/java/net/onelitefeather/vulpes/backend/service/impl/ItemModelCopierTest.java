@@ -6,13 +6,11 @@ import io.micronaut.data.model.Sort;
 import io.micronaut.data.repository.PageableRepository;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
-import net.onelitefeather.vulpes.api.model.item.ItemFlagEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemLoreEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.repository.ItemRepository;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
-import net.onelitefeather.vulpes.api.repository.item.ItemFlagRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemLoreRepository;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.item.ItemRelation;
@@ -196,28 +194,6 @@ class ItemModelCopierTest {
         }
     }
 
-    private static class FakeItemFlagRepository extends FakePageableRepository<ItemFlagEntity, UUID> implements ItemFlagRepository {
-        FakeItemFlagRepository() {
-            super(ItemFlagEntity::getId);
-        }
-
-        @Override
-        public <S extends ItemFlagEntity> S save(S entity) {
-            if (entity.getId() == null) {
-                entity.setId(UUID.randomUUID());
-            }
-            return super.save(entity);
-        }
-
-        @Override
-        public Page<ItemFlagEntity> findFlagsById(UUID id, Pageable pageable) {
-            List<ItemFlagEntity> matching = store.values().stream()
-                    .filter(e -> e.getItem().getId().equals(id))
-                    .toList();
-            return Page.of(matching, pageable, (long) matching.size());
-        }
-    }
-
     private static class FakeItemEnchantmentRepository extends FakePageableRepository<ItemEnchantmentEntity, UUID> implements ItemEnchantmentRepository {
         FakeItemEnchantmentRepository() {
             super(ItemEnchantmentEntity::getId);
@@ -248,7 +224,6 @@ class ItemModelCopierTest {
 
     private FakeItemRepository itemRepository;
     private FakeItemLoreRepository itemLoreRepository;
-    private FakeItemFlagRepository itemFlagRepository;
     private FakeItemEnchantmentRepository itemEnchantmentRepository;
     private FakeProjectRepository projectRepository;
     private ItemModelCopier copier;
@@ -259,7 +234,6 @@ class ItemModelCopierTest {
     void setUp() {
         itemRepository = new FakeItemRepository();
         itemLoreRepository = new FakeItemLoreRepository();
-        itemFlagRepository = new FakeItemFlagRepository();
         itemEnchantmentRepository = new FakeItemEnchantmentRepository();
         projectRepository = new FakeProjectRepository();
         copier = new ItemModelCopier(itemRepository, itemLoreRepository, itemEnchantmentRepository, projectRepository);
@@ -272,8 +246,8 @@ class ItemModelCopierTest {
 
     private ItemEntity sampleItem(String key, ProjectEntity project) {
         ItemEntity item = new ItemEntity(
-                UUID.randomUUID(), "UI", key, "comment", "display", "STONE", "group", 0, 1,
-                List.of(), List.of(), List.of(), project
+                UUID.randomUUID(), "UI", key, "comment", "group",
+                List.of(), List.of(), project
         );
         itemRepository.save(item);
         return item;
@@ -395,22 +369,6 @@ class ItemModelCopierTest {
     }
 
     @Test
-    @DisplayName("copy() with FLAGS copies every flag under a new id")
-    void copy_withFlagsRelation_copiesFlags() {
-        ItemEntity source = sampleItem("flags-item", projectA);
-        ItemFlagEntity flag = new ItemFlagEntity(UUID.randomUUID(), "HIDE_ATTRIBUTES");
-        flag.setItem(source);
-        itemFlagRepository.save(flag);
-
-        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "flags-copy", null);
-
-        List<ItemFlagEntity> copiedFlags = itemFlagRepository.findFlagsById(result.getId(), Pageable.unpaged()).getContent();
-        assertEquals(1, copiedFlags.size());
-        assertEquals("HIDE_ATTRIBUTES", copiedFlags.get(0).getFlag());
-        assertNotEquals(flag.getId(), copiedFlags.get(0).getId());
-    }
-
-    @Test
     @DisplayName("copy() with ENCHANTMENTS copies every enchantment under a new id")
     void copy_withEnchantmentsRelation_copiesEnchantments() {
         ItemEntity source = sampleItem("enchant-item", projectA);
@@ -429,15 +387,12 @@ class ItemModelCopierTest {
     }
 
     @Test
-    @DisplayName("copy() with all three relations copies all three")
+    @DisplayName("copy() with all relations copies all of them")
     void copy_withAllRelations_copiesAll() {
         ItemEntity source = sampleItem("full-item", projectA);
         ItemLoreEntity lore = new ItemLoreEntity(UUID.randomUUID(), "only line", 0);
         lore.setItem(source);
         itemLoreRepository.save(lore);
-        ItemFlagEntity flag = new ItemFlagEntity(UUID.randomUUID(), "UNBREAKABLE");
-        flag.setItem(source);
-        itemFlagRepository.save(flag);
         ItemEnchantmentEntity enchantment = new ItemEnchantmentEntity(UUID.randomUUID(), "MENDING", (short) 1, false);
         enchantment.setItem(source);
         itemEnchantmentRepository.save(enchantment);
@@ -448,7 +403,6 @@ class ItemModelCopierTest {
         );
 
         assertEquals(1, itemLoreRepository.findLoreById(result.getId(), Pageable.unpaged()).getContent().size());
-        assertEquals(1, itemFlagRepository.findFlagsById(result.getId(), Pageable.unpaged()).getContent().size());
         assertEquals(1, itemEnchantmentRepository.findEnchantmentsById(result.getId(), Pageable.unpaged()).getContent().size());
     }
 
@@ -469,19 +423,19 @@ class ItemModelCopierTest {
     @DisplayName("copy() with relations does not move the source's own children onto the target")
     void copy_relationCopy_doesNotMutateSourceChildren() {
         ItemEntity source = sampleItem("guarded-item", projectA);
-        ItemFlagEntity flag = new ItemFlagEntity(UUID.randomUUID(), "GLOWING");
-        flag.setItem(source);
-        itemFlagRepository.save(flag);
+        ItemLoreEntity lore = new ItemLoreEntity(UUID.randomUUID(), "guarded line", 0);
+        lore.setItem(source);
+        itemLoreRepository.save(lore);
 
-        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "guarded-copy", null);
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "guarded-copy", null, Set.of(ItemRelation.LORE));
 
-        List<ItemFlagEntity> sourceFlagsAfter = itemFlagRepository.findFlagsById(source.getId(), Pageable.unpaged()).getContent();
-        assertEquals(1, sourceFlagsAfter.size(), "the source's own flag must still be attached to the source");
-        assertEquals(flag.getId(), sourceFlagsAfter.get(0).getId());
-        assertEquals(source.getId(), sourceFlagsAfter.get(0).getItem().getId());
-        List<ItemFlagEntity> targetFlags = itemFlagRepository.findFlagsById(result.getId(), Pageable.unpaged()).getContent();
-        assertEquals(1, targetFlags.size());
-        assertNotEquals(flag.getId(), targetFlags.get(0).getId());
+        List<ItemLoreEntity> sourceLoreAfter = itemLoreRepository.findLoreById(source.getId(), Pageable.unpaged()).getContent();
+        assertEquals(1, sourceLoreAfter.size(), "the source's own lore must still be attached to the source");
+        assertEquals(lore.getId(), sourceLoreAfter.get(0).getId());
+        assertEquals(source.getId(), sourceLoreAfter.get(0).getItem().getId());
+        List<ItemLoreEntity> targetLore = itemLoreRepository.findLoreById(result.getId(), Pageable.unpaged()).getContent();
+        assertEquals(1, targetLore.size());
+        assertNotEquals(lore.getId(), targetLore.get(0).getId());
     }
 
     @Test
