@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.controller.item;
 
+import io.micronaut.context.annotation.Property;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -43,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * returned are not).
  */
 @MicronautTest(environments = "rollback-test")
+@Property(name = "datasources.default.schema-generate", value = "NONE")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("Integration test proving AbstractRelationalModelCopier.copy() rolls back on failure")
 @EnabledIfDockerAvailable
