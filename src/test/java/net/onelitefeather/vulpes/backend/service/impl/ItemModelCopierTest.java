@@ -262,7 +262,7 @@ class ItemModelCopierTest {
         itemFlagRepository = new FakeItemFlagRepository();
         itemEnchantmentRepository = new FakeItemEnchantmentRepository();
         projectRepository = new FakeProjectRepository();
-        copier = new ItemModelCopier(itemRepository, itemLoreRepository, itemFlagRepository, itemEnchantmentRepository, projectRepository);
+        copier = new ItemModelCopier(itemRepository, itemLoreRepository, itemEnchantmentRepository, projectRepository);
 
         projectA = new ProjectEntity(UUID.randomUUID(), "Project A", "project-a", null, null, null, false);
         projectB = new ProjectEntity(UUID.randomUUID(), "Project B", "project-b", null, null, null, false);
@@ -402,7 +402,7 @@ class ItemModelCopierTest {
         flag.setItem(source);
         itemFlagRepository.save(flag);
 
-        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "flags-copy", null, Set.of(ItemRelation.FLAGS));
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "flags-copy", null);
 
         List<ItemFlagEntity> copiedFlags = itemFlagRepository.findFlagsById(result.getId(), Pageable.unpaged()).getContent();
         assertEquals(1, copiedFlags.size());
@@ -473,7 +473,7 @@ class ItemModelCopierTest {
         flag.setItem(source);
         itemFlagRepository.save(flag);
 
-        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "guarded-copy", null, Set.of(ItemRelation.FLAGS));
+        ItemEntity result = copier.copy(projectA.getId(), source.getId(), null, "guarded-copy", null);
 
         List<ItemFlagEntity> sourceFlagsAfter = itemFlagRepository.findFlagsById(source.getId(), Pageable.unpaged()).getContent();
         assertEquals(1, sourceFlagsAfter.size(), "the source's own flag must still be attached to the source");
