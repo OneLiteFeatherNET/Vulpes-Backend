@@ -1,5 +1,7 @@
 package net.onelitefeather.vulpes.backend.seed.fixture;
 
+import net.onelitefeather.vulpes.api.model.advancement.AdvancementEntity;
+import net.onelitefeather.vulpes.api.model.advancement.AdvancementFrameType;
 import net.onelitefeather.vulpes.api.model.dimension.AttributeOperator;
 import net.onelitefeather.vulpes.api.model.dimension.CardinalLight;
 import net.onelitefeather.vulpes.api.model.dimension.EnvironmentAttributeKey;
@@ -32,7 +34,7 @@ public final class EldoriaFixture implements ProjectFixture {
         seedSounds(w, p);
         seedDimensions(w, p);
         seedAttributes(w, p);
-        seedNotifications(w, p);
+        seedAdvancements(w, p);
     }
 
     private static void seedItems(SeedWriter w, ProjectEntity p) {
@@ -177,13 +179,20 @@ public final class EldoriaFixture implements ProjectFixture {
         w.attribute(p, "crit_chance", "Critical Hit Chance", 0.05, 1);
     }
 
-    private static void seedNotifications(SeedWriter w, ProjectEntity p) {
-        w.notification(p, "welcome", "Welcome", "§6Welcome to Eldoria!", "minecraft:compass", "task",
-                "Shown on first join"); // shared
-        w.notification(p, "quest_complete", "Quest Complete", "§aQuest complete!", "minecraft:writable_book",
-                "goal", "Shown after turning in a quest");
-        w.notification(p, "level_up", "Level Up", "§eLevel up!", "minecraft:experience_bottle", "task", null);
-        w.notification(p, "lich_king_slain", "Lich King Slain", "§5The Lich King has fallen", "minecraft:nether_star",
-                "challenge", "Server-wide broadcast after the raid");
+    private static void seedAdvancements(SeedWriter w, ProjectEntity p) {
+        AdvancementEntity welcome = w.advancement(p, "welcome").uiName("Welcome")
+                .title("Welcome to Eldoria!").description("Join the server for the first time")
+                .material("minecraft:compass").background("minecraft:gui/advancements/backgrounds/stone")
+                .comment("Shown on first join").save(); // shared
+        AdvancementEntity questComplete = w.advancement(p, "quest_complete").uiName("Quest Complete")
+                .title("Quest complete!").description("Turn in your first quest")
+                .material("minecraft:writable_book").frameType(AdvancementFrameType.GOAL).parent(welcome)
+                .position(1, 0).comment("Shown after turning in a quest").save();
+        w.advancement(p, "level_up").uiName("Level Up").title("Level up!").description("Reach level 10")
+                .material("minecraft:experience_bottle").parent(welcome).position(1, 1).save();
+        w.advancement(p, "lich_king_slain").uiName("Lich King Slain").title("The Lich King has fallen")
+                .description("Defeat the Lich King").material("minecraft:nether_star")
+                .frameType(AdvancementFrameType.CHALLENGE).parent(questComplete).position(2, 0).hidden()
+                .comment("Server-wide broadcast after the raid").save();
     }
 }

@@ -2,10 +2,10 @@ package net.onelitefeather.vulpes.backend.seed;
 
 import io.micronaut.context.annotation.Requires;
 import jakarta.inject.Singleton;
+import net.onelitefeather.vulpes.api.repository.AdvancementRepository;
 import net.onelitefeather.vulpes.api.repository.AttributeRepository;
 import net.onelitefeather.vulpes.api.repository.FontRepository;
 import net.onelitefeather.vulpes.api.repository.ItemRepository;
-import net.onelitefeather.vulpes.api.repository.NotificationRepository;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.api.repository.SoundFileSourceRepository;
 import net.onelitefeather.vulpes.api.repository.SoundRepository;
@@ -36,6 +36,6 @@ public record SeedRepositories(
         DimensionAttributeRepository dimensionAttributes,
         DimensionTimelineRepository dimensionTimelines,
         AttributeRepository attributes,
-        NotificationRepository notifications
+        AdvancementRepository advancements
 ) {
 }

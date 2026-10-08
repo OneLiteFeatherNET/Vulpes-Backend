@@ -4,7 +4,8 @@ import io.micronaut.json.JsonMapper;
 import net.onelitefeather.vulpes.api.model.AttributeEntity;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
-import net.onelitefeather.vulpes.api.model.NotificationEntity;
+import net.onelitefeather.vulpes.api.model.advancement.AdvancementEntity;
+import net.onelitefeather.vulpes.api.model.advancement.AdvancementFrameType;
 import net.onelitefeather.vulpes.api.model.dimension.AttributeOperator;
 import net.onelitefeather.vulpes.api.model.dimension.CardinalLight;
 import net.onelitefeather.vulpes.api.model.dimension.DimensionAttributeEntity;
@@ -47,7 +48,7 @@ public final class SeedWriter {
     final List<SoundEventEntity> sounds = new ArrayList<>();
     final List<DimensionTypeEntity> dimensions = new ArrayList<>();
     final List<AttributeEntity> attributes = new ArrayList<>();
-    final List<NotificationEntity> notifications = new ArrayList<>();
+    final List<AdvancementEntity> advancements = new ArrayList<>();
 
     public SeedWriter(SeedRepositories repositories, SeedValidator validator, JsonMapper jsonMapper) {
         this.repositories = repositories;
@@ -87,19 +88,8 @@ public final class SeedWriter {
         return attribute;
     }
 
-    public NotificationEntity notification(ProjectEntity project, String key, String uiName, String title,
-                                           String material, String frameType, String comment) {
-        NotificationEntity notification = new NotificationEntity();
-        notification.setProject(project);
-        notification.setKey(key);
-        notification.setUiName(uiName);
-        notification.setTitle(title);
-        notification.setMaterial(material);
-        notification.setFrameType(frameType);
-        notification.setComment(comment);
-        validator.notification(notification);
-        notifications.add(repositories.notifications().save(notification));
-        return notification;
+    public AdvancementBuilder advancement(ProjectEntity project, String key) {
+        return new AdvancementBuilder(project, key);
     }
 
     /**
@@ -489,6 +479,87 @@ public final class SeedWriter {
             dimension.setTimelines(timelines);
             dimensions.add(dimension);
             return dimension;
+        }
+    }
+
+    /**
+     * Builds an advancement. The title and description are given as plain text and written as JSON
+     * text components.
+     */
+    public final class AdvancementBuilder {
+
+        private final AdvancementEntity advancement = new AdvancementEntity();
+
+        private AdvancementBuilder(ProjectEntity project, String key) {
+            advancement.setProject(project);
+            advancement.setKey(key);
+            advancement.setUiName(key);
+            advancement.setFrameType(AdvancementFrameType.TASK);
+        }
+
+        public AdvancementBuilder uiName(String uiName) {
+            advancement.setUiName(uiName);
+            return this;
+        }
+
+        public AdvancementBuilder title(String title) {
+            advancement.setTitle(json(title));
+            return this;
+        }
+
+        public AdvancementBuilder description(String description) {
+            advancement.setDescription(json(description));
+            return this;
+        }
+
+        public AdvancementBuilder material(String material) {
+            advancement.setMaterial(material);
+            return this;
+        }
+
+        public AdvancementBuilder frameType(AdvancementFrameType frameType) {
+            advancement.setFrameType(frameType);
+            return this;
+        }
+
+        public AdvancementBuilder comment(String comment) {
+            advancement.setComment(comment);
+            return this;
+        }
+
+        public AdvancementBuilder parent(AdvancementEntity parent) {
+            advancement.setParent(parent);
+            return this;
+        }
+
+        public AdvancementBuilder background(String background) {
+            advancement.setBackground(background);
+            return this;
+        }
+
+        public AdvancementBuilder position(float x, float y) {
+            advancement.setX(x);
+            advancement.setY(y);
+            return this;
+        }
+
+        public AdvancementBuilder hidden() {
+            advancement.setHidden(true);
+            return this;
+        }
+
+        public AdvancementEntity save() {
+            validator.advancement(advancement);
+            advancements.add(repositories.advancements().save(advancement));
+            return advancement;
+        }
+
+        private String json(String text) {
+            try {
+                return jsonMapper.writeValueAsString(text);
+            } catch (IOException exception) {
+                throw new UncheckedIOException("Could not write the seed text component " + text, exception);
+            }
         }
     }
 }

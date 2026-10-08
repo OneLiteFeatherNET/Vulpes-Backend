@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.seed.data;
 
+import net.onelitefeather.vulpes.api.model.advancement.AdvancementFrameType;
 import net.onelitefeather.vulpes.api.model.dimension.EnvironmentAttributeKey;
 
 import java.util.List;
@@ -90,7 +91,7 @@ public final class MinecraftCatalog {
     /**
      * Advancement frame types (matched case-insensitively by the generator).
      */
-    public static final List<String> FRAME_TYPES = List.of("task", "goal", "challenge");
+    public static final List<AdvancementFrameType> FRAME_TYPES = List.of(AdvancementFrameType.values());
 
     public static final List<String> SOUND_EVENTS = List.of(
             "minecraft:entity.player.levelup", "minecraft:entity.experience_orb.pickup",

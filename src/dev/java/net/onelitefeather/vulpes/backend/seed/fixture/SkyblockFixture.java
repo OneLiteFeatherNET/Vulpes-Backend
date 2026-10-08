@@ -68,7 +68,8 @@ public final class SkyblockFixture implements ProjectFixture {
         w.attribute(p, "bonus_health", "Island Health Bonus", 4, 20); // shared
         w.attribute(p, "minion_speed", "Minion Speed", 1, 5);
 
-        w.notification(p, "welcome", "Island Welcome", "§bYour island awaits!", "minecraft:grass_block", "task",
-                "Shown after creating an island"); // shared
+        w.advancement(p, "welcome").uiName("Island Welcome").title("Your island awaits!")
+                .material("minecraft:grass_block").background("minecraft:gui/advancements/backgrounds/stone")
+                .comment("Shown after creating an island").save(); // shared
     }
 }

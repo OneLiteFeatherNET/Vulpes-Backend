@@ -36,7 +36,7 @@ public class SeedService {
         }
 
         record Seeded(boolean reset, int projects, int items, int fonts, int sounds, int dimensions,
-                      int attributes, int notifications) implements Outcome {
+                      int attributes, int advancements) implements Outcome {
         }
     }
 
@@ -68,6 +68,6 @@ public class SeedService {
 
         return new Outcome.Seeded(reset, writer.projects.size(), writer.items.size(), writer.fonts.size(),
                 writer.sounds.size(), writer.dimensions.size(), writer.attributes.size(),
-                writer.notifications.size());
+                writer.advancements.size());
     }
 }

@@ -10,10 +10,11 @@ import net.onelitefeather.vulpes.api.model.AbstractEntity;
 import net.onelitefeather.vulpes.api.model.AttributeEntity;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
-import net.onelitefeather.vulpes.api.model.NotificationEntity;
+import net.onelitefeather.vulpes.api.model.advancement.AdvancementEntity;
 import net.onelitefeather.vulpes.api.model.dimension.DimensionTypeEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
+import net.onelitefeather.vulpes.backend.domain.advancement.AdvancementModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.dimension.DimensionAttributeDTO;
 import net.onelitefeather.vulpes.backend.domain.dimension.DimensionModelDTO;
@@ -24,7 +25,6 @@ import net.onelitefeather.vulpes.backend.domain.item.ItemComponentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
-import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
@@ -110,10 +110,13 @@ public class SeedValidator {
         fail(problems);
     }
 
-    void notification(NotificationEntity n) {
+    void advancement(AdvancementEntity a) {
         List<String> problems = new ArrayList<>();
-        check(problems, where("notification", n), new NotificationModelDTO(n.getId(), n.getUiName(), n.getKey(),
-                n.getComment(), n.getMaterial(), n.getFrameType(), n.getTitle()));
+        AdvancementEntity parent = a.getParent();
+        check(problems, where("advancement", a), new AdvancementModelDTO(a.getId(), a.getUiName(), a.getKey(),
+                a.getComment(), a.getMaterial(), a.getFrameType(), a.getTitle(), a.getDescription(),
+                a.getBackground(), parent == null ? null : parent.getId(), a.getX(), a.getY(), a.isShowToast(),
+                a.isAnnounceToChat(), a.isHidden()));
         fail(problems);
     }
 

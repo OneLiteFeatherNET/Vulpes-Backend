@@ -1,5 +1,7 @@
 package net.onelitefeather.vulpes.backend.seed.fixture;
 
+import net.onelitefeather.vulpes.api.model.advancement.AdvancementEntity;
+import net.onelitefeather.vulpes.api.model.advancement.AdvancementFrameType;
 import net.onelitefeather.vulpes.api.model.dimension.AttributeOperator;
 import net.onelitefeather.vulpes.api.model.dimension.CardinalLight;
 import net.onelitefeather.vulpes.api.model.dimension.EnvironmentAttributeKey;
@@ -55,7 +57,7 @@ public final class EdgeCaseFixture implements ProjectFixture {
         seedSounds(w, f, p);
         seedDimensions(w, f, p);
         seedAttributes(w, f, p);
-        seedNotifications(w, f, p);
+        seedAdvancements(w, f, p);
     }
 
     private static void seedItems(SeedWriter w, Filler f, ProjectEntity p) {
@@ -251,19 +253,30 @@ public final class EdgeCaseFixture implements ProjectFixture {
         }
     }
 
-    private static void seedNotifications(SeedWriter w, Filler f, ProjectEntity p) {
-        for (String frameType : FRAME_TYPES) {
-            w.notification(p, "frame_" + frameType, "Frame " + frameType, "§e" + frameType + " frame",
-                    "minecraft:oak_sign", frameType, null);
+    private static void seedAdvancements(SeedWriter w, Filler f, ProjectEntity p) {
+        AdvancementEntity root = w.advancement(p, "root").uiName("Root").title("Root")
+                .material("minecraft:oak_sign").background("minecraft:gui/advancements/backgrounds/stone").save();
+        float x = 1;
+        for (AdvancementFrameType frameType : FRAME_TYPES) {
+            String name = frameType.name().toLowerCase(Locale.ROOT);
+            w.advancement(p, "frame_" + name).uiName("Frame " + name).title(name + " frame")
+                    .material("minecraft:oak_sign").frameType(frameType).parent(root).position(x++, 0).save();
         }
-        w.notification(p, "long_texts", longText("Long notification name "), longText("§6§lLong title "),
-                "minecraft:writable_book", "goal", longText("Long comment "));
-        w.notification(p, "unicode", UNICODE, "§b" + UNICODE, "minecraft:amethyst_shard", "challenge", UNICODE);
+        w.advancement(p, "long_texts").uiName(longText("Long advancement name ")).title(longText("Long title "))
+                .description(longText("Long description ")).material("minecraft:writable_book")
+                .frameType(AdvancementFrameType.GOAL).comment(longText("Long comment ")).parent(root).save();
+        w.advancement(p, "unicode").uiName(UNICODE).title(UNICODE).description(UNICODE)
+                .material("minecraft:amethyst_shard").frameType(AdvancementFrameType.CHALLENGE).comment(UNICODE)
+                .parent(root).save();
 
         for (int i = 1; i <= BULK_SIZE; i++) {
-            w.notification(p, bulkKey("notification", i), f.faker().lorem().sentence(2),
-                    "§" + f.pick(COLOR_CODES) + f.faker().lorem().sentence(4), f.pick(MATERIALS),
-                    f.pick(FRAME_TYPES), f.chance(0.5) ? f.faker().lorem().sentence() : null);
+            var advancement = w.advancement(p, bulkKey("advancement", i)).uiName(f.faker().lorem().sentence(2))
+                    .title(f.faker().lorem().sentence(4)).material(f.pick(MATERIALS)).frameType(f.pick(FRAME_TYPES))
+                    .parent(root).position(i % 10, i / 10f);
+            if (f.chance(0.5)) {
+                advancement.comment(f.faker().lorem().sentence());
+            }
+            advancement.save();
         }
     }
 
