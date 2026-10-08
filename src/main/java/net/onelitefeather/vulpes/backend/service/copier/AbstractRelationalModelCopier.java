@@ -15,7 +15,7 @@ import java.util.function.BiPredicate;
  * relations, within the same project or into another one.
  *
  * <p>Extends {@link AbstractModelCopier} rather than modifying it: {@code Attribute}/
- * {@code Notification} have nothing to copy beyond their own fields and perform exactly one
+ * {@code Advancement} have nothing to copy beyond their own fields and perform exactly one
  * write, which needs no transaction boundary. A model with relations performs a root write plus
  * one write per relation, and those must all succeed or all fail together.
  *

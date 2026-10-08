@@ -30,7 +30,7 @@ public class SeedWiper {
         repositories.sounds().deleteAll();
         repositories.dimensions().deleteAll();
         repositories.attributes().deleteAll();
-        repositories.notifications().deleteAll();
+        repositories.advancements().deleteAll();
 
         repositories.projects().deleteAll();
     }

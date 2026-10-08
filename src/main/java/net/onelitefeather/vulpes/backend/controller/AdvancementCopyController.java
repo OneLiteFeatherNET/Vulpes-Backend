@@ -14,45 +14,45 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import net.onelitefeather.vulpes.api.model.NotificationEntity;
+import net.onelitefeather.vulpes.api.model.advancement.AdvancementEntity;
 import net.onelitefeather.vulpes.backend.copier.EntityCopier;
 import net.onelitefeather.vulpes.backend.domain.copy.CopyDTO;
 import net.onelitefeather.vulpes.backend.domain.copy.CopyRequest;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
-import net.onelitefeather.vulpes.backend.domain.notification.NotificationModelResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.advancement.AdvancementModelResponseDTO;
 
 import java.util.UUID;
 
 /**
- * REST controller for copying notification resources, within the same project or into another one.
+ * REST controller for copying advancement resources, within the same project or into another one.
  */
-@Controller("/project/{projectId}/notification")
-public class NotificationCopyController {
+@Controller("/project/{projectId}/advancement")
+public class AdvancementCopyController {
 
-    private final EntityCopier<NotificationEntity, Void> notificationCopier;
+    private final EntityCopier<AdvancementEntity, Void> advancementCopier;
 
     @Inject
-    public NotificationCopyController(@Named("notification") EntityCopier<NotificationEntity, Void> notificationCopier) {
-        this.notificationCopier = notificationCopier;
+    public AdvancementCopyController(@Named("advancement") EntityCopier<AdvancementEntity, Void> advancementCopier) {
+        this.advancementCopier = advancementCopier;
     }
 
     @Operation(
-            summary = "Copy a notification",
-            operationId = "copyNotification",
-            description = "Copies a notification owned by the given project into the same project or another one, under a new or the same key.",
-            tags = {"Notification"}
+            summary = "Copy an advancement",
+            operationId = "copyAdvancement",
+            description = "Copies an advancement owned by the given project into the same project or another one, under a new or the same key.",
+            tags = {"Advancement"}
     )
     @ApiResponse(
             responseCode = "200",
-            description = "The notification was successfully copied.",
+            description = "The advancement was successfully copied.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = NotificationModelResponseDTO.NotificationModelDTO.class)
+                    schema = @Schema(implementation = AdvancementModelResponseDTO.AdvancementModelDTO.class)
             )
     )
     @ApiResponse(
             responseCode = "404",
-            description = "The notification or the target project was not found.",
+            description = "The advancement or the target project was not found.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_PROBLEM,
                     schema = @Schema(implementation = ProblemDetail.class)
@@ -60,7 +60,7 @@ public class NotificationCopyController {
     )
     @ApiResponse(
             responseCode = "409",
-            description = "A notification with the resolved key already exists in the target project.",
+            description = "An advancement with the resolved key already exists in the target project.",
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON_PROBLEM,
                     schema = @Schema(implementation = ProblemDetail.class)
@@ -68,18 +68,18 @@ public class NotificationCopyController {
     )
     @Post("/{id}/copy")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<NotificationModelResponseDTO.NotificationModelDTO> copy(
+    public HttpResponse<AdvancementModelResponseDTO.AdvancementModelDTO> copy(
             @PathVariable UUID projectId,
             @PathVariable UUID id,
             @Nullable @Body CopyDTO copyDTO
     ) {
-        var copied = notificationCopier.copy(
+        var copied = advancementCopier.copy(
                 projectId,
                 id,
                 CopyRequest.targetProjectId(copyDTO),
                 CopyRequest.targetKey(copyDTO),
                 CopyRequest.targetName(copyDTO)
         );
-        return HttpResponse.ok(NotificationModelResponseDTO.NotificationModelDTO.createDTO(copied));
+        return HttpResponse.ok(AdvancementModelResponseDTO.AdvancementModelDTO.createDTO(copied));
     }
 }

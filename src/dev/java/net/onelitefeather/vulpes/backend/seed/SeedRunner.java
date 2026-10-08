@@ -50,9 +50,9 @@ public class SeedRunner {
                     skipped.existingProjects());
             case SeedService.Outcome.Seeded seeded -> LOGGER.info(
                     "Seeded {} projects, {} items, {} fonts, {} sounds, {} dimensions, {} attributes, "
-                            + "{} notifications{} (random seed {})",
+                            + "{} advancements{} (random seed {})",
                     seeded.projects(), seeded.items(), seeded.fonts(), seeded.sounds(), seeded.dimensions(),
-                    seeded.attributes(), seeded.notifications(), seeded.reset() ? " after reset" : "", randomSeed);
+                    seeded.attributes(), seeded.advancements(), seeded.reset() ? " after reset" : "", randomSeed);
         }
     }
 }
