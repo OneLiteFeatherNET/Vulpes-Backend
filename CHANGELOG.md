@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.1.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.0.2...v3.1.0) (2026-10-08)
+
+
+### Features
+
+* **advancement:** replace notification with advancement ([#216](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/216)) ([05b4eb4](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/05b4eb481fb85715d08d2109958577b3447cfcf6))
+* **dev:** add data seeder for manual UI testing ([#201](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/201)) ([0775350](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/077535090b14a1536d66974ebd9b8e44759a578a))
+* **entity:** expose the comment field ([#206](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/206)) ([bf501ed](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/bf501edf69db178ffae9aabdee4d5b41e867c4d2))
+* **item:** add component support ([#210](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/210)) ([d86ba48](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/d86ba48e2aa0a3199d7d85a898188731c765e8b6))
+* **item:** add endpoints for the data components of an item ([d86ba48](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/d86ba48e2aa0a3199d7d85a898188731c765e8b6))
+* **item:** switch to data components ([#212](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/212)) ([2b15c9a](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/2b15c9ad0f3f020e37315da4d951212b0e670f79))
+* **model:** add ability to copy models ([#199](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/199)) ([14356a4](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/14356a460fd7e689beaa9b3b9a2fda062a63a7c6))
+
+
+### Bug Fixes
+
+* **deps:** update dependency net.onelitefeather:vulpes-model to v2.4.0 ([#205](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/205)) ([845cb9a](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/845cb9a1f7d1d8db7fedaa91ef70618e887d8e4b))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v2.5.0 ([#209](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/209)) ([d2132d7](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/d2132d7fbacf4db5b12f9e7109a68231a49d9a5e))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v3 ([#211](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/211)) ([a2b0594](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/a2b05943ad3042e1debfa93cd2a550bd7988289f))
+* **entity:** return the stored timestamps after create and update ([#208](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/208)) ([899c2ba](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/899c2ba8ad996781186f6cac7fe3864edd839a60))
+
 ## [3.0.2](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.0.1...v3.0.2) (2026-09-21)
 
 
