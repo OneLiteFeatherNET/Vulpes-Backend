@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO;
@@ -72,7 +73,7 @@ public class FontController {
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<FontModelResponseDTO.FontModelDTO> add(@PathVariable UUID projectId, @Body FontModelDTO item) {
+    public HttpResponse<FontModelResponseDTO.FontModelDTO> add(@PathVariable UUID projectId, @Valid @Body FontModelDTO item) {
         return HttpResponse.ok(fontService.create(projectId, item));
     }
 
@@ -130,7 +131,8 @@ public class FontController {
     )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<FontModelResponseDTO.FontModelDTO> update(@PathVariable UUID projectId, @Body FontModelDTO item) {
+    @Validated(groups = ValidationGroup.Update.class)
+    public HttpResponse<FontModelResponseDTO.FontModelDTO> update(@PathVariable UUID projectId, @Valid @Body FontModelDTO item) {
         return HttpResponse.ok(fontService.update(projectId, item));
     }
 

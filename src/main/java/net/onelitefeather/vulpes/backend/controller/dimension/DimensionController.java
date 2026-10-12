@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.dimension.DimensionModelDTO;
 import net.onelitefeather.vulpes.backend.domain.dimension.DimensionModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
@@ -77,7 +78,7 @@ public class DimensionController {
     @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<DimensionModelResponseDTO.DimensionModelDTO> add(
             @PathVariable UUID projectId,
-            @Body DimensionModelDTO dimensionModel
+            @Valid @Body DimensionModelDTO dimensionModel
     ) {
         return HttpResponse.ok(dimensionService.create(projectId, dimensionModel));
     }
@@ -174,7 +175,7 @@ public class DimensionController {
     @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<DimensionModelResponseDTO.DimensionModelDTO> update(
             @PathVariable UUID projectId,
-            @Body DimensionModelDTO dimensionModel
+            @Valid @Body DimensionModelDTO dimensionModel
     ) {
         return HttpResponse.ok(dimensionService.update(projectId, dimensionModel));
     }

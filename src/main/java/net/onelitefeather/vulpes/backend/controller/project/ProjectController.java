@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelResponseDTO;
@@ -92,7 +93,7 @@ public class ProjectController {
     @Post
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> add(@Body ProjectModelDTO model) {
+    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> add(@Valid @Body ProjectModelDTO model) {
         ProjectModelResponseDTO.ProjectModelDTO result = projectService.create(model);
         return HttpResponse.ok(result);
     }
@@ -208,7 +209,7 @@ public class ProjectController {
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> update(@Body ProjectModelDTO model) {
+    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> update(@Valid @Body ProjectModelDTO model) {
         return HttpResponse.ok(projectService.update(model));
     }
 
