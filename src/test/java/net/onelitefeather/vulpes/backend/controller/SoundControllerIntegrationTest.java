@@ -95,7 +95,7 @@ class SoundControllerIntegrationTest {
     }
 
     @Test
-    void testPostSound_returnsOk() {
+    void testPostSoundReturnsOk() {
         SoundEventDTO dto = sampleEventDTOWithoutId();
 
         var response =
@@ -117,7 +117,7 @@ class SoundControllerIntegrationTest {
     }
 
     @Test
-    void testGetSoundById_found() {
+    void testGetSoundByIdFound() {
         // create first
         SoundResponseDTO.SoundModelDTO created = given().contentType(ContentType.JSON)
                 .body(sampleEventDTOWithoutId())
@@ -135,7 +135,7 @@ class SoundControllerIntegrationTest {
     }
 
     @Test
-    void testGetSoundById_notFound() {
+    void testGetSoundByIdNotFound() {
         given()
         .when()
                 .get(soundPath("/" + UUID.randomUUID()))
@@ -144,7 +144,7 @@ class SoundControllerIntegrationTest {
     }
 
     @Test
-    void testDeleteSoundById_found() {
+    void testDeleteSoundByIdFound() {
         SoundResponseDTO.SoundModelDTO created = given().contentType(ContentType.JSON)
                 .body(sampleEventDTOWithoutId())
                 .when().post(soundPath("")).then().statusCode(200)
@@ -158,7 +158,7 @@ class SoundControllerIntegrationTest {
     }
 
     @Test
-    void testDeleteSoundById_notFound() {
+    void testDeleteSoundByIdNotFound() {
         given()
         .when()
                 .delete(soundPath("/delete/" + UUID.randomUUID()))
@@ -167,7 +167,7 @@ class SoundControllerIntegrationTest {
     }
 
     @Test
-    void testDeleteAll_returnsOk() {
+    void testDeleteAllReturnsOk() {
         given()
         .when()
                 .delete(soundPath("/delete/"))
@@ -176,7 +176,7 @@ class SoundControllerIntegrationTest {
     }
 
     @Test
-    void testGetAll_returnsOk() {
+    void testGetAllReturnsOk() {
         given().contentType(ContentType.JSON).body(sampleEventDTOWithoutId()).when().post(soundPath("")).then().statusCode(200);
 
         given()
@@ -197,7 +197,7 @@ class SoundControllerIntegrationTest {
     }
 
     @Test
-    void testPostUpdate_notFound_returns404() {
+    void testPostUpdateNotFoundReturns404() {
         SoundEventDTO dto = sampleUpdateDTO(UUID.randomUUID());
         given()
                 .contentType(ContentType.JSON)
@@ -210,7 +210,7 @@ class SoundControllerIntegrationTest {
 
     @Disabled("Source E2E disabled: mapping/cascade behavior depends on external API model; covered by unit tests")
     @Test
-    void testCreateSource_and_GetSources_returnsOk() {
+    void testCreateSourceAndGetSourcesReturnsOk() {
         // create parent first
         SoundResponseDTO.SoundModelDTO createdSound = given().contentType(ContentType.JSON)
                 .body(sampleEventDTOWithoutId())
@@ -243,7 +243,7 @@ class SoundControllerIntegrationTest {
 
     @Disabled("Source E2E disabled: mapping/cascade behavior depends on external API model; covered by unit tests")
     @Test
-    void testUpdateSource_returnsOk() {
+    void testUpdateSourceReturnsOk() {
         SoundResponseDTO.SoundModelDTO createdSound = given().contentType(ContentType.JSON)
                 .body(sampleEventDTOWithoutId())
                 .when().post(soundPath("")).then().statusCode(200)
@@ -268,7 +268,7 @@ class SoundControllerIntegrationTest {
 
     @Disabled("DELETE with body is not widely supported in some client stacks; covered by unit tests")
     @Test
-    void testDeleteSource_returnsOk() {
+    void testDeleteSourceReturnsOk() {
         // This remains disabled; DELETE with body can be flaky across stacks
     }
 }
