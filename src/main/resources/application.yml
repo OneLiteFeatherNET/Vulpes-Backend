@@ -8,11 +8,12 @@ micronaut:
       configurations:
         all:
           allowedOriginsRegex:
-            - '^https?://localhost(:\d+)?$'
+            - '^https?://(localhost|127\.0\.0\.1)(:\d+)?$'
           allowedMethods:
             - GET
             - POST
             - PUT
+            - PATCH
             - DELETE
             - OPTIONS
   logger:
