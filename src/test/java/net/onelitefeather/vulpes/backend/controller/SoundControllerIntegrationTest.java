@@ -88,12 +88,10 @@ class SoundControllerIntegrationTest {
     }
 
     /**
-     * An update DTO's {@code key}/{@code keyName}/{@code subTitle} are {@code @Null} for the Update
-     * validation group (only {@code id} and {@code uiName} are settable on update) — unlike
-     * {@link #sampleEventDTO}, which builds a Create-shaped DTO that would fail validation here.
+     * An update DTO needs an {@code id} and, like a create DTO, a non-blank {@code key}.
      */
     private static SoundEventDTO sampleUpdateDTO(UUID id) {
-        return new SoundEventDTO(id, FAKER.rockBand().name(), null, null, null, null);
+        return new SoundEventDTO(id, FAKER.rockBand().name(), FAKER.internet().slug(), null, null, null);
     }
 
     @Test
