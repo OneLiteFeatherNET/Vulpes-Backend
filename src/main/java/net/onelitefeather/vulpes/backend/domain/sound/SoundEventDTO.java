@@ -55,10 +55,8 @@ public record SoundEventDTO(
         @NotBlank(groups = {Create.class, Update.class})
         String key,
         @Schema(description = "They key of the sound", requiredMode = RequiredMode.REQUIRED)
-        @Null(groups = {Create.class, Update.class})
         String keyName,
         @Schema(description = "The subtitle which is display when the sound is played", requiredMode = RequiredMode.REQUIRED)
-        @Null(groups = {Create.class, Update.class})
         String subTitle,
         @Schema(description = "Internal description of the sound event", requiredMode = RequiredMode.NOT_REQUIRED)
         @Nullable
