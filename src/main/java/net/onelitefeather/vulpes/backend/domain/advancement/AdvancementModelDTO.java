@@ -36,7 +36,7 @@ public record AdvancementModelDTO(
         @NotBlank(groups = {Create.class, Update.class})
         String uiName,
         @Schema(description = "Key of the advancement", requiredMode = Schema.RequiredMode.REQUIRED)
-        @Null(groups = {Create.class, Update.class})
+        @NotBlank(groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Comment of the advancement", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable

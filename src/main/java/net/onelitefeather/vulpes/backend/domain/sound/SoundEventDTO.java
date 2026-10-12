@@ -52,7 +52,7 @@ public record SoundEventDTO(
         @NotBlank(groups = {Create.class, Update.class})
         String uiName,
         @Schema(description = "The key which is used for the variable generation", requiredMode = RequiredMode.REQUIRED)
-        @Null(groups = {Create.class, Update.class})
+        @NotBlank(groups = {Create.class, Update.class})
         String key,
         @Schema(description = "They key of the sound", requiredMode = RequiredMode.REQUIRED)
         @Null(groups = {Create.class, Update.class})

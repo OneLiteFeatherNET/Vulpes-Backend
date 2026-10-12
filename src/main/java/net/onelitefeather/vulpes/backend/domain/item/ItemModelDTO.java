@@ -4,6 +4,7 @@ import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
@@ -33,7 +34,7 @@ public record ItemModelDTO(
         @NotNull(groups = {Create.class, Update.class})
         String uiName,
         @Schema(description = "Key for the entity", requiredMode = Schema.RequiredMode.REQUIRED)
-        @Null(groups = {Create.class, Update.class})
+        @NotBlank(groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Internal description of the item", requiredMode = Schema.RequiredMode.REQUIRED)
         @Nullable
