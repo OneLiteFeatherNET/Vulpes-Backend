@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.1.1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.1.0...v3.1.1) (2026-10-14)
+
+
+### Bug Fixes
+
+* **cors:** allow patch and 127.0.0.1 for the local ui ([#218](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/218)) ([ac1ee0e](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/ac1ee0ef384fd2b4b01ae1bb0ccf6de5b0f446ad))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v3.1.1 ([#222](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/222)) ([d26be43](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/d26be436bae5b62006d7a8f60cb61d9e220727e4))
+* **deps:** update dependency org.hibernate.validator:hibernate-validator to v9.1.5.final ([#221](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/221)) ([986dae1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/986dae113049cceafa18588b24d892946d1d689c))
+
 ## [3.1.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.0.2...v3.1.0) (2026-10-08)
 
 
