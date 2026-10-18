@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.1.3](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.1.2...v3.1.3) (2026-10-18)
+
+
+### Bug Fixes
+
+* **copy:** return the timestamps of a copy ([#228](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/228)) ([a27ea7c](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/a27ea7c72bbefdef2d97b776962576956f3f1ccd))
+* **seed:** validate seed data with the create group like the API ([#231](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/231)) ([6d5a2d6](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/6d5a2d61abc69120f8912e9fb4535a216a0eb872))
+* **validation:** run the attribute maximum and font provider constraints ([#227](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/227)) ([4edb019](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/4edb0197560fcb2c621d9e65a81cab0571401f7d))
+
 ## [3.1.2](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.1.1...v3.1.2) (2026-10-18)
 
 
