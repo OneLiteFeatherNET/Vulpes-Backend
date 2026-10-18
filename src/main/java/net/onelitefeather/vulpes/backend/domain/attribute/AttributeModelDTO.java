@@ -18,6 +18,7 @@ import static net.onelitefeather.vulpes.backend.validation.ValidationGroup.*;
 @Schema
 @Serdeable
 @Introspected
+@ValidValueRange(groups = {Create.class, Update.class})
 public record AttributeModelDTO(
         @Schema(description = "ID of the attribute", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Null(groups = Create.class)
@@ -31,9 +32,16 @@ public record AttributeModelDTO(
         String key,
         @Schema(description = "Default value of the attribute", requiredMode = Schema.RequiredMode.REQUIRED)
         double defaultValue,
+        @Schema(description = "Minimum value of the attribute", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        double minimumValue,
         @Schema(description = "Maximum value of the attribute", requiredMode = Schema.RequiredMode.REQUIRED)
         @Positive(groups = {Create.class, Update.class})
         double maximumValue,
+        @Schema(description = "Whether the value of the attribute is sent to the client", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        boolean synced,
+        @Schema(description = "Translation key for the name of the attribute", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Nullable
+        String translationKey,
         @Schema(description = "Internal description of the attribute", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable
         String comment
@@ -45,6 +53,7 @@ public record AttributeModelDTO(
      * @return the created entity
      */
     public @NotNull AttributeEntity toAttributeModel(ProjectEntity project) {
-        return new AttributeEntity(id, uiName, key, defaultValue, maximumValue, comment, project);
+        return new AttributeEntity(id, uiName, key, defaultValue, minimumValue, maximumValue, synced, translationKey,
+                comment, project);
     }
 }
