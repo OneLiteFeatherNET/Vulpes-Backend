@@ -3,6 +3,8 @@ package net.onelitefeather.vulpes.backend.domain.sound;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
@@ -37,7 +39,8 @@ public record SoundFileSourceDTO(
         String name,
         @PositiveOrZero
         float volume,
-        @PositiveOrZero
+        @DecimalMin(value = "0.5", groups = {Create.class, Update.class})
+        @DecimalMax(value = "2.0", groups = {Create.class, Update.class})
         float pitch,
         @Positive
         int weight,

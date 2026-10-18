@@ -2,6 +2,8 @@ package net.onelitefeather.vulpes.backend.domain.sound.validation;
 
 import net.onelitefeather.vulpes.backend.domain.ValidationTestBase;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Create;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Update;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -56,7 +58,7 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 "typeA"
         );
 
-        assertViolation(dto, "pitch");
+        assertViolation(dto, "pitch", Update.class);
     }
 
     @Test
@@ -107,5 +109,39 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 "" // invalid
         );
         assertNoViolation(dto, "type");
+    }
+
+    @Test
+    void testPitchBelowMinimumValidationFail() {
+        SoundFileSourceDTO dto = pitchSource(0.4f);
+
+        assertViolation(dto, "pitch", Create.class);
+    }
+
+    @Test
+    void testPitchAboveMaximumValidationFail() {
+        SoundFileSourceDTO dto = pitchSource(2.1f);
+
+        assertViolation(dto, "pitch", Update.class);
+    }
+
+    @Test
+    void testPitchBoundsValidationPass() {
+        assertNoViolation(pitchSource(0.5f), "pitch", Update.class);
+        assertNoViolation(pitchSource(2.0f), "pitch", Update.class);
+    }
+
+    private static SoundFileSourceDTO pitchSource(float pitch) {
+        return new SoundFileSourceDTO(
+                UUID.randomUUID(),
+                "soundName",
+                1.0f,
+                pitch,
+                1,
+                false,
+                10,
+                true,
+                "typeA"
+        );
     }
 }
