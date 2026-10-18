@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.1.2](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.1.1...v3.1.2) (2026-10-18)
+
+
+### Bug Fixes
+
+* **deps:** update dependency net.onelitefeather:vulpes-model to v3.1.2 ([#223](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/223)) ([6698a28](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/6698a28c5b36cec79eef527abd7b69fa54408ad5))
+* require a key when creating or updating models ([#220](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/220)) ([d940efc](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/d940efc00ecfa2526c3dc255db05e18073db6aa5))
+* **validation:** align font height and sound pitch with the model ([#225](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/225)) ([e3edcc3](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/e3edcc3e472ba90da7d69570ada11503af5124a6))
+* **validation:** validate the request body of the sub resource endpoints ([#226](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/226)) ([ae2b766](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/ae2b76622c0408e2e37ff5cb7e28f6d06f22fb8b))
+
 ## [3.1.1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.1.0...v3.1.1) (2026-10-14)
 
 
