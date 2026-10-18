@@ -41,7 +41,7 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 "typeA"
         );
 
-        assertViolation(dto, "volume");
+        assertViolation(dto, "volume", Update.class);
     }
 
     @Test
@@ -75,7 +75,7 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 "typeA"
         );
 
-        assertViolation(dto, "weight");
+        assertViolation(dto, "weight", Update.class);
     }
 
     @Test
@@ -92,7 +92,7 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 "typeA"
         );
 
-        assertViolation(dto, "attenuationDistance");
+        assertViolation(dto, "attenuationDistance", Update.class);
     }
 
     @Test

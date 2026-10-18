@@ -279,6 +279,18 @@ class SoundControllerIntegrationTest {
                 .statusCode(400);
     }
 
+    @Test
+    void testCreateSource_withZeroWeight_returnsBadRequest() {
+        SoundFileSourceDTO requestDTO = new SoundFileSourceDTO(null, "file4.ogg", 1.0f, 1.0f, 0, false, 16, false, "file");
+        given()
+                .contentType(ContentType.JSON)
+                .body(requestDTO)
+        .when()
+                .post("/sound/" + UUID.randomUUID() + "/sources")
+        .then()
+                .statusCode(400);
+    }
+
     @Disabled("DELETE with body is not widely supported in some client stacks; covered by unit tests")
     @Test
     void testDeleteSourceReturnsOk() {
