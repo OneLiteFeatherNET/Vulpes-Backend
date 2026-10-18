@@ -6,6 +6,7 @@ import io.micronaut.json.tree.JsonNode;
 import io.micronaut.validation.validator.Validator;
 import jakarta.inject.Singleton;
 import jakarta.validation.ConstraintViolation;
+import jakarta.validation.groups.Default;
 import net.onelitefeather.vulpes.api.model.AbstractEntity;
 import net.onelitefeather.vulpes.api.model.AttributeEntity;
 import net.onelitefeather.vulpes.api.model.FontEntity;
@@ -29,6 +30,7 @@ import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
 import net.onelitefeather.vulpes.backend.service.item.ItemComponentRules;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Create;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -161,8 +163,12 @@ public class SeedValidator {
         }
     }
 
+    /**
+     * Validates a seed entity the way the API validates a create request. Seeds are checked
+     * before they are saved, so they have no id yet, just like a create request.
+     */
     private <T> void check(List<String> problems, String where, T dto) {
-        for (ConstraintViolation<T> violation : validator.validate(dto)) {
+        for (ConstraintViolation<T> violation : validator.validate(dto, Default.class, Create.class)) {
             problems.add(where + ": " + violation.getPropertyPath() + " " + violation.getMessage()
                     + " (was " + violation.getInvalidValue() + ")");
         }
