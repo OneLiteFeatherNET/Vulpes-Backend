@@ -32,6 +32,11 @@ class AdvancementCopyControllerTest {
             }
             return response;
         }
+
+        @Override
+        public AdvancementEntity reload(AdvancementEntity copy) {
+            return copy;
+        }
     }
 
     @Test

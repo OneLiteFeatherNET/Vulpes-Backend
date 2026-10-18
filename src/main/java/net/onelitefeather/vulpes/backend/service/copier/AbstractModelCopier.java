@@ -98,6 +98,16 @@ public abstract class AbstractModelCopier<E extends AbstractEntity> {
      * @param targetName    the display name requested for the copy, or {@code null}/blank to reuse the source's name
      * @return the new, unsaved entity
      */
+    /**
+     * Reads a saved copy back from the database, see {@code EntityCopier#reload}.
+     *
+     * @param copy the saved copy
+     * @return the stored copy, or {@code copy} if it can't be read back
+     */
+    public E reload(E copy) {
+        return repository.findById(copy.getId()).orElse(copy);
+    }
+
     protected abstract E copyRoot(E source, ProjectEntity targetProject, String targetKey, @Nullable String targetName);
 
     /**

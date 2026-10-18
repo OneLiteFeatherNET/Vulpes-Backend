@@ -84,14 +84,14 @@ public class SoundCopyController {
             @Nullable @Body RelationalCopyDTO<SoundRelation> copyDTO
     ) {
         Set<SoundRelation> relations = copyDTO != null ? copyDTO.relationsOrEmpty() : Set.of();
-        var copied = soundCopier.copy(
+        var copied = soundCopier.reload(soundCopier.copy(
                 projectId,
                 id,
                 CopyRequest.targetProjectId(copyDTO),
                 CopyRequest.targetKey(copyDTO),
                 CopyRequest.targetName(copyDTO),
                 relations
-        );
+        ));
         return HttpResponse.ok(SoundResponseDTO.SoundModelDTO.createDTO(copied));
     }
 }

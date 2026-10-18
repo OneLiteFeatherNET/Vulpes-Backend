@@ -31,6 +31,11 @@ class AttributeCopyControllerTest {
             }
             return response;
         }
+
+        @Override
+        public AttributeEntity reload(AttributeEntity copy) {
+            return copy;
+        }
     }
 
     @Test

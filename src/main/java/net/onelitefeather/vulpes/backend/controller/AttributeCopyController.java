@@ -73,13 +73,13 @@ public class AttributeCopyController {
             @PathVariable UUID id,
             @Nullable @Body CopyDTO copyDTO
     ) {
-        var copied = attributeCopier.copy(
+        var copied = attributeCopier.reload(attributeCopier.copy(
                 projectId,
                 id,
                 CopyRequest.targetProjectId(copyDTO),
                 CopyRequest.targetKey(copyDTO),
                 CopyRequest.targetName(copyDTO)
-        );
+        ));
         return HttpResponse.ok(AttributeModelResponseDTO.AttributeModelDTO.create(copied));
     }
 }

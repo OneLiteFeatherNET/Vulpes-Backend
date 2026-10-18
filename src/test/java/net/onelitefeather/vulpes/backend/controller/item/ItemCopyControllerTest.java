@@ -33,6 +33,11 @@ class ItemCopyControllerTest {
             }
             return response;
         }
+
+        @Override
+        public ItemEntity reload(ItemEntity copy) {
+            return copy;
+        }
     }
 
     private static ItemEntity sampleEntity(UUID id, ProjectEntity project) {
