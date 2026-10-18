@@ -35,6 +35,11 @@ class DimensionCopyControllerTest {
             }
             return response;
         }
+
+        @Override
+        public DimensionTypeEntity reload(DimensionTypeEntity copy) {
+            return copy;
+        }
     }
 
     private static DimensionTypeEntity sampleEntity(UUID id, String key, ProjectEntity project) {

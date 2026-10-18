@@ -76,14 +76,14 @@ public class FontCopyController {
             @Nullable @Body RelationalCopyDTO<FontRelation> copyDTO
     ) {
         Set<FontRelation> relations = copyDTO != null ? copyDTO.relationsOrEmpty() : Set.of();
-        var copied = fontCopier.copy(
+        var copied = fontCopier.reload(fontCopier.copy(
                 projectId,
                 id,
                 CopyRequest.targetProjectId(copyDTO),
                 CopyRequest.targetKey(copyDTO),
                 CopyRequest.targetName(copyDTO),
                 relations
-        );
+        ));
         return HttpResponse.ok(FontModelResponseDTO.FontModelDTO.createDTO(copied));
     }
 }

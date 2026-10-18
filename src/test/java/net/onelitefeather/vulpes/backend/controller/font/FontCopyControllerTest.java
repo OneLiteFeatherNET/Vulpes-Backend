@@ -33,6 +33,11 @@ class FontCopyControllerTest {
             }
             return response;
         }
+
+        @Override
+        public FontEntity reload(FontEntity copy) {
+            return copy;
+        }
     }
 
     private static FontEntity sampleEntity(UUID id, ProjectEntity project) {

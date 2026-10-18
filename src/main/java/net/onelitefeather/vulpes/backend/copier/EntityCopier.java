@@ -50,4 +50,15 @@ public interface EntityCopier<T extends VulpesModel, E> {
     default T copy(UUID sourceProjectId, UUID sourceId, @Nullable UUID targetProjectId, @Nullable String targetKey, @Nullable String targetName) {
         return this.copy(sourceProjectId, sourceId, targetProjectId, targetKey, targetName, Set.of());
     }
+
+    /**
+     * Reads a copy back from the database. Micronaut Data fills in {@code @DateCreated} and
+     * {@code @DateUpdated} only in the state Hibernate writes, not on the instance {@link #copy}
+     * returns, so a response built from that instance would miss both dates. Call it after
+     * {@link #copy} returned, outside its transaction, or the read hits the same instance again.
+     *
+     * @param copy the entity {@link #copy} returned
+     * @return the stored copy, or {@code copy} if it can't be read back
+     */
+    T reload(T copy);
 }

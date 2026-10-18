@@ -33,6 +33,11 @@ class SoundCopyControllerTest {
             }
             return response;
         }
+
+        @Override
+        public SoundEventEntity reload(SoundEventEntity copy) {
+            return copy;
+        }
     }
 
     private static net.onelitefeather.vulpes.api.model.project.ProjectEntity sampleProject(UUID id) {

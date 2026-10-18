@@ -73,13 +73,13 @@ public class AdvancementCopyController {
             @PathVariable UUID id,
             @Nullable @Body CopyDTO copyDTO
     ) {
-        var copied = advancementCopier.copy(
+        var copied = advancementCopier.reload(advancementCopier.copy(
                 projectId,
                 id,
                 CopyRequest.targetProjectId(copyDTO),
                 CopyRequest.targetKey(copyDTO),
                 CopyRequest.targetName(copyDTO)
-        );
+        ));
         return HttpResponse.ok(AdvancementModelResponseDTO.AdvancementModelDTO.createDTO(copied));
     }
 }

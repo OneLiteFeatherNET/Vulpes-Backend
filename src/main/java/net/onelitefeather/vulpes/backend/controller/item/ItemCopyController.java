@@ -76,14 +76,14 @@ public class ItemCopyController {
             @Nullable @Body RelationalCopyDTO<ItemRelation> copyDTO
     ) {
         Set<ItemRelation> relations = copyDTO != null ? copyDTO.relationsOrEmpty() : Set.of();
-        var copied = itemCopier.copy(
+        var copied = itemCopier.reload(itemCopier.copy(
                 projectId,
                 itemId,
                 CopyRequest.targetProjectId(copyDTO),
                 CopyRequest.targetKey(copyDTO),
                 CopyRequest.targetName(copyDTO),
                 relations
-        );
+        ));
         return HttpResponse.ok(ItemModelResponseDTO.ItemModelDTO.createDTO(copied));
     }
 }
