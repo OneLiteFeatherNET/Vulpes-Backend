@@ -129,8 +129,8 @@ public final class EdgeCaseFixture implements ProjectFixture {
     private static void seedFonts(SeedWriter w, Filler f, ProjectEntity p) {
         w.font(p, "no_chars").uiName("No Chars").texture("edge:font/empty.png").save();
         w.font(p, "many_chars")
-                .uiName("Many Chars").texture("edge:font/grid.png").metrics(0, 0)
-                .comment("40 rows for reordering, ascent and height 0")
+                .uiName("Many Chars").texture("edge:font/grid.png").metrics(0, 1)
+                .comment("40 rows for reordering, ascent 0 and height 1")
                 .chars(privateUseRows(40, 16, 0xE400))
                 .save();
         w.font(p, "long_line")
@@ -152,7 +152,7 @@ public final class EdgeCaseFixture implements ProjectFixture {
         w.sound(p, "no_sources").uiName("No Sources").keyName("edge:silence").save();
         w.sound(p, "source_bounds")
                 .uiName("Source Bounds").keyName("edge:bounds").subTitle(longText("Subtitle "))
-                .source("edge:bounds/min", 0.0f, 0.0f, 1, false, 1, false, "file")
+                .source("edge:bounds/min", 0.0f, 0.5f, 1, false, 1, false, "file")
                 .source("edge:bounds/max", 1.0f, 2.0f, Integer.MAX_VALUE, true, Integer.MAX_VALUE, true, "file")
                 .source("minecraft:ui.button.click", 0.5f, 1.0f, 1, false, 16, false, "event")
                 .save();
