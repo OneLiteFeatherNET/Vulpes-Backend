@@ -5,6 +5,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
+import net.onelitefeather.vulpes.backend.domain.font.FontStringDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreReorderDTO;
@@ -70,5 +71,16 @@ class RequestBodyValidationIntegrationTest {
     void testReorderLore_withNegativeIndex_returnsBadRequest() {
         ItemLoreReorderDTO reorder = new ItemLoreReorderDTO(UUID.randomUUID(), -1);
         assertBadRequest("PATCH", "/item/" + UUID.randomUUID() + "/lore/reorder", reorder);
+    }
+
+    @Test
+    void testCreateChar_withBlankLine_returnsBadRequest() {
+        assertBadRequest("PUT", "/font/chars/" + UUID.randomUUID(), new FontStringDTO(null, "", 0));
+    }
+
+    @Test
+    void testUpdateChar_withNegativeOrderIndex_returnsBadRequest() {
+        FontStringDTO line = new FontStringDTO(UUID.randomUUID(), "\uE000", -1);
+        assertBadRequest("POST", "/font/chars/" + UUID.randomUUID(), line);
     }
 }

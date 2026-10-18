@@ -28,11 +28,10 @@ public record FontStringDTO(
         @Null(groups = Create.class)
         @NotNull(groups = Update.class)
         UUID id,
-        @NotNull(groups = {Create.class, Update.class})
         @Schema(description = "Content of the line", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank String line,
+        @NotBlank(groups = {Create.class, Update.class}) String line,
         @Schema(description = "The internal order index", requiredMode = Schema.RequiredMode.REQUIRED)
-        @PositiveOrZero int orderIndex
+        @PositiveOrZero(groups = {Create.class, Update.class}) int orderIndex
 ) {
 
     public FontStringEntity toEntity() {
