@@ -2,6 +2,8 @@ package net.onelitefeather.vulpes.backend.domain.font.validation;
 
 import net.onelitefeather.vulpes.backend.domain.ValidationTestBase;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Create;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Update;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -124,6 +126,23 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 -5
         );
 
-        assertViolation(dto, "height");
+        assertViolation(dto, "height", Create.class);
+    }
+
+    @Test
+    void testZeroHeightValidation() {
+        FontModelDTO dto = new FontModelDTO(
+                UUID.randomUUID(),
+                "UI Name",
+                "key",
+                "provider",
+                "mapper",
+                "texturePath",
+                "Some comment",
+                10,
+                0 // invalid
+        );
+
+        assertViolation(dto, "height", Update.class);
     }
 }

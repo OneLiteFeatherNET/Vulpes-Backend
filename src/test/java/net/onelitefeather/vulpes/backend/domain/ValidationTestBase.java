@@ -31,9 +31,10 @@ public abstract class ValidationTestBase<T> {
      *
      * @param dto          the DTO to validate
      * @param propertyName the name of the property to validate
+     * @param groups       the validation groups to check, the default group when empty
      */
-    protected void assertViolation(T dto, String propertyName) {
-        Set<ConstraintViolation<T>> violations = validator.validate(dto);
+    protected void assertViolation(T dto, String propertyName, Class<?>... groups) {
+        Set<ConstraintViolation<T>> violations = validator.validate(dto, groups);
         assertFalse(violations.isEmpty(), "Expected violations for property: " + propertyName);
         boolean found = violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals(propertyName));
         if (!found) {
@@ -46,9 +47,10 @@ public abstract class ValidationTestBase<T> {
      *
      * @param dto          the DTO to validate
      * @param propertyName the name of the property to validate
+     * @param groups       the validation groups to check, the default group when empty
      */
-    protected void assertNoViolation(T dto, String propertyName) {
-        Set<ConstraintViolation<T>> violations = validator.validate(dto);
+    protected void assertNoViolation(T dto, String propertyName, Class<?>... groups) {
+        Set<ConstraintViolation<T>> violations = validator.validate(dto, groups);
         assertTrue(violations.isEmpty(), "Expected no violations for property: " + propertyName);
     }
 }

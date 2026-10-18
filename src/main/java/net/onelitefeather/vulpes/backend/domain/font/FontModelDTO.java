@@ -6,6 +6,7 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
@@ -41,7 +42,7 @@ public record FontModelDTO(
         @PositiveOrZero
         int ascent,
         @Schema(description = "The height property", requiredMode = Schema.RequiredMode.REQUIRED)
-        @PositiveOrZero
+        @Positive(groups = {Create.class, Update.class})
         int height
 ) {
 

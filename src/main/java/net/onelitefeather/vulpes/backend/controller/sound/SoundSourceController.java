@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
@@ -110,7 +111,7 @@ public class SoundSourceController {
     @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<SoundResponseDTO.SoundFileSourceDTO> createSource(
             @PathVariable("id") UUID soundEventId,
-            @Body SoundFileSourceDTO sourceDTO
+            @Valid @Body SoundFileSourceDTO sourceDTO
     ) {
         return HttpResponse.ok(soundService.createAndLinkSource(soundEventId, sourceDTO));
     }
@@ -157,7 +158,7 @@ public class SoundSourceController {
     @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<SoundResponseDTO.SoundFileSourceDTO> updateSource(
             @PathVariable("id") UUID soundEventId,
-            @Body SoundFileSourceDTO sourceDTO
+            @Valid @Body SoundFileSourceDTO sourceDTO
     ) {
         return HttpResponse.ok(soundService.updateLinkedSource(soundEventId, sourceDTO));
     }
