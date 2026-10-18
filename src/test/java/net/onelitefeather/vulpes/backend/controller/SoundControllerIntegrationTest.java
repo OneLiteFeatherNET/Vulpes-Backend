@@ -268,6 +268,19 @@ class SoundControllerIntegrationTest {
                 .statusCode(200);
     }
 
+    @Test
+    void testCreateSource_withPitchOutOfRange_returnsBadRequest() {
+        // Validation runs before the lookup, so an unknown sound id still answers 400 instead of 404
+        SoundFileSourceDTO requestDTO = new SoundFileSourceDTO(null, "file3.ogg", 1.0f, 2.5f, 1, false, 16, false, "file");
+        given()
+                .contentType(ContentType.JSON)
+                .body(requestDTO)
+        .when()
+                .post("/sound/" + UUID.randomUUID() + "/sources")
+        .then()
+                .statusCode(400);
+    }
+
     @Disabled("DELETE with body is not widely supported in some client stacks; covered by unit tests")
     @Test
     void testDeleteSource_returnsOk() {
