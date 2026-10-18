@@ -28,7 +28,7 @@ public record FontModelDTO(
         @NotBlank(groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Which provider should be used", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank
+        @NotBlank(groups = {Create.class, Update.class})
         String provider,
         @Schema(description = "Internal mapper variable", requiredMode = Schema.RequiredMode.REQUIRED)
         String mapper,
