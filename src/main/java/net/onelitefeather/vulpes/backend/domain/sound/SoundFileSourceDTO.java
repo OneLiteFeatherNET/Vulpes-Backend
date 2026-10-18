@@ -37,15 +37,15 @@ public record SoundFileSourceDTO(
         UUID id,
         @NotBlank(groups = {Create.class, Update.class})
         String name,
-        @PositiveOrZero
+        @PositiveOrZero(groups = {Create.class, Update.class})
         float volume,
         @DecimalMin(value = "0.5", groups = {Create.class, Update.class})
         @DecimalMax(value = "2.0", groups = {Create.class, Update.class})
         float pitch,
-        @Positive
+        @Positive(groups = {Create.class, Update.class})
         int weight,
         boolean stream,
-        @Positive
+        @Positive(groups = {Create.class, Update.class})
         int attenuationDistance,
         boolean preload,
         @NotBlank(groups = {Create.class, Update.class})
