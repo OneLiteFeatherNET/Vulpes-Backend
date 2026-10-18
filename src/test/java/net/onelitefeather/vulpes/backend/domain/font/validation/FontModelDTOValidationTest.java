@@ -96,20 +96,20 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
     }
 
     @Test
-    void testNegativeAscentValidation() {
+    void testNegativeAscentNoValidation() {
         FontModelDTO dto = new FontModelDTO(
                 UUID.randomUUID(),
                 "UI Name",
                 "key",
-                "provider",
-                "mapper",
-                "texturePath",
+                null,
+                null,
+                null,
                 "Some comment",
-                -1, // invalid
+                -8, // shifts the glyphs down
                 20
         );
 
-        assertViolation(dto, "ascent");
+        assertNoViolation(dto, "ascent", Update.class);
     }
 
     @Test

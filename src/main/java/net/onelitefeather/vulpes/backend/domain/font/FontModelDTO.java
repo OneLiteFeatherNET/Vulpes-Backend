@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Create;
@@ -38,8 +37,7 @@ public record FontModelDTO(
         @Schema(description = "The comment", requiredMode = Schema.RequiredMode.REQUIRED)
         @Nullable
         String comment,
-        @Schema(description = "The ascent property", requiredMode = Schema.RequiredMode.REQUIRED)
-        @PositiveOrZero
+        @Schema(description = "The ascent property, negative values shift the glyphs down", requiredMode = Schema.RequiredMode.REQUIRED)
         int ascent,
         @Schema(description = "The height property", requiredMode = Schema.RequiredMode.REQUIRED)
         @Positive(groups = {Create.class, Update.class})
