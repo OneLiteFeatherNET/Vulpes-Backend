@@ -6,6 +6,8 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemLoreReorderDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,5 +54,21 @@ class RequestBodyValidationIntegrationTest {
     void testUpdateEnchantment_withZeroLevel_returnsBadRequest() {
         ItemEnchantmentDTO enchantment = new ItemEnchantmentDTO(UUID.randomUUID(), "minecraft:sharpness", (short) 0, false);
         assertBadRequest("POST", "/item/" + UUID.randomUUID() + "/enchantment", enchantment);
+    }
+
+    @Test
+    void testCreateLore_withBlankText_returnsBadRequest() {
+        assertBadRequest("PUT", "/item/" + UUID.randomUUID() + "/lore", new ItemLoreDTO(null, " "));
+    }
+
+    @Test
+    void testUpdateLore_withBlankText_returnsBadRequest() {
+        assertBadRequest("POST", "/item/" + UUID.randomUUID() + "/lore", new ItemLoreDTO(UUID.randomUUID(), ""));
+    }
+
+    @Test
+    void testReorderLore_withNegativeIndex_returnsBadRequest() {
+        ItemLoreReorderDTO reorder = new ItemLoreReorderDTO(UUID.randomUUID(), -1);
+        assertBadRequest("PATCH", "/item/" + UUID.randomUUID() + "/lore/reorder", reorder);
     }
 }

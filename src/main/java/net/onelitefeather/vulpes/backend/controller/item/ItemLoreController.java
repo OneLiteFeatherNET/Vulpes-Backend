@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreReorderDTO;
@@ -102,7 +103,7 @@ public class ItemLoreController {
             "/{itemId}/lore"
     })
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<ItemLoreResponseDTO.ItemLoreDTO> updateLore(@PathVariable("itemId") UUID itemId, @Body ItemLoreDTO lore) {
+    public HttpResponse<ItemLoreResponseDTO.ItemLoreDTO> updateLore(@PathVariable("itemId") UUID itemId, @Valid @Body ItemLoreDTO lore) {
         return HttpResponse.ok(itemService.updateLoreById(itemId, lore));
     }
 
@@ -141,7 +142,7 @@ public class ItemLoreController {
             "/{itemId}/lore"
     })
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<ItemLoreResponseDTO.ItemLoreDTO> createLore(@PathVariable("itemId") UUID itemId, @Body ItemLoreDTO lore) {
+    public HttpResponse<ItemLoreResponseDTO.ItemLoreDTO> createLore(@PathVariable("itemId") UUID itemId, @Valid @Body ItemLoreDTO lore) {
         return HttpResponse.ok(itemService.createLoreById(itemId, lore));
     }
 
@@ -165,7 +166,7 @@ public class ItemLoreController {
     )
     @Patch("/{itemId}/lore/reorder")
     @Validated
-    public HttpResponse<Void> reorderLore(@PathVariable("itemId") UUID itemId, @Body ItemLoreReorderDTO reorder) {
+    public HttpResponse<Void> reorderLore(@PathVariable("itemId") UUID itemId, @Valid @Body ItemLoreReorderDTO reorder) {
         itemService.reorderLoreById(itemId, reorder.entryId(), reorder.newIndex());
         return HttpResponse.noContent();
     }
