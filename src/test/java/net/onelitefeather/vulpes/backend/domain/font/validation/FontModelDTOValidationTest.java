@@ -58,7 +58,24 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 20
         );
 
-        assertViolation(dto, "provider");
+        assertViolation(dto, "provider", Create.class);
+    }
+
+    @Test
+    void testMissingProviderValidation() {
+        FontModelDTO dto = new FontModelDTO(
+                UUID.randomUUID(),
+                "UI Name",
+                "key",
+                null, // invalid
+                "mapper",
+                "texturePath",
+                "Some comment",
+                10,
+                20
+        );
+
+        assertViolation(dto, "provider", Update.class);
     }
 
     @Test
@@ -101,7 +118,7 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 UUID.randomUUID(),
                 "UI Name",
                 "key",
-                null,
+                "bitmap",
                 null,
                 null,
                 "Some comment",

@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import net.onelitefeather.vulpes.api.model.AttributeEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 
@@ -31,9 +30,10 @@ public record AttributeModelDTO(
         @NotBlank(groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Default value of the attribute", requiredMode = Schema.RequiredMode.REQUIRED)
-        @PositiveOrZero double defaultValue,
+        double defaultValue,
         @Schema(description = "Maximum value of the attribute", requiredMode = Schema.RequiredMode.REQUIRED)
-        @Positive double maximumValue,
+        @Positive(groups = {Create.class, Update.class})
+        double maximumValue,
         @Schema(description = "Internal description of the attribute", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable
         String comment

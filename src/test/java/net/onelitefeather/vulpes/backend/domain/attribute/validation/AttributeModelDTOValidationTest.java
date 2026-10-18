@@ -2,6 +2,8 @@ package net.onelitefeather.vulpes.backend.domain.attribute.validation;
 
 import net.onelitefeather.vulpes.backend.domain.ValidationTestBase;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Create;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Update;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -23,17 +25,17 @@ class AttributeModelDTOValidationTest extends ValidationTestBase<AttributeModelD
     }
 
     @Test
-    void testDefaultValueValidationFail() {
+    void testNegativeDefaultValueNoValidation() {
         AttributeModelDTO dto = new AttributeModelDTO(
                 UUID.randomUUID(),
-                "Speed",
-                "playerSpeed",
-                -1.0,
+                "Luck",
+                "luck",
+                -1.0, // vanilla attributes like luck go below zero
                 5.0,
                 null
         );
 
-        assertViolation(dto, "defaultValue");
+        assertNoViolation(dto, "defaultValue", Update.class);
     }
 
     @Test
@@ -47,7 +49,21 @@ class AttributeModelDTOValidationTest extends ValidationTestBase<AttributeModelD
                 null
         );
 
-        assertViolation(dto, "maximumValue");
+        assertViolation(dto, "maximumValue", Update.class);
+    }
+
+    @Test
+    void testNegativeMaxValueValidationFail() {
+        AttributeModelDTO dto = new AttributeModelDTO(
+                null,
+                "Speed",
+                "playerSpeed",
+                0.0,
+                -5.0, // must be strictly positive
+                null
+        );
+
+        assertViolation(dto, "maximumValue", Create.class);
     }
 
     @Test
