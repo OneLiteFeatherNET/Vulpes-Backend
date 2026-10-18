@@ -31,7 +31,7 @@ public record ItemEnchantmentDTO(
         @NotBlank(groups = {Create.class, Update.class})
         String name,
         @Schema(description = "Level of the enchantment", requiredMode = Schema.RequiredMode.REQUIRED)
-        @Positive
+        @Positive(groups = {Create.class, Update.class})
         short level,
         @Schema(description = "If the enchantment is unsafe", requiredMode = Schema.RequiredMode.REQUIRED)
         boolean unsafe

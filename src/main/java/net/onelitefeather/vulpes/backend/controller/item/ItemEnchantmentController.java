@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
@@ -73,7 +74,7 @@ public class ItemEnchantmentController {
             "/{itemId}/enchantment"
     })
     @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> createEnchantment(@PathVariable("itemId") UUID itemId, @Body ItemEnchantmentDTO enchantment) {
+    public HttpResponse<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> createEnchantment(@PathVariable("itemId") UUID itemId, @Valid @Body ItemEnchantmentDTO enchantment) {
         var createResult = itemService.createEnchantmentById(itemId, enchantment);
         return HttpResponse.ok(createResult);
     }
@@ -140,7 +141,7 @@ public class ItemEnchantmentController {
             "/{itemId}/enchantment"
     })
     @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> updateEnchantment(@PathVariable("itemId") UUID itemId, @Body ItemEnchantmentDTO enchantment) {
+    public HttpResponse<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> updateEnchantment(@PathVariable("itemId") UUID itemId, @Valid @Body ItemEnchantmentDTO enchantment) {
         return HttpResponse.ok(itemService.updateEnchantmentById(itemId, enchantment));
     }
 
