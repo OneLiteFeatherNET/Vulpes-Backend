@@ -54,7 +54,10 @@ public class AttributeModelCopier extends AbstractModelCopier<AttributeEntity> i
                 resolvedName,
                 targetKey,
                 source.getDefaultValue(),
+                source.getMinimumValue(),
                 source.getMaximumValue(),
+                source.isSynced(),
+                source.getTranslationKey(),
                 source.getComment(),
                 targetProject
         );

@@ -54,7 +54,7 @@ class UpdateTimestampIntegrationTest {
     void update_returnsAndKeepsTimestamps() throws InterruptedException {
         AttributeModelResponseDTO.AttributeModelDTO created = given()
                 .contentType(ContentType.JSON)
-                .body(new AttributeModelDTO(null, "Speed", "speed", 1.0, 10.0, null))
+                .body(new AttributeModelDTO(null, "Speed", "speed", 1.0, 0.0, 10.0, false, null, null))
                 .post(attributePath)
                 .then().statusCode(200)
                 .extract().as(AttributeModelResponseDTO.AttributeModelDTO.class);
@@ -64,7 +64,7 @@ class UpdateTimestampIntegrationTest {
 
         AttributeModelResponseDTO.AttributeModelDTO updated = given()
                 .contentType(ContentType.JSON)
-                .body(new AttributeModelDTO(created.id(), "Speed 2", created.key(), 2.0, 20.0, null))
+                .body(new AttributeModelDTO(created.id(), "Speed 2", created.key(), 2.0, 0.0, 20.0, false, null, null))
                 .post(attributePath + "/update")
                 .then().statusCode(200)
                 .extract().as(AttributeModelResponseDTO.AttributeModelDTO.class);

@@ -107,7 +107,8 @@ public class SeedValidator {
     void attribute(AttributeEntity attribute) {
         List<String> problems = new ArrayList<>();
         check(problems, where("attribute", attribute), new AttributeModelDTO(attribute.getId(),
-                attribute.getUiName(), attribute.getKey(), attribute.getDefaultValue(), attribute.getMaximumValue(),
+                attribute.getUiName(), attribute.getKey(), attribute.getDefaultValue(), attribute.getMinimumValue(),
+                attribute.getMaximumValue(), attribute.isSynced(), attribute.getTranslationKey(),
                 attribute.getComment()));
         fail(problems);
     }

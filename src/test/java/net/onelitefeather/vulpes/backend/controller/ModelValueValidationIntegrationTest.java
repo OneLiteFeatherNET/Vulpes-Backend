@@ -18,6 +18,7 @@ import org.testcontainers.junit.jupiter.EnabledIfDockerAvailable;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 
 /**
  * Checks that the value constraints of the attribute and font models run on create and update. They
@@ -59,7 +60,7 @@ class ModelValueValidationIntegrationTest {
     @DisplayName("create() with an attribute maximum of 0 answers 400")
     void createAttributeWithZeroMaximumReturns400() {
         given().contentType(ContentType.JSON)
-                .body(new AttributeModelDTO(null, "Speed", uniqueKey("speed"), 0.0, 0.0, null))
+                .body(new AttributeModelDTO(null, "Speed", uniqueKey("speed"), 0.0, 0.0, 0.0, false, null, null))
                 .post(modelPath("attribute"))
                 .then().statusCode(400);
     }
@@ -68,7 +69,7 @@ class ModelValueValidationIntegrationTest {
     @DisplayName("update() with a negative attribute maximum answers 400 before looking the model up")
     void updateAttributeWithNegativeMaximumReturns400() {
         given().contentType(ContentType.JSON)
-                .body(new AttributeModelDTO(UUID.randomUUID(), "Speed", uniqueKey("speed"), 0.0, -1.0, null))
+                .body(new AttributeModelDTO(UUID.randomUUID(), "Speed", uniqueKey("speed"), 0.0, 0.0, -1.0, false, null, null))
                 .post(modelPath("attribute") + "/update")
                 .then().statusCode(400);
     }
@@ -77,9 +78,31 @@ class ModelValueValidationIntegrationTest {
     @DisplayName("create() with a negative attribute default answers 200")
     void createAttributeWithNegativeDefaultReturns200() {
         given().contentType(ContentType.JSON)
-                .body(new AttributeModelDTO(null, "Luck", uniqueKey("luck"), -1.0, 1024.0, null))
+                .body(new AttributeModelDTO(null, "Luck", uniqueKey("luck"), -1.0, -1.0, 1024.0, false, null, null))
                 .post(modelPath("attribute"))
                 .then().statusCode(200);
+    }
+
+    @Test
+    @DisplayName("create() with an attribute default below its minimum answers 400")
+    void createAttributeWithDefaultBelowMinimumReturns400() {
+        given().contentType(ContentType.JSON)
+                .body(new AttributeModelDTO(null, "Luck", uniqueKey("luck"), -1.0, 0.0, 1024.0, false, null, null))
+                .post(modelPath("attribute"))
+                .then().statusCode(400);
+    }
+
+    @Test
+    @DisplayName("create() keeps minimum, sync flag and translation key of an attribute")
+    void createAttributeKeepsNewValues() {
+        given().contentType(ContentType.JSON)
+                .body(new AttributeModelDTO(null, "Armor", uniqueKey("armor"), 0.0, 0.0, 30.0, true,
+                        "attribute.name.armor", null))
+                .post(modelPath("attribute"))
+                .then().statusCode(200)
+                .body("minimumValue", equalTo(0.0f))
+                .body("synced", equalTo(true))
+                .body("translationKey", equalTo("attribute.name.armor"));
     }
 
     @Test
