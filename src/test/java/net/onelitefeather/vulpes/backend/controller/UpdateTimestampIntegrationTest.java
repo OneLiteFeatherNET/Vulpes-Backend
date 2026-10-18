@@ -1,6 +1,5 @@
 package net.onelitefeather.vulpes.backend.controller;
 
-import io.micronaut.context.annotation.Property;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.restassured.RestAssured;
@@ -27,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Property(name = "datasources.default.schema-generate", value = "NONE")
 @DisplayName("Integration tests for the timestamps a create or update returns and keeps")
 @EnabledIfDockerAvailable
 class UpdateTimestampIntegrationTest {
