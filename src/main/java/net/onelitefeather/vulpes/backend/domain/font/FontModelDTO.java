@@ -24,19 +24,15 @@ public record FontModelDTO(
         UUID id,
         @Schema(description = "Model Name for the ui", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class}) String uiName,
-        @Schema(description = "Name in the UI", requiredMode = Schema.RequiredMode.REQUIRED)
-        @Null(groups = Create.class)
-        @NotBlank(groups = Update.class)
+        @Schema(description = "Key for the generation", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotBlank(groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Which provider should be used", requiredMode = Schema.RequiredMode.REQUIRED)
-        @Null(groups = {Create.class, Update.class})
         @NotBlank
         String provider,
         @Schema(description = "Internal mapper variable", requiredMode = Schema.RequiredMode.REQUIRED)
-        @Null(groups = {Create.class, Update.class})
         String mapper,
         @Schema(description = "The path to the texture", requiredMode = Schema.RequiredMode.REQUIRED)
-        @Null(groups = {Create.class, Update.class})
         String texturePath,
         @Schema(description = "The comment", requiredMode = Schema.RequiredMode.REQUIRED)
         @Nullable
