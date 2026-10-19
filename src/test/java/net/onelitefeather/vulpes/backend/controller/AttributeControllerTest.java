@@ -4,6 +4,7 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
 import net.onelitefeather.vulpes.api.model.AttributeEntity;
+import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
@@ -25,6 +26,7 @@ class AttributeControllerTest {
     private static class StubAttributeService implements AttributeService {
         AttributeModelResponseDTO.AttributeModelDTO response;
         Page<AttributeModelResponseDTO.AttributeModelDTO> page;
+        Optional<AttributeEntity> findByIdResponse = Optional.empty();
 
         @Override
         public AttributeModelResponseDTO.AttributeModelDTO create(AttributeModelDTO dto) {
@@ -81,7 +83,7 @@ class AttributeControllerTest {
 
         @Override
         public Optional<AttributeEntity> findById(UUID projectId, UUID id) {
-            return Optional.empty();
+            return findByIdResponse;
         }
     }
 
@@ -115,6 +117,35 @@ class AttributeControllerTest {
         ApiException exception = assertThrows(ApiException.class, () -> controller.add(projectId, dto));
 
         assertEquals(ErrorCode.PROJECT_NOT_FOUND, exception.code());
+    }
+
+    @Test
+    @DisplayName("getById() returns the attribute owned by the project")
+    void getById_found_returnsOk() {
+        StubAttributeService stub = new StubAttributeService();
+        ProjectEntity project = new ProjectEntity(UUID.randomUUID(), "Project A", "project-a", null, null, null, false);
+        AttributeEntity entity = new AttributeEntity(UUID.randomUUID(), "UI", "var", 1.0, 10.0, project);
+        stub.findByIdResponse = Optional.of(entity);
+        AttributeController controller = new AttributeController(stub);
+
+        HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> resp = controller.getById(project.getId(), entity.getId());
+
+        assertEquals(200, resp.getStatus().getCode());
+        assertEquals(entity.getId(), resp.body().id());
+    }
+
+    @Test
+    @DisplayName("getById() raises RESOURCE_NOT_FOUND when the entity belongs to another project")
+    void getById_crossProject_raisesNotFound() {
+        StubAttributeService stub = new StubAttributeService();
+        stub.findByIdResponse = Optional.empty();
+        AttributeController controller = new AttributeController(stub);
+        UUID projectId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
+
+        ApiException exception = assertThrows(ApiException.class, () -> controller.getById(projectId, id));
+
+        assertEquals(ErrorCode.RESOURCE_NOT_FOUND, exception.code());
     }
 
     @Test
