@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.1.3...v3.2.0) (2026-10-18)
+
+
+### Features
+
+* **attribute:** store minimum value, sync flag and translation key ([#233](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/233)) ([a999456](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/a999456e580094f0a4eb9a8aeec0b7c7436c725d))
+
 ## [3.1.3](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.1.2...v3.1.3) (2026-10-18)
 
 
