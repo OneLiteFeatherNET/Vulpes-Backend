@@ -22,6 +22,7 @@ import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.AttributeService;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
@@ -107,6 +108,36 @@ public class AttributeController {
     @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> update(@PathVariable UUID projectId, @Valid @Body AttributeModelDTO model) {
         return HttpResponse.ok(attributeService.update(projectId, model));
+    }
+
+    @Operation(
+            summary = "Get an attribute by ID",
+            operationId = "getAttributeById",
+            description = "Retrieves an attribute owned by the given project by its ID.",
+            tags = {"Attribute"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The attribute was successfully retrieved from the database.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = AttributeModelResponseDTO.AttributeModelDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "The attribute was not found, or does not belong to the given project.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
+    @Get("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> getById(@PathVariable UUID projectId, @PathVariable UUID id) {
+        return HttpResponse.ok(attributeService.findById(projectId, id)
+                .map(AttributeModelResponseDTO.AttributeModelDTO::create)
+                .orElseThrow(() -> ApiException.notFound("Attribute")));
     }
 
     @Operation(
