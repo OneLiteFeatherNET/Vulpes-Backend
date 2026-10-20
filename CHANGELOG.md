@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.2.0...v3.3.0) (2026-10-20)
+
+
+### Features
+
+* **attribute:** add endpoint to get one by an provided id ([#235](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/235)) ([9b2c68d](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/9b2c68d6f85537f6f00674289a32dd7ccd4e6330))
+
 ## [3.2.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.1.3...v3.2.0) (2026-10-18)
 
 
