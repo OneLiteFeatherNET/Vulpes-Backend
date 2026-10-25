@@ -52,7 +52,7 @@ public class ApiExceptionHandler implements ExceptionHandler<ApiException, HttpR
         log(request, exception, code, traceId);
         return HttpResponse.<ProblemDetail>status(code.status())
                 .contentType(MediaType.APPLICATION_JSON_PROBLEM_TYPE)
-                .body(problemDetailFactory.create(code, exception.detail(), request, traceId));
+                .body(problemDetailFactory.create(code, exception.detail(), request, traceId, exception.violations()));
     }
 
     /**

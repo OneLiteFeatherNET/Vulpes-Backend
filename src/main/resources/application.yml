@@ -3,6 +3,10 @@ micronaut:
     name: Vulpes Backend
   server:
     port: ${PORT:8085}
+    multipart:
+      # Project assets are limited to 8 MB per file; the request limit leaves room for the form fields
+      max-file-size: 8388608
+      max-request-size: 9437184
     cors:
       enabled: true
       configurations:
@@ -21,6 +25,12 @@ micronaut:
       io.micronaut.data: DEBUG
       io.micronaut.sql: DEBUG
       io.micronaut.http.server.cors: TRACE
+  object-storage:
+    local:
+      # Store of project assets. The local implementation is the PoC default; an S3/MinIO store with the
+      # same name can replace it by dependency and configuration only.
+      assets:
+        path: ${VULPES_ASSET_PATH:./data/assets}
   router:
     static-resources:
       swagger:
@@ -99,6 +109,11 @@ vulpes:
 
 jpa:
   default:
+    # Entities from the vulpes-model library plus the ones this service maps itself
+    entity-scan:
+      packages:
+        - net.onelitefeather.vulpes.api.model
+        - net.onelitefeather.vulpes.backend.entity
     properties:
       hibernate:
         hbm2ddl.auto: update  # Use `none` in production
