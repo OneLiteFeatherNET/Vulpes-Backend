@@ -29,6 +29,7 @@ jpa:
     entity-scan:
       packages:
         - net.onelitefeather.vulpes.api.model
+        - net.onelitefeather.vulpes.backend.entity
     properties:
       hibernate:
         hbm2ddl.auto: update
