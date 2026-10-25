@@ -50,6 +50,7 @@ dependencyResolutionManagement {
             version("nullaway", "0.14.3")
             version("jspecify", "1.0.1")
             version("archunit", "1.5.1")
+            version("evalex", "3.8.0")
 
             library("uuid.creator", "com.github.f4b6a3", "uuid-creator").versionRef("uuid.creator")
             library("vulpes.api", "net.onelitefeather", "vulpes-model").versionRef("vulpes.model")
@@ -59,6 +60,7 @@ dependencyResolutionManagement {
 
             library("hibernate.validator", "org.hibernate.validator", "hibernate-validator").versionRef("hibernate.validator")
             library("jakarta.validation", "jakarta.validation", "jakarta.validation-api").versionRef("jakarta.validation")
+            library("evalex", "com.ezylang", "EvalEx").versionRef("evalex")
 
             // Observability — JSON logging + OpenTelemetry (see build.gradle.kts).
             // OTLP exporter version is managed by the Micronaut platform BOM.
