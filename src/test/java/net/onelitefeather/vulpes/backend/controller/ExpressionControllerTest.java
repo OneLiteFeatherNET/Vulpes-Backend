@@ -5,12 +5,16 @@ import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
 import net.datafaker.Faker;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
+import net.onelitefeather.vulpes.backend.controller.expression.ExpressionCatalogController;
 import net.onelitefeather.vulpes.backend.controller.expression.ExpressionController;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionCatalogDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluateDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluationResultDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidateDTO;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidationResultDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.backend.entity.expression.ExpressionEntity;
@@ -35,6 +39,8 @@ class ExpressionControllerTest {
         Optional<ExpressionEntity> findByIdResponse;
         Page<ExpressionResponseDTO.ExpressionModelDTO> modelDtoPage;
         ExpressionEvaluationResultDTO evaluationResponse;
+        ExpressionValidationResultDTO validationResponse;
+        ExpressionCatalogDTO catalogResponse;
 
         @Override
         public ExpressionResponseDTO.ExpressionModelDTO create(ExpressionDTO dto) {
@@ -97,6 +103,16 @@ class ExpressionControllerTest {
         @Override
         public ExpressionEvaluationResultDTO evaluate(ExpressionEvaluateDTO request) {
             return evaluationResponse;
+        }
+
+        @Override
+        public ExpressionValidationResultDTO validate(ExpressionValidateDTO request) {
+            return validationResponse;
+        }
+
+        @Override
+        public ExpressionCatalogDTO catalog() {
+            return catalogResponse;
         }
     }
 
@@ -200,5 +216,34 @@ class ExpressionControllerTest {
         assertEquals(200, resp.getStatus().getCode(), "evaluate must answer 200");
         assertEquals("7", resp.body().value(), "evaluate must return the value the service computed");
         assertEquals("NUMBER", resp.body().type(), "evaluate must return the type the service computed");
+    }
+
+    @Test
+    void testValidate_returnsServiceResult() {
+        StubExpressionService stub = new StubExpressionService();
+        stub.validationResponse = new ExpressionValidationResultDTO(
+                false,
+                List.of(new ExpressionValidationResultDTO.ErrorDTO("Unexpected token", 4, 5)),
+                List.of(),
+                List.of(),
+                List.of());
+
+        HttpResponse<ExpressionValidationResultDTO> resp = new ExpressionController(stub)
+                .validate(UUID.randomUUID(), new ExpressionValidateDTO("a + * b", List.of("a", "b")));
+
+        assertEquals(200, resp.getStatus().getCode(), "validate must answer 200 even when the expression does not parse");
+        assertFalse(resp.body().valid(), "validate must return the service's verdict");
+        assertEquals(4, resp.body().errors().getFirst().start(), "validate must return the service's error position");
+    }
+
+    @Test
+    void testCatalog_returnsServiceCatalog() {
+        StubExpressionService stub = new StubExpressionService();
+        stub.catalogResponse = new ExpressionCatalogDTO("3.8.0", List.of(), List.of(), List.of());
+
+        HttpResponse<ExpressionCatalogDTO> resp = new ExpressionCatalogController(stub).catalog();
+
+        assertEquals(200, resp.getStatus().getCode(), "catalog must answer 200");
+        assertEquals("3.8.0", resp.body().evalexVersion(), "catalog must return the service's catalog");
     }
 }

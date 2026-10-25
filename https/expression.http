@@ -71,3 +71,24 @@ DELETE {{server}}/project/{{projectId}}/expression/delete/{{id}}
 
 ### Delete all expressions of the project
 DELETE {{server}}/project/{{projectId}}/expression/delete/
+
+### Get the expression catalog (functions, operators, constants; not project-scoped)
+GET {{server}}/expression/catalog
+
+### Validate an expression while editing (always 200, a parse error is in the body)
+POST {{server}}/project/{{projectId}}/expression/validate
+Content-Type: application/json
+
+{
+  "expression": "a * 2 + b + undeclared",
+  "variables": ["a", "b", "unused"]
+}
+
+### Validate an expression with a parse error (valid false, errors[0] start 4 end 5)
+POST {{server}}/project/{{projectId}}/expression/validate
+Content-Type: application/json
+
+{
+  "expression": "a + * b",
+  "variables": ["a", "b"]
+}

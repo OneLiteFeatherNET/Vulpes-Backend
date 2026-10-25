@@ -24,6 +24,8 @@ import net.onelitefeather.vulpes.backend.domain.expression.ExpressionDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluateDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluationResultDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidateDTO;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidationResultDTO;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ExpressionService;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
@@ -243,5 +245,25 @@ public class ExpressionController {
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ExpressionEvaluationResultDTO> evaluate(@PathVariable UUID projectId, @Valid @Body ExpressionEvaluateDTO request) {
         return HttpResponse.ok(expressionService.evaluate(request));
+    }
+
+    @Operation(
+            summary = "Validate an expression",
+            operationId = "validateExpression",
+            description = "Checks an expression while it is edited. Nothing is stored. A parse error is reported in the body, not as a failed request.",
+            tags = {"Expression"}
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The expression was checked. 'valid' is false and 'errors' holds the parse error when it does not parse.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ExpressionValidationResultDTO.class)
+            )
+    )
+    @Post("/validate")
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse<ExpressionValidationResultDTO> validate(@PathVariable UUID projectId, @Valid @Body ExpressionValidateDTO request) {
+        return HttpResponse.ok(expressionService.validate(request));
     }
 }
