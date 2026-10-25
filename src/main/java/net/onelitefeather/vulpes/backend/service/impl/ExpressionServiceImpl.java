@@ -3,11 +3,16 @@ package net.onelitefeather.vulpes.backend.service.impl;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionCatalog;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionCatalogDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluateDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluationResultDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluator;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidateDTO;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidationResultDTO;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidator;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.backend.entity.expression.ExpressionEntity;
 import net.onelitefeather.vulpes.backend.entity.expression.ExpressionRepository;
@@ -63,5 +68,15 @@ public class ExpressionServiceImpl
         Map<String, String> values = request.variables() == null ? Map.of() : request.variables();
         Map<String, ExpressionVariableType> types = request.types() == null ? Map.of() : request.types();
         return ExpressionEvaluator.evaluate(request.expression(), values, types);
+    }
+
+    @Override
+    public ExpressionValidationResultDTO validate(ExpressionValidateDTO request) {
+        return ExpressionValidator.validate(request.expression(), request.variables());
+    }
+
+    @Override
+    public ExpressionCatalogDTO catalog() {
+        return ExpressionCatalog.DEFAULT;
     }
 }

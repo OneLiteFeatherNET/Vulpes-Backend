@@ -3,6 +3,7 @@ package net.onelitefeather.vulpes.backend.domain.expression;
 import com.ezylang.evalex.BaseException;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;
+import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.data.EvaluationValue;
 import com.ezylang.evalex.parser.ParseException;
 import io.micronaut.core.annotation.Nullable;
@@ -26,6 +27,12 @@ import java.util.regex.Pattern;
  * produced whether the expression is checked on save or evaluated on request.
  */
 public final class ExpressionEvaluator {
+
+    /**
+     * The EvalEx configuration every expression is parsed and evaluated with. The catalog is built from the
+     * same configuration, so the functions, operators and constants offered to the UI are the ones evaluated.
+     */
+    public static final ExpressionConfiguration CONFIGURATION = ExpressionConfiguration.defaultConfiguration();
 
     private static final Pattern VARIABLE_NAME = Pattern.compile("[A-Za-z_][A-Za-z0-9_]*");
     private static final String FIELD_EXPRESSION = "expression";
@@ -89,7 +96,7 @@ public final class ExpressionEvaluator {
         }
 
         try {
-            Expression evalExpression = new Expression(expression == null ? "" : expression);
+            Expression evalExpression = new Expression(expression == null ? "" : expression, CONFIGURATION);
             converted.forEach(evalExpression::with);
             return toResult(evalExpression.evaluate());
         } catch (ParseException | EvaluationException failure) {
@@ -135,7 +142,7 @@ public final class ExpressionEvaluator {
             return List.of();
         }
         try {
-            new Expression(expression).validate();
+            new Expression(expression, CONFIGURATION).validate();
             return List.of();
         } catch (ParseException parseException) {
             return List.of(expressionViolation(parseException));
@@ -208,7 +215,13 @@ public final class ExpressionEvaluator {
         );
     }
 
-    private static boolean isValidName(@Nullable String name) {
+    /**
+     * Checks a variable name against {@code [A-Za-z_][A-Za-z0-9_]*}.
+     *
+     * @param name the name to check, {@code null} is invalid
+     * @return {@code true} if the name may be used in an expression
+     */
+    static boolean isValidName(@Nullable String name) {
         return name != null && VARIABLE_NAME.matcher(name).matches();
     }
 
