@@ -20,6 +20,8 @@ micronaut:
             - PATCH
             - DELETE
             - OPTIONS
+          exposedHeaders:
+            - ETag
   logger:
     levels:
       io.micronaut.data: DEBUG
