@@ -1,14 +1,13 @@
 package net.onelitefeather.vulpes.backend.entity.asset;
 
 import io.micronaut.data.annotation.Repository;
+import io.micronaut.data.jpa.repository.JpaRepository;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
-import io.micronaut.data.jpa.repository.JpaRepository;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetKeySpace;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
-
 import java.util.List;
 import java.util.UUID;
+import net.onelitefeather.vulpes.backend.domain.asset.AssetKeySpace;
+import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
 
 /**
  * Persistence access for {@link ProjectAssetEntity}.

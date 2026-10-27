@@ -4,6 +4,8 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.List;
+import java.util.UUID;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
@@ -18,9 +20,6 @@ import net.onelitefeather.vulpes.backend.storage.AssetStorage;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-import java.util.UUID;
-
 /**
  * Implementation of the {@link AssetService} interface.
  *
@@ -29,8 +28,7 @@ import java.util.UUID;
  */
 @Singleton
 @NullMarked
-public class AssetServiceImpl
-        extends AbstractCrudService<ProjectAssetEntity, UUID, AssetUploadDTO, AssetResponseDTO>
+public class AssetServiceImpl extends AbstractCrudService<ProjectAssetEntity, UUID, AssetUploadDTO, AssetResponseDTO>
         implements AssetService {
 
     private static final String ASSET = "Asset";
@@ -52,8 +50,7 @@ public class AssetServiceImpl
             ProjectAssetRepository assetRepository,
             ProjectRepository projectRepository,
             AssetPersistence persistence,
-            AssetStorage storage
-    ) {
+            AssetStorage storage) {
         super(
                 assetRepository,
                 projectRepository,
@@ -63,8 +60,7 @@ public class AssetServiceImpl
                 asset -> asset.getProject().getId(),
                 assetRepository::findByProjectId,
                 AssetUploadDTO::id,
-                ASSET
-        );
+                ASSET);
         this.assetRepository = assetRepository;
         this.persistence = persistence;
         this.storage = storage;
@@ -121,11 +117,11 @@ public class AssetServiceImpl
     public AssetContent getContent(UUID projectId, UUID id) {
         AssetResponseDTO asset = getAsset(projectId, id);
         String key = AssetStorage.keyFor(projectId, id);
-        byte[] content = storage.get(key).orElseThrow(() -> new ApiException(
-                ErrorCode.INTERNAL_ERROR,
-                "Internal server error",
-                "Asset " + id + " has no stored content under " + key
-        ));
+        byte[] content = storage.get(key)
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.INTERNAL_ERROR,
+                        "Internal server error",
+                        "Asset " + id + " has no stored content under " + key));
         return new AssetContent(content, asset.contentType(), asset.sha1());
     }
 

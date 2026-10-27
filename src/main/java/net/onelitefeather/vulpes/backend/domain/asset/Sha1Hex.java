@@ -13,8 +13,7 @@ import java.util.HexFormat;
  */
 public final class Sha1Hex {
 
-    private Sha1Hex() {
-    }
+    private Sha1Hex() {}
 
     /**
      * Returns the SHA-1 digest of the given bytes as 40 lowercase hex characters.

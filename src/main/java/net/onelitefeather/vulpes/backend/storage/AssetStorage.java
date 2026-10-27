@@ -6,12 +6,11 @@ import io.micronaut.objectstorage.request.UploadRequest;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
-import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
-import net.onelitefeather.vulpes.backend.exception.ApiException;
-
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
+import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 
 /**
  * Stores the bytes of project assets in the named Micronaut Object Storage bucket {@value #STORE_NAME}.
@@ -91,8 +90,7 @@ public class AssetStorage {
             throw new ApiException(
                     ErrorCode.INTERNAL_ERROR,
                     "Internal server error",
-                    "Object storage entry " + key + " could not be read: " + exception.getMessage()
-            );
+                    "Object storage entry " + key + " could not be read: " + exception.getMessage());
         }
     }
 }

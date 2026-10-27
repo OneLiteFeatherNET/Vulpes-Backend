@@ -2,6 +2,7 @@ package net.onelitefeather.vulpes.backend.service;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import java.util.UUID;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
@@ -9,8 +10,6 @@ import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetEntity;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-
-import java.util.UUID;
 
 /**
  * Service interface for managing project assets: textures, models and Blockbench models.

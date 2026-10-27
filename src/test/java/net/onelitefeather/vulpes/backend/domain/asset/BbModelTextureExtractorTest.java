@@ -1,16 +1,15 @@
 package net.onelitefeather.vulpes.backend.domain.asset;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Base64;
+import java.util.List;
 import net.onelitefeather.vulpes.backend.domain.asset.BbModelTextureExtractor.ExtractedTexture;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.Base64;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Unit tests for BbModelTextureExtractor")
 class BbModelTextureExtractorTest {
@@ -19,8 +18,8 @@ class BbModelTextureExtractorTest {
     void extractsEmbeddedTextureWithKeyDerivedFromModelFolder() {
         String model = AssetFixtures.bbmodelWithTextures("Ruby Side.png");
 
-        List<ExtractedTexture> textures = BbModelTextureExtractor.extract(
-                "vulpes:item/ruby", AssetFixtures.utf8(model));
+        List<ExtractedTexture> textures =
+                BbModelTextureExtractor.extract("vulpes:item/ruby", AssetFixtures.utf8(model));
 
         assertEquals(1, textures.size(), "one embedded texture must be extracted");
         assertEquals("vulpes:item/ruby_side", textures.get(0).key(), "the key must keep the model folder");
@@ -32,8 +31,8 @@ class BbModelTextureExtractorTest {
     void sanitizesInvalidCharactersInTextureName() {
         String model = AssetFixtures.bbmodelWithTextures("My Texture!.PNG");
 
-        List<ExtractedTexture> textures = BbModelTextureExtractor.extract(
-                "vulpes:item/ruby", AssetFixtures.utf8(model));
+        List<ExtractedTexture> textures =
+                BbModelTextureExtractor.extract("vulpes:item/ruby", AssetFixtures.utf8(model));
 
         assertEquals("vulpes:item/my_texture_", textures.get(0).key(), "invalid characters must become underscores");
     }
@@ -42,8 +41,7 @@ class BbModelTextureExtractorTest {
     void keyWithoutFolderUsesNamespaceAndName() {
         String model = AssetFixtures.bbmodelWithTextures("gem.png");
 
-        List<ExtractedTexture> textures = BbModelTextureExtractor.extract(
-                "vulpes:ruby", AssetFixtures.utf8(model));
+        List<ExtractedTexture> textures = BbModelTextureExtractor.extract("vulpes:ruby", AssetFixtures.utf8(model));
 
         assertEquals("vulpes:gem", textures.get(0).key(), "without a folder the key is namespace plus name");
     }
@@ -52,8 +50,8 @@ class BbModelTextureExtractorTest {
     void invalidCharactersAreReplacedOneByOne() {
         String model = AssetFixtures.bbmodelWithTextures("!!!");
 
-        List<ExtractedTexture> textures = BbModelTextureExtractor.extract(
-                "vulpes:item/ruby", AssetFixtures.utf8(model));
+        List<ExtractedTexture> textures =
+                BbModelTextureExtractor.extract("vulpes:item/ruby", AssetFixtures.utf8(model));
 
         assertEquals("vulpes:item/___", textures.get(0).key(), "each invalid character must become one underscore");
     }
@@ -62,8 +60,8 @@ class BbModelTextureExtractorTest {
     void ignoresSourcesThatAreNotDataUris() {
         String model = "{\"textures\":[{\"name\":\"ext\",\"source\":\"textures/ext.png\"}]}";
 
-        List<ExtractedTexture> textures = BbModelTextureExtractor.extract(
-                "vulpes:item/ruby", AssetFixtures.utf8(model));
+        List<ExtractedTexture> textures =
+                BbModelTextureExtractor.extract("vulpes:item/ruby", AssetFixtures.utf8(model));
 
         assertTrue(textures.isEmpty(), "a texture referenced by path must not be extracted");
     }
@@ -75,10 +73,12 @@ class BbModelTextureExtractorTest {
         ApiException exception = assertThrows(
                 ApiException.class,
                 () -> BbModelTextureExtractor.extract("vulpes:item/ruby", AssetFixtures.utf8(model)),
-                "an embedded texture that is not base64 must be rejected"
-        );
+                "an embedded texture that is not base64 must be rejected");
 
-        assertEquals("ASSET_INVALID_CONTENT", exception.violations().get(0).code(), "the code must be ASSET_INVALID_CONTENT");
+        assertEquals(
+                "ASSET_INVALID_CONTENT",
+                exception.violations().get(0).code(),
+                "the code must be ASSET_INVALID_CONTENT");
     }
 
     @Test
@@ -89,9 +89,11 @@ class BbModelTextureExtractorTest {
         ApiException exception = assertThrows(
                 ApiException.class,
                 () -> BbModelTextureExtractor.extract("vulpes:item/ruby", AssetFixtures.utf8(model)),
-                "an embedded texture that is not a PNG must be rejected"
-        );
+                "an embedded texture that is not a PNG must be rejected");
 
-        assertEquals("ASSET_INVALID_CONTENT", exception.violations().get(0).code(), "the code must be ASSET_INVALID_CONTENT");
+        assertEquals(
+                "ASSET_INVALID_CONTENT",
+                exception.violations().get(0).code(),
+                "the code must be ASSET_INVALID_CONTENT");
     }
 }

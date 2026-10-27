@@ -13,9 +13,9 @@ import net.onelitefeather.vulpes.api.model.IdentifiableEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKeySpace;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
-import org.jspecify.annotations.Nullable;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A file stored for a project: a texture, a Minecraft model or a Blockbench model.
@@ -32,11 +32,10 @@ import org.hibernate.annotations.OnDeleteAction;
 @Entity
 @Table(
         name = "project_asset",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_project_asset_key_space",
-                columnNames = {"project_id", "key_space", "key"}
-        )
-)
+        uniqueConstraints =
+                @UniqueConstraint(
+                        name = "uk_project_asset_key_space",
+                        columnNames = {"project_id", "key_space", "key"}))
 public class ProjectAssetEntity extends IdentifiableEntity {
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
@@ -83,8 +82,7 @@ public class ProjectAssetEntity extends IdentifiableEntity {
     /**
      * Creates an empty entity, required by JPA. Use the setters to fill it.
      */
-    public ProjectAssetEntity() {
-    }
+    public ProjectAssetEntity() {}
 
     public ProjectEntity getProject() {
         return project;

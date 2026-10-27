@@ -1,13 +1,13 @@
 package net.onelitefeather.vulpes.backend.domain.asset;
 
-import net.onelitefeather.vulpes.backend.exception.ApiException;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import net.onelitefeather.vulpes.backend.exception.ApiException;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 @DisplayName("Unit tests for AssetKey")
 class AssetKeyTest {
@@ -45,10 +45,7 @@ class AssetKeyTest {
     @Test
     void requireValidNamesFieldKeyAndCode() {
         ApiException exception = assertThrows(
-                ApiException.class,
-                () -> AssetKey.requireValid("Vulpes:item/ruby"),
-                "an invalid key must throw"
-        );
+                ApiException.class, () -> AssetKey.requireValid("Vulpes:item/ruby"), "an invalid key must throw");
 
         assertEquals("key", exception.violations().get(0).field(), "the violation must name the key field");
         assertEquals("ASSET_KEY_INVALID", exception.violations().get(0).code(), "the code must be ASSET_KEY_INVALID");

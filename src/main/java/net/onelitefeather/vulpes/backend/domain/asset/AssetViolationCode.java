@@ -19,6 +19,5 @@ public final class AssetViolationCode {
     /** The asset key does not match the Minecraft resource location rules. */
     public static final String KEY_INVALID = "ASSET_KEY_INVALID";
 
-    private AssetViolationCode() {
-    }
+    private AssetViolationCode() {}
 }

@@ -4,6 +4,10 @@ import io.micronaut.data.model.Pageable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetInspector;
@@ -22,11 +26,6 @@ import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.storage.AssetStorage;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * The transactional writes of project assets: create, replace, and delete.
@@ -61,10 +60,7 @@ public class AssetPersistence {
      */
     @Inject
     public AssetPersistence(
-            ProjectAssetRepository assetRepository,
-            ProjectRepository projectRepository,
-            AssetStorage storage
-    ) {
+            ProjectAssetRepository assetRepository, ProjectRepository projectRepository, AssetStorage storage) {
         this.assetRepository = assetRepository;
         this.projectRepository = projectRepository;
         this.storage = storage;
@@ -93,12 +89,24 @@ public class AssetPersistence {
         requireTextureKeysAvailable(projectId, textures, Set.of());
 
         ProjectAssetEntity asset = store(
-                project, key, upload.fileName(), inspection.kind(),
-                inspection.width(), inspection.height(), upload.content(), null
-        );
+                project,
+                key,
+                upload.fileName(),
+                inspection.kind(),
+                inspection.width(),
+                inspection.height(),
+                upload.content(),
+                null);
         for (ExtractedTexture texture : textures) {
-            store(project, texture.key(), texture.fileName(), AssetKind.TEXTURE,
-                    texture.width(), texture.height(), texture.content(), asset);
+            store(
+                    project,
+                    texture.key(),
+                    texture.fileName(),
+                    AssetKind.TEXTURE,
+                    texture.width(),
+                    texture.height(),
+                    texture.content(),
+                    asset);
         }
         return asset.getId();
     }
@@ -122,8 +130,7 @@ public class AssetPersistence {
             throw ApiException.validationFailed(List.of(new ProblemDetail.Violation(
                     "file",
                     AssetViolationCode.UNSUPPORTED_TYPE,
-                    "must be a " + asset.getKind() + " file, the same kind as the stored asset"
-            )));
+                    "must be a " + asset.getKind() + " file, the same kind as the stored asset")));
         }
         List<ProjectAssetEntity> oldTextures = assetRepository.findBySourceAssetId(id);
         Set<String> replaceable = new HashSet<>();
@@ -142,9 +149,14 @@ public class AssetPersistence {
         ProjectEntity project = asset.getProject();
         for (ExtractedTexture texture : textures) {
             store(
-                    project, texture.key(), texture.fileName(), AssetKind.TEXTURE,
-                    texture.width(), texture.height(), texture.content(), asset
-            );
+                    project,
+                    texture.key(),
+                    texture.fileName(),
+                    AssetKind.TEXTURE,
+                    texture.width(),
+                    texture.height(),
+                    texture.content(),
+                    asset);
         }
         asset.setFileName(upload.fileName());
         asset.setContentType(inspection.kind().contentType());
@@ -153,7 +165,10 @@ public class AssetPersistence {
         asset.setWidth(inspection.width());
         asset.setHeight(inspection.height());
         assetRepository.update(asset);
-        storage.put(AssetStorage.keyFor(projectId, id), upload.content(), inspection.kind().contentType());
+        storage.put(
+                AssetStorage.keyFor(projectId, id),
+                upload.content(),
+                inspection.kind().contentType());
         return id;
     }
 
@@ -180,10 +195,10 @@ public class AssetPersistence {
      */
     @Transactional
     public void deleteAll(UUID projectId) {
-        List<ProjectAssetEntity> roots = assetRepository.findByProjectId(projectId, Pageable.unpaged())
-                .getContent().stream()
-                .filter(asset -> asset.getSourceAsset() == null)
-                .toList();
+        List<ProjectAssetEntity> roots =
+                assetRepository.findByProjectId(projectId, Pageable.unpaged()).getContent().stream()
+                        .filter(asset -> asset.getSourceAsset() == null)
+                        .toList();
         for (ProjectAssetEntity root : roots) {
             delete(projectId, root.getId());
         }
@@ -200,8 +215,7 @@ public class AssetPersistence {
             @Nullable Integer width,
             @Nullable Integer height,
             byte[] content,
-            @Nullable ProjectAssetEntity sourceAsset
-    ) {
+            @Nullable ProjectAssetEntity sourceAsset) {
         ProjectAssetEntity asset = new ProjectAssetEntity();
         asset.setProject(project);
         asset.setKey(key);
@@ -232,16 +246,12 @@ public class AssetPersistence {
      * key is not checked here: a model and a texture may share a key. Nothing is written before this check
      * passes, so a rejected upload stores nothing.
      */
-    private void requireTextureKeysAvailable(
-            UUID projectId,
-            List<ExtractedTexture> textures,
-            Set<String> replaceable
-    ) {
+    private void requireTextureKeysAvailable(UUID projectId, List<ExtractedTexture> textures, Set<String> replaceable) {
         Set<String> seen = new HashSet<>();
         for (ExtractedTexture texture : textures) {
-            boolean taken = assetRepository.existsByProjectIdAndKeySpaceAndKey(
-                    projectId, AssetKeySpace.TEXTURE, texture.key())
-                    && !replaceable.contains(texture.key());
+            boolean taken =
+                    assetRepository.existsByProjectIdAndKeySpaceAndKey(projectId, AssetKeySpace.TEXTURE, texture.key())
+                            && !replaceable.contains(texture.key());
             if (!seen.add(texture.key()) || taken) {
                 throw ApiException.conflict(
                         "The texture key '" + texture.key() + "' extracted from the model is already in use.");
