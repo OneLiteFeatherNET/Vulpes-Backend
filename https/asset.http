@@ -3,8 +3,6 @@
 @projectId =
 @id =
 @bbId =
-@linkId =
-@itemId =
 
 ### Upload a texture (multipart: file + key)
 POST {{server}}/project/{{projectId}}/asset
@@ -57,21 +55,5 @@ Content-Type: image/png
 < ./ruby-v2.png
 --AssetBoundary--
 
-### Link an asset to an item (role TEXTURE for textures, MODEL for models)
-POST {{server}}/project/{{projectId}}/asset/{{id}}/link
-Content-Type: application/json
-
-{
-  "targetType": "ITEM",
-  "targetId": "{{itemId}}",
-  "role": "TEXTURE"
-}
-
-### List the assets linked to an item
-GET {{server}}/project/{{projectId}}/asset/link?targetType=ITEM&targetId={{itemId}}
-
-### Remove a link
-DELETE {{server}}/project/{{projectId}}/asset/link/{{linkId}}
-
-### Delete an asset (also removes its links and the textures extracted from it)
+### Delete an asset (also removes the textures extracted from it)
 DELETE {{server}}/project/{{projectId}}/asset/delete/{{bbId}}

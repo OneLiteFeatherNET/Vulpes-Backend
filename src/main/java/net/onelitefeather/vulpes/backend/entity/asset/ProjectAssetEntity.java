@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import net.onelitefeather.vulpes.api.model.IdentifiableEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
+import net.onelitefeather.vulpes.backend.domain.asset.AssetKeySpace;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -20,7 +21,8 @@ import org.hibernate.annotations.OnDeleteAction;
  *
  * <p>The bytes live in Micronaut Object Storage under {@code <projectId>/<assetId>}. This entity keeps
  * the metadata, so listing and validation never need to touch the storage. Textures extracted from a
- * Blockbench model point to it through {@link #getSourceAsset()}.
+ * Blockbench model point to it through {@link #getSourceAsset()}. A key is unique per project within
+ * its {@link AssetKeySpace}.
  *
  * @author TheMeinerLP
  * @version 1.0.0
@@ -29,7 +31,10 @@ import org.hibernate.annotations.OnDeleteAction;
 @Entity
 @Table(
         name = "project_asset",
-        uniqueConstraints = @UniqueConstraint(name = "uk_project_asset_key", columnNames = {"project_id", "key"})
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_project_asset_key_space",
+                columnNames = {"project_id", "key_space", "key"}
+        )
 )
 public class ProjectAssetEntity extends IdentifiableEntity {
 
@@ -45,6 +50,11 @@ public class ProjectAssetEntity extends IdentifiableEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "kind", nullable = false, length = 16)
     private AssetKind kind;
+
+    /** The namespace the key is unique in. Always the key space of {@link #kind}. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "key_space", nullable = false, length = 16)
+    private AssetKeySpace keySpace;
 
     @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
@@ -97,6 +107,14 @@ public class ProjectAssetEntity extends IdentifiableEntity {
 
     public void setKind(AssetKind kind) {
         this.kind = kind;
+    }
+
+    public AssetKeySpace getKeySpace() {
+        return keySpace;
+    }
+
+    public void setKeySpace(AssetKeySpace keySpace) {
+        this.keySpace = keySpace;
     }
 
     public String getFileName() {

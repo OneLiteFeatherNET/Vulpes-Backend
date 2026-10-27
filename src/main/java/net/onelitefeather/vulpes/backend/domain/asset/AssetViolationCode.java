@@ -10,7 +10,7 @@ package net.onelitefeather.vulpes.backend.domain.asset;
  */
 public final class AssetViolationCode {
 
-    /** The file extension or the link role does not fit the asset kind. */
+    /** The file extension does not fit the asset kind. */
     public static final String UNSUPPORTED_TYPE = "ASSET_UNSUPPORTED_TYPE";
 
     /** The file cannot be decoded, or its JSON is not an object. */
@@ -18,9 +18,6 @@ public final class AssetViolationCode {
 
     /** The asset key does not match the Minecraft resource location rules. */
     public static final String KEY_INVALID = "ASSET_KEY_INVALID";
-
-    /** The link role does not fit the kind of the linked asset. */
-    public static final String ROLE_INVALID = "ASSET_ROLE_INVALID";
 
     private AssetViolationCode() {
     }
