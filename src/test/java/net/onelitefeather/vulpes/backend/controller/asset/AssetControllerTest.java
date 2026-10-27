@@ -18,6 +18,7 @@ import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.service.AssetService;
+import net.onelitefeather.vulpes.backend.service.impl.AssetResponseMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -129,7 +130,7 @@ class AssetControllerTest {
         entity.setSha1(SHA1);
         entity.setWidth(16);
         entity.setHeight(16);
-        return AssetResponseDTO.createDTO(entity, List.of());
+        return AssetResponseMapper.toDto(entity, List.of());
     }
 
     @Test

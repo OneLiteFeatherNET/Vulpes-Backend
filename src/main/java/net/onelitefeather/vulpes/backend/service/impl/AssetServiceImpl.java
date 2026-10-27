@@ -56,7 +56,7 @@ public class AssetServiceImpl extends AbstractCrudService<ProjectAssetEntity, UU
                 projectRepository,
                 // Unused: create and update are overridden, because an upload may create several assets.
                 null,
-                asset -> AssetResponseDTO.createDTO(asset, derivedIdsOf(assetRepository, asset)),
+                asset -> AssetResponseMapper.toDto(asset, derivedIdsOf(assetRepository, asset)),
                 asset -> asset.getProject().getId(),
                 assetRepository::findByProjectId,
                 AssetUploadDTO::id,
@@ -102,7 +102,7 @@ public class AssetServiceImpl extends AbstractCrudService<ProjectAssetEntity, UU
         if (!projectId.equals(asset.getProject().getId())) {
             throw ApiException.notOwnedByProject(ASSET, id, projectId);
         }
-        return AssetResponseDTO.createDTO(asset, derivedIdsOf(assetRepository, asset));
+        return AssetResponseMapper.toDto(asset, derivedIdsOf(assetRepository, asset));
     }
 
     @Override
@@ -110,7 +110,7 @@ public class AssetServiceImpl extends AbstractCrudService<ProjectAssetEntity, UU
         Page<ProjectAssetEntity> page = kind == null
                 ? assetRepository.findByProjectId(projectId, pageable)
                 : assetRepository.findByProjectIdAndKind(projectId, kind, pageable);
-        return page.map(asset -> AssetResponseDTO.createDTO(asset, derivedIdsOf(assetRepository, asset)));
+        return page.map(asset -> AssetResponseMapper.toDto(asset, derivedIdsOf(assetRepository, asset)));
     }
 
     @Override

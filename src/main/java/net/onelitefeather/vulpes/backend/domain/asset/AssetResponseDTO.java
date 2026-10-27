@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import net.onelitefeather.vulpes.api.model.asset.AssetKind;
-import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -77,31 +76,4 @@ public record AssetResponseDTO(
         Instant creationDate,
 
         @Schema(description = "The point in time at which the asset was last modified")
-        Instant modificationDate) {
-
-    /**
-     * Creates the response body of an asset.
-     *
-     * @param asset           the stored asset
-     * @param derivedAssetIds the ids of the textures extracted from it, empty for other kinds
-     * @return the response body
-     */
-    public static AssetResponseDTO createDTO(ProjectAssetEntity asset, List<UUID> derivedAssetIds) {
-        return new AssetResponseDTO(
-                asset.getId(),
-                asset.getProject().getId(),
-                asset.getKey(),
-                asset.getDisplayName(),
-                asset.getKind(),
-                asset.getFileName(),
-                asset.getContentType(),
-                asset.getSize(),
-                asset.getSha1(),
-                asset.getWidth(),
-                asset.getHeight(),
-                asset.getSourceAsset() == null ? null : asset.getSourceAsset().getId(),
-                List.copyOf(derivedAssetIds),
-                asset.getCreationDate(),
-                asset.getModificationDate());
-    }
-}
+        Instant modificationDate) {}
