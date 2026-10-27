@@ -61,6 +61,12 @@ public enum ErrorCode {
     RESOURCE_CONFLICT(HttpStatus.CONFLICT, "Resource conflict"),
 
     /**
+     * The If-Match precondition of an asset replacement does not match the current content. The current
+     * ETag is sent in the response's ETag header, so the client can fetch and merge before retrying.
+     */
+    ASSET_PRECONDITION_FAILED(HttpStatus.PRECONDITION_FAILED, "Asset precondition failed"),
+
+    /**
      * The HTTP method is not supported for the addressed path.
      */
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed"),

@@ -59,7 +59,7 @@ class AssetControllerTest {
         }
 
         @Override
-        public AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload) {
+        public AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload, String ifMatch) {
             return response;
         }
 

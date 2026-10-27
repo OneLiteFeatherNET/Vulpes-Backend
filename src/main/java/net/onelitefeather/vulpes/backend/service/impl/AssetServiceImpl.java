@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.service.impl;
 
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import jakarta.inject.Inject;
@@ -77,12 +78,13 @@ public class AssetServiceImpl
         if (upload.id() == null) {
             throw ApiException.invalidRequest("An id is required to update an asset.");
         }
-        return replaceContent(projectId, upload.id(), upload);
+        return replaceContent(projectId, upload.id(), upload, null);
     }
 
     @Override
-    public AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload) {
-        return getAsset(projectId, persistence.replaceContent(projectId, id, upload));
+    public AssetResponseDTO replaceContent(
+            UUID projectId, UUID id, AssetUploadDTO upload, @Nullable String ifMatch) {
+        return getAsset(projectId, persistence.replaceContent(projectId, id, upload, ifMatch));
     }
 
     @Override

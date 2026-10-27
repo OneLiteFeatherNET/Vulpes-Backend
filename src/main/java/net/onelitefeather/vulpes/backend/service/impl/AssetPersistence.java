@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.service.impl;
 
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.data.model.Pageable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -117,13 +118,21 @@ public class AssetPersistence {
      * @param projectId the project
      * @param id        the asset
      * @param upload    the new file
+     * @param ifMatch   the If-Match value the client holds, or {@code null} to replace unconditionally
      * @return the id of the asset
      * @throws ApiException {@code VALIDATION_FAILED} on field {@code file} for a bad or different kind,
-     *                      {@code RESOURCE_NOT_FOUND} if the asset is not in the project
+     *                      {@code RESOURCE_NOT_FOUND} if the asset is not in the project,
+     *                      {@code ASSET_PRECONDITION_FAILED} if {@code ifMatch} does not match the stored content
      */
     @Transactional
-    public UUID replaceContent(UUID projectId, UUID id, AssetUploadDTO upload) {
+    public UUID replaceContent(UUID projectId, UUID id, AssetUploadDTO upload, @Nullable String ifMatch) {
+        // The row lock lasts until commit, so the precondition check and the write below cannot interleave
+        // with another replacement of this asset. The lock must be taken before the check.
+        assetRepository.findByIdForUpdate(id);
         ProjectAssetEntity asset = requireOwnedAsset(projectId, id);
+        if (ifMatch != null && !matchesIfMatch(ifMatch, asset.getSha1())) {
+            throw ApiException.assetPreconditionFailed("\"" + asset.getSha1() + "\"");
+        }
         AssetInspector.Inspection inspection = AssetInspector.inspect(upload.fileName(), upload.content());
         if (inspection.kind() != asset.getKind()) {
             throw ApiException.validationFailed(List.of(new ProblemDetail.Violation(
@@ -276,6 +285,14 @@ public class AssetPersistence {
                         "The texture key '" + texture.key() + "' extracted from the model is already in use.");
             }
         }
+    }
+
+    /**
+     * Whether an If-Match value admits the stored content. Only {@code *} and the exact strong ETag match;
+     * weak and malformed values never do.
+     */
+    private static boolean matchesIfMatch(String ifMatch, String sha1) {
+        return ifMatch.equals("*") || ifMatch.equals("\"" + sha1 + "\"");
     }
 
     private ProjectEntity requireProject(UUID projectId) {

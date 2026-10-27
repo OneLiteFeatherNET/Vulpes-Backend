@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.service;
 
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
@@ -55,7 +56,8 @@ public interface AssetService extends CrudService<ProjectAssetEntity, UUID, Asse
      * @param projectId the project the asset must belong to
      * @param id        the asset
      * @param upload    the new file
+     * @param ifMatch   the If-Match value the client holds, or {@code null} to replace unconditionally
      * @return the updated asset
      */
-    AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload);
+    AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload, @Nullable String ifMatch);
 }

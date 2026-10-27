@@ -37,6 +37,18 @@ class ApiExceptionHandlerTest {
     }
 
     @Test
+    @DisplayName("a failed asset precondition answers 412 with the current ETag as response header")
+    void handle_writesCurrentEtagOfFailedAssetPrecondition() {
+        HttpRequest<?> request = HttpRequest.GET("/project/1/asset/2/content");
+
+        HttpResponse<ProblemDetail> response = handler.handle(
+                request, ApiException.assetPreconditionFailed("\"0123456789abcdef\""));
+
+        assertEquals(412, response.getStatus().getCode());
+        assertEquals("\"0123456789abcdef\"", response.getHeaders().get("ETag"));
+    }
+
+    @Test
     @DisplayName("the response is served as application/problem+json")
     void handle_setsProblemJsonContentType() {
         HttpRequest<?> request = HttpRequest.GET("/project/1/attribute");
