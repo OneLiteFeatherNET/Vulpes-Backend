@@ -383,4 +383,23 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
         .then()
                 .statusCode(404);
     }
+
+    @Test
+    void uploadAboveMultipartLimitReturns413ProblemAndStoresNothing() {
+        UUID project = newProjectId();
+        byte[] oversized = new byte[8 * 1024 * 1024 + 1024];
+
+        postAsset(project, "ruby.png", "image/png", oversized, "vulpes:item/oversized")
+                .statusCode(413)
+                .contentType("application/problem+json")
+                .body("type", is("https://vulpes.onelitefeather.net/errors/payload-too-large"))
+                .body("status", is(413));
+
+        given()
+        .when()
+                .get(assetPath(project, "/"))
+        .then()
+                .statusCode(200)
+                .body("content", empty());
+    }
 }

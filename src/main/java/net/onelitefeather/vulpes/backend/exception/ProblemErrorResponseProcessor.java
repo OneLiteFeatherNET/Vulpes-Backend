@@ -5,6 +5,7 @@ import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.MutableHttpResponse;
+import io.micronaut.http.exceptions.ContentLengthExceededException;
 import io.micronaut.http.server.exceptions.response.ErrorContext;
 import io.micronaut.http.server.exceptions.response.ErrorResponseProcessor;
 import jakarta.inject.Singleton;
@@ -115,6 +116,15 @@ public class ProblemErrorResponseProcessor implements ErrorResponseProcessor<Pro
             return problemDetailFactory.create(
                     apiException.code(), apiException.detail(), errorContext.getRequest(), traceId,
                     apiException.violations());
+        }
+
+        if (cause instanceof ContentLengthExceededException) {
+            return problemDetailFactory.create(
+                    ErrorCode.PAYLOAD_TOO_LARGE,
+                    "The request is larger than the server accepts. Send smaller files.",
+                    errorContext.getRequest(),
+                    traceId
+            );
         }
 
         if (cause instanceof ConstraintViolationException violationException
