@@ -27,7 +27,7 @@ The system SHALL accept uploads to `POST /project/{projectId}/asset` with a file
 
 #### Scenario: File too large
 - **WHEN** a file larger than 8 MB is uploaded
-- **THEN** the system rejects the request and stores nothing
+- **THEN** the system responds with 413 as a problem response (`application/problem+json`) and stores nothing
 
 ### Requirement: Asset keys are resource locations
 An asset key SHALL be a lowercase resource location `namespace:path` that matches `[a-z0-9_.-]+:[a-z0-9_./-]+` and whose last path segment has no file extension.

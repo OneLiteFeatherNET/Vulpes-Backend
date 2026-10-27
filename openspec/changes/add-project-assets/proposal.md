@@ -17,7 +17,8 @@ Designers work in Blockbench. Its `.bbmodel` files carry the model and its textu
 - Uploads are checked by extension and content. Broken files, unsupported types, invalid keys and taken keys are rejected with a problem response, and nothing is stored.
 - Downloads carry an ETag (SHA-1 of the content) and answer `304` on a matching `If-None-Match`. The browser may read the `ETag` header through CORS.
 - Assets stand alone as pack content. They are not linked to items, fonts or advancements, those models keep naming resource locations as today, and nothing checks that an asset exists for a name. Missing files are left to the later pack generation to report.
-- Uploads are limited to 8 MB.
+- Uploads are limited to 8 MB; larger uploads get a 413 problem response.
+- The asset code is the first code checked by Spotless, NullAway and ArchUnit, limited to the asset packages (`build(asset)`, separate small code PR).
 
 ## Capabilities
 

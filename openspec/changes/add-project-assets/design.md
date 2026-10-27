@@ -35,6 +35,9 @@ An extracted texture stores the id of its source model. Replacing the model dele
 ### Errors use the existing problem format
 Field errors use `VALIDATION_FAILED` with violations (`ASSET_UNSUPPORTED_TYPE`, `ASSET_INVALID_CONTENT`, `ASSET_KEY_INVALID`), taken keys `RESOURCE_CONFLICT`. `ApiException` gains a list of violations and a `validationFailed` factory.
 
+### Code standards, starting with the asset code
+The asset code is the first code checked by three standards, as a small separate code PR on top of the feature: Spotless formats it, Error Prone with NullAway and JSpecify `@Nullable` rejects unchecked nulls at compile time, and ArchUnit tests keep its layers (controller → service → persistence/storage, entities never in DTOs or controllers). All three are scoped to the asset packages, so the rest of the code base is untouched and can follow package by package. Every error of the asset routes, including an oversized upload, is a problem response of the existing `ErrorCode` catalog (RFC 9457). Alternative considered: enabling the tools for the whole project at once. Rejected for now, because it would reformat and flag code far outside this feature.
+
 ### Schema through a migration
 The code PR adds the `project_assets` table as a Flyway migration if `add-flyway-migrations` is on `main` by then, as the next `V<n>`. Otherwise the table has to be created by the rollout, because deployed environments do not run `hbm2ddl update`. Preferred order: Flyway first.
 

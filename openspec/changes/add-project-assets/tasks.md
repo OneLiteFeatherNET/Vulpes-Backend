@@ -18,8 +18,19 @@
 
 - [ ] 4.1 If Flyway is on `main`, add `V<n>__project_assets.sql` and verify the context starts with `hbm2ddl.auto: validate`; otherwise write the table DDL into the PR description for the rollout
 
-## 5. Verify and open
+## 5. Problem responses
 
-- [ ] 5.1 Run `./gradlew build` and verify it is green, using the totals from `build/test-results/test/*.xml`
-- [ ] 5.2 Send the updated asset contract (no link routes, key spaces) to the Stelaris and Blockbench plugin sessions
-- [ ] 5.3 Open the code pull request titled `feat(asset): upload textures and blockbench models to projects` (replacing draft PR #238)
+- [ ] 5.1 Answer an upload larger than the multipart limit with 413 as a problem response from the `ErrorCode` catalog; verify with an integration test that also checks nothing is stored
+
+## 6. Code standards (separate small code PR on top of the feature)
+
+- [ ] 6.1 Add Spotless with a Java formatter, limited to the asset sources and tests; verify `./gradlew spotlessCheck` passes
+- [ ] 6.2 Add Error Prone with NullAway in JSpecify mode, limited to the asset packages; annotate nullable asset fields and parameters with `org.jspecify.annotations.Nullable`; verify `./gradlew compileJava` has no NullAway findings
+- [ ] 6.3 Add ArchUnit tests for the asset layers; verify they pass and fail when a controller uses an asset repository directly
+- [ ] 6.4 Open the pull request titled `build(asset): check the asset code with spotless, nullaway and archunit`
+
+## 7. Verify and open
+
+- [ ] 7.1 Run `./gradlew build` and verify it is green, using the totals from `build/test-results/test/*.xml`
+- [ ] 7.2 Send the updated asset contract (no link routes, key spaces) to the Stelaris and Blockbench plugin sessions
+- [ ] 7.3 Open the code pull request titled `feat(asset): upload textures and blockbench models to projects` (replacing draft PR #238)
