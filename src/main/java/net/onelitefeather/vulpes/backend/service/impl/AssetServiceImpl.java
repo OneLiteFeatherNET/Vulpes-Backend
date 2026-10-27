@@ -15,6 +15,8 @@ import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.AssetService;
 import net.onelitefeather.vulpes.backend.storage.AssetStorage;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +28,7 @@ import java.util.UUID;
  * read back from the database afterwards, so the audit timestamps are always filled in.
  */
 @Singleton
+@NullMarked
 public class AssetServiceImpl
         extends AbstractCrudService<ProjectAssetEntity, UUID, AssetUploadDTO, AssetResponseDTO>
         implements AssetService {
@@ -107,7 +110,7 @@ public class AssetServiceImpl
     }
 
     @Override
-    public Page<AssetResponseDTO> getAll(UUID projectId, AssetKind kind, Pageable pageable) {
+    public Page<AssetResponseDTO> getAll(UUID projectId, @Nullable AssetKind kind, Pageable pageable) {
         Page<ProjectAssetEntity> page = kind == null
                 ? assetRepository.findByProjectId(projectId, pageable)
                 : assetRepository.findByProjectIdAndKind(projectId, kind, pageable);
