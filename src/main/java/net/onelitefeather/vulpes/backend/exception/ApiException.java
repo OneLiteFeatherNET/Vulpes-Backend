@@ -30,6 +30,7 @@ public class ApiException extends RuntimeException {
     private final transient ErrorCode code;
     private final transient String internalDetail;
     private final transient List<ProblemDetail.Violation> violations;
+    private final transient String currentEtag;
 
     /**
      * Constructs a new exception carrying only the client-facing detail.
@@ -66,10 +67,30 @@ public class ApiException extends RuntimeException {
             @Nullable String internalDetail,
             List<ProblemDetail.Violation> violations
     ) {
+        this(code, detail, internalDetail, violations, null);
+    }
+
+    /**
+     * Constructs a new exception that also tells the client the current ETag of the addressed asset.
+     *
+     * @param code           the error code determining status, title and problem type
+     * @param detail         the client-facing explanation, safe to expose
+     * @param internalDetail the explanation for the server log, never sent to the client
+     * @param violations     the field-level violations, empty unless the code is {@code VALIDATION_FAILED}
+     * @param currentEtag    the current quoted ETag, sent as the ETag response header, or {@code null}
+     */
+    public ApiException(
+            ErrorCode code,
+            String detail,
+            @Nullable String internalDetail,
+            List<ProblemDetail.Violation> violations,
+            @Nullable String currentEtag
+    ) {
         super(detail);
         this.code = code;
         this.internalDetail = internalDetail;
         this.violations = List.copyOf(violations);
+        this.currentEtag = currentEtag;
     }
 
     /**
@@ -107,6 +128,15 @@ public class ApiException extends RuntimeException {
      */
     public List<ProblemDetail.Violation> violations() {
         return violations;
+    }
+
+    /**
+     * Returns the current ETag of the addressed asset, to be sent as the ETag response header.
+     *
+     * @return the quoted ETag or {@code null} when the failure does not concern an asset version
+     */
+    public @Nullable String currentEtag() {
+        return currentEtag;
     }
 
     /**
@@ -198,5 +228,21 @@ public class ApiException extends RuntimeException {
      */
     public static ApiException conflict(String detail) {
         return new ApiException(ErrorCode.RESOURCE_CONFLICT, detail);
+    }
+
+    /**
+     * The If-Match precondition of an asset replacement does not match the stored content.
+     *
+     * @param currentEtag the quoted ETag of the stored content, so the client can decide how to continue
+     * @return the exception to throw
+     */
+    public static ApiException assetPreconditionFailed(String currentEtag) {
+        return new ApiException(
+                ErrorCode.ASSET_PRECONDITION_FAILED,
+                "The asset was changed since the If-Match ETag was taken.",
+                null,
+                List.of(),
+                currentEtag
+        );
     }
 }
