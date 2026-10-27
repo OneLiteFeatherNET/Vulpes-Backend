@@ -1,13 +1,12 @@
 package net.onelitefeather.vulpes.backend.domain.asset;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
-import net.onelitefeather.vulpes.backend.exception.ApiException;
-
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 
 /**
  * Extracts the textures embedded in a Blockbench model.
@@ -27,8 +26,7 @@ public final class BbModelTextureExtractor {
 
     private static final String DATA_URI_PREFIX = "data:image/png;base64,";
 
-    private BbModelTextureExtractor() {
-    }
+    private BbModelTextureExtractor() {}
 
     /**
      * A texture extracted from a Blockbench model.
@@ -41,9 +39,7 @@ public final class BbModelTextureExtractor {
      * @param height      the height in pixels
      */
     public record ExtractedTexture(
-            String key, String displayName, String fileName, byte[] content, int width, int height
-    ) {
-    }
+            String key, String displayName, String fileName, byte[] content, int width, int height) {}
 
     /**
      * Extracts all embedded PNG textures of a Blockbench model.
@@ -77,8 +73,7 @@ public final class BbModelTextureExtractor {
                     name + ".png",
                     png,
                     dimensions.width(),
-                    dimensions.height()
-            ));
+                    dimensions.height()));
         }
         return result;
     }
@@ -147,8 +142,7 @@ public final class BbModelTextureExtractor {
             throw ApiException.validationFailed(List.of(new ProblemDetail.Violation(
                     "file",
                     AssetViolationCode.INVALID_CONTENT,
-                    "contains an embedded texture that is not valid base64"
-            )));
+                    "contains an embedded texture that is not valid base64")));
         }
     }
 }

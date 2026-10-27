@@ -1,9 +1,8 @@
 package net.onelitefeather.vulpes.backend.domain.asset;
 
 import io.micronaut.core.annotation.Introspected;
-import org.jspecify.annotations.Nullable;
-
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The internal request for storing an asset. It is built by the controller from the multipart
@@ -20,6 +19,4 @@ import java.util.UUID;
  */
 @Introspected
 public record AssetUploadDTO(
-        @Nullable UUID id, @Nullable String key, @Nullable String displayName, String fileName, byte[] content
-) {
-}
+        @Nullable UUID id, @Nullable String key, @Nullable String displayName, String fileName, byte[] content) {}

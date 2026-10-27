@@ -10,5 +10,4 @@ package net.onelitefeather.vulpes.backend.domain.asset;
  * @version 1.0.0
  * @since 3.3.0
  */
-public record AssetContent(byte[] content, String contentType, String sha1) {
-}
+public record AssetContent(byte[] content, String contentType, String sha1) {}

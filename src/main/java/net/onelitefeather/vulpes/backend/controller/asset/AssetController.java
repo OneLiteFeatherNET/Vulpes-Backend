@@ -10,11 +10,11 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Header;
+import io.micronaut.http.annotation.Part;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
-import io.micronaut.http.annotation.Part;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -22,17 +22,16 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import java.io.IOException;
+import java.util.UUID;
 import net.onelitefeather.vulpes.api.model.asset.AssetKind;
-import org.jspecify.annotations.Nullable;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.AssetService;
-
-import java.io.IOException;
-import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The {@link AssetController} contains endpoints for project assets: textures, Minecraft models and
@@ -67,41 +66,36 @@ public class AssetController {
             operationId = "addAsset",
             description = "Uploads a .png (texture), .json (model) or .bbmodel (Blockbench model) file under the "
                     + "given key. Textures embedded in a Blockbench model are stored as assets of their own.",
-            tags = {"Asset"}
-    )
+            tags = {"Asset"})
     @ApiResponse(
             responseCode = "201",
             description = "The asset was stored.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = AssetResponseDTO.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = AssetResponseDTO.class)))
     @ApiResponse(
             responseCode = "400",
             description = "The key or the file is invalid. 'errors' names the rejected fields and codes "
                     + "ASSET_KEY_INVALID, ASSET_UNSUPPORTED_TYPE or ASSET_INVALID_CONTENT.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     @ApiResponse(
             responseCode = "404",
             description = "The project was not found.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     @ApiResponse(
             responseCode = "409",
             description = "The key, or a texture key extracted from a Blockbench model, is already in use.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     @Post
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
@@ -109,8 +103,7 @@ public class AssetController {
             @PathVariable UUID projectId,
             @Part("file") CompletedFileUpload file,
             @Nullable @Part("key") String key,
-            @Nullable @Part("displayName") String displayName
-    ) {
+            @Nullable @Part("displayName") String displayName) {
         AssetUploadDTO upload = new AssetUploadDTO(null, key, displayName, file.getFilename(), readBytes(file));
         return HttpResponse.created(assetService.create(projectId, upload));
     }
@@ -119,24 +112,21 @@ public class AssetController {
             summary = "Get an asset by its ID",
             operationId = "getAssetById",
             description = "Retrieves an asset owned by the given project by its ID.",
-            tags = {"Asset"}
-    )
+            tags = {"Asset"})
     @ApiResponse(
             responseCode = "200",
             description = "The asset was retrieved.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = AssetResponseDTO.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = AssetResponseDTO.class)))
     @ApiResponse(
             responseCode = "404",
             description = "The asset was not found, or does not belong to the given project.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     @Get("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<AssetResponseDTO> getById(@PathVariable UUID projectId, @PathVariable UUID id) {
@@ -147,26 +137,21 @@ public class AssetController {
             summary = "Get all assets",
             operationId = "getAllAssets",
             description = "Retrieves the assets of the given project, optionally only one kind.",
-            tags = {"Asset"}
-    )
+            tags = {"Asset"})
     @ApiResponse(
             responseCode = "200",
             description = "The assets were retrieved.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = AssetResponseDTO.class),
-                            arraySchema = @Schema(implementation = Page.class)
-                    )
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON,
+                            array =
+                                    @ArraySchema(
+                                            schema = @Schema(implementation = AssetResponseDTO.class),
+                                            arraySchema = @Schema(implementation = Page.class))))
     @Get("/")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Page<AssetResponseDTO>> getAll(
-            @PathVariable UUID projectId,
-            @Nullable @QueryValue AssetKind kind,
-            Pageable pageable
-    ) {
+            @PathVariable UUID projectId, @Nullable @QueryValue AssetKind kind, Pageable pageable) {
         return HttpResponse.ok(assetService.getAll(projectId, kind, pageable));
     }
 
@@ -175,35 +160,30 @@ public class AssetController {
             operationId = "getAssetContent",
             description = "Returns the stored bytes with their media type. The ETag is the SHA-1 digest of the "
                     + "content. A matching If-None-Match answers 304.",
-            tags = {"Asset"}
-    )
+            tags = {"Asset"})
     @ApiResponse(
             responseCode = "200",
             description = "The raw bytes of the asset.",
-            headers = @io.swagger.v3.oas.annotations.headers.Header(
-                    name = "ETag",
-                    description = "SHA-1 digest of the content in quotes",
-                    schema = @Schema(type = "string")
-            )
-    )
+            headers =
+                    @io.swagger.v3.oas.annotations.headers.Header(
+                            name = "ETag",
+                            description = "SHA-1 digest of the content in quotes",
+                            schema = @Schema(type = "string")))
     @ApiResponse(
             responseCode = "304",
-            description = "The client already holds the current content (If-None-Match matched)."
-    )
+            description = "The client already holds the current content (If-None-Match matched).")
     @ApiResponse(
             responseCode = "404",
             description = "The asset was not found, or does not belong to the given project.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     @Get("/{id}/content")
     public HttpResponse<byte[]> getContent(
             @PathVariable UUID projectId,
             @PathVariable UUID id,
-            @Nullable @Header(HttpHeaders.IF_NONE_MATCH) String ifNoneMatch
-    ) {
+            @Nullable @Header(HttpHeaders.IF_NONE_MATCH) String ifNoneMatch) {
         AssetContent content = assetService.getContent(projectId, id);
         String etag = ETAG_QUOTE + content.sha1() + ETAG_QUOTE;
         if (matchesEtag(ifNoneMatch, etag)) {
@@ -219,48 +199,40 @@ public class AssetController {
             operationId = "replaceAssetContent",
             description = "Replaces the bytes of an asset with a file of the same kind. For a Blockbench model the "
                     + "embedded textures are extracted again.",
-            tags = {"Asset"}
-    )
+            tags = {"Asset"})
     @ApiResponse(
             responseCode = "200",
             description = "The content was replaced.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = AssetResponseDTO.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = AssetResponseDTO.class)))
     @ApiResponse(
             responseCode = "400",
             description = "The file is invalid or of another kind. 'errors' names the field 'file'.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     @ApiResponse(
             responseCode = "404",
             description = "The asset was not found, or does not belong to the given project.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     @ApiResponse(
             responseCode = "409",
             description = "A texture key extracted from the new Blockbench model is already in use.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     @Post("/{id}/content")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<AssetResponseDTO> replaceContent(
-            @PathVariable UUID projectId,
-            @PathVariable UUID id,
-            @Part("file") CompletedFileUpload file
-    ) {
+            @PathVariable UUID projectId, @PathVariable UUID id, @Part("file") CompletedFileUpload file) {
         AssetUploadDTO upload = new AssetUploadDTO(id, null, null, file.getFilename(), readBytes(file));
         return HttpResponse.ok(assetService.replaceContent(projectId, id, upload));
     }
@@ -269,24 +241,21 @@ public class AssetController {
             summary = "Remove an asset by ID",
             operationId = "removeAssetById",
             description = "Removes an asset, the textures extracted from it and their stored bytes.",
-            tags = {"Asset"}
-    )
+            tags = {"Asset"})
     @ApiResponse(
             responseCode = "200",
             description = "The asset was removed.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = AssetResponseDTO.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = AssetResponseDTO.class)))
     @ApiResponse(
             responseCode = "404",
             description = "The asset was not found, or does not belong to the given project.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<AssetResponseDTO> remove(@PathVariable UUID projectId, @PathVariable UUID id) {
@@ -297,12 +266,8 @@ public class AssetController {
             summary = "Delete all assets",
             operationId = "deleteAllAssets",
             description = "Deletes all assets of the given project and their stored bytes.",
-            tags = {"Asset"}
-    )
-    @ApiResponse(
-            responseCode = "204",
-            description = "All assets were deleted."
-    )
+            tags = {"Asset"})
+    @ApiResponse(responseCode = "204", description = "All assets were deleted.")
     @Delete("/delete/")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Void> deleteAll(@PathVariable UUID projectId) {

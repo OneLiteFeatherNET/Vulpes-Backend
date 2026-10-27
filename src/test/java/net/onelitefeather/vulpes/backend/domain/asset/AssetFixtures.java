@@ -1,20 +1,19 @@
 package net.onelitefeather.vulpes.backend.domain.asset;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import javax.imageio.ImageIO;
 
 /**
  * Builds asset bytes in memory, so the tests need no files on disk.
  */
 public final class AssetFixtures {
 
-    private AssetFixtures() {
-    }
+    private AssetFixtures() {}
 
     /**
      * Encodes a blank image of the given size as PNG.
@@ -40,8 +39,11 @@ public final class AssetFixtures {
                 textures.append(',');
             }
             String source = "data:image/png;base64," + Base64.getEncoder().encodeToString(png(16, 16));
-            textures.append("{\"name\":\"").append(textureNames[index]).append("\",\"source\":\"")
-                    .append(source).append("\"}");
+            textures.append("{\"name\":\"")
+                    .append(textureNames[index])
+                    .append("\",\"source\":\"")
+                    .append(source)
+                    .append("\"}");
         }
         return "{\"meta\":{\"format_version\":\"4.10\"},\"textures\":[" + textures + "],\"elements\":[]}";
     }

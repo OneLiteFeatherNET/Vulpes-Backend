@@ -22,6 +22,5 @@ public final class AssetViolationCode {
     /** The display name is blank or longer than its column. */
     public static final String DISPLAY_NAME_INVALID = "ASSET_DISPLAY_NAME_INVALID";
 
-    private AssetViolationCode() {
-    }
+    private AssetViolationCode() {}
 }
