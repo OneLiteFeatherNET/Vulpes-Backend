@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.onelitefeather.vulpes.api.model.asset.AssetKind;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
+import org.jspecify.annotations.Nullable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -45,7 +46,7 @@ public final class AssetInspector {
      * @param width       the width in pixels, only for textures, otherwise {@code null}
      * @param height      the height in pixels, only for textures, otherwise {@code null}
      */
-    public record Inspection(AssetKind kind, Integer width, Integer height) {
+    public record Inspection(AssetKind kind, @Nullable Integer width, @Nullable Integer height) {
     }
 
     /**

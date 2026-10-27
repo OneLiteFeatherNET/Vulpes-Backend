@@ -3,9 +3,9 @@ package net.onelitefeather.vulpes.backend.domain.asset;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.annotation.Nullable;
 import net.onelitefeather.vulpes.api.model.asset.AssetKind;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.List;

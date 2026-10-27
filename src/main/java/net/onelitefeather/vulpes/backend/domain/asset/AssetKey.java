@@ -2,6 +2,7 @@ package net.onelitefeather.vulpes.backend.domain.asset;
 
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -47,8 +48,8 @@ public final class AssetKey {
      * @throws ApiException {@code VALIDATION_FAILED} with an {@code ASSET_KEY_INVALID} violation on
      *                      field {@code key}
      */
-    public static String requireValid(String key) {
-        if (!isValid(key)) {
+    public static String requireValid(@Nullable String key) {
+        if (key == null || !isValid(key)) {
             throw ApiException.validationFailed(List.of(new ProblemDetail.Violation(
                     "key",
                     AssetViolationCode.KEY_INVALID,

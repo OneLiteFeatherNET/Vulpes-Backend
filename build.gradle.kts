@@ -1,13 +1,38 @@
+import net.ltgt.gradle.errorprone.errorprone
+
 plugins {
+    alias(libs.plugins.errorprone)
     alias(libs.plugins.micronaut.application)
     alias(libs.plugins.micronaut.aot)
     alias(libs.plugins.micronaut.test.resources) // TODO: Needs be fixed, ref: https://github.com/micronaut-projects/micronaut-gradle-plugin/issues/1195
     jacoco
     `maven-publish`
     alias(libs.plugins.cyclonedx)
+    alias(libs.plugins.spotless)
 }
 
 version = "3.2.0" // x-release-please-version
+
+// Code standards are limited to the asset packages for now; the rest of the code base is not formatted or
+// null-checked yet and can follow package by package. Asset sources and tests are listed explicitly.
+val assetSources = listOf(
+    "src/main/java/net/onelitefeather/vulpes/backend/controller/asset/**/*.java",
+    "src/main/java/net/onelitefeather/vulpes/backend/domain/asset/**/*.java",
+    "src/main/java/net/onelitefeather/vulpes/backend/entity/asset/**/*.java",
+    "src/main/java/net/onelitefeather/vulpes/backend/storage/**/*.java",
+    "src/main/java/net/onelitefeather/vulpes/backend/service/AssetService.java",
+    "src/main/java/net/onelitefeather/vulpes/backend/service/impl/Asset*.java",
+    "src/test/java/net/onelitefeather/vulpes/backend/controller/asset/**/*.java",
+    "src/test/java/net/onelitefeather/vulpes/backend/domain/asset/**/*.java",
+    "src/test/java/net/onelitefeather/vulpes/backend/architecture/**/*.java",
+)
+
+spotless {
+    java {
+        target(assetSources)
+        palantirJavaFormat(libs.versions.palantir.java.format.get())
+    }
+}
 
 java {
     toolchain {
@@ -78,7 +103,12 @@ dependencies {
     implementation(libs.vulpes.api)
     // UUID Creator
     implementation(libs.uuid.creator)
+    // JSpecify nullability annotations, checked by NullAway in the asset packages.
+    implementation(libs.jspecify)
+    errorprone(libs.error.prone.core)
+    errorprone(libs.nullaway)
 
+    testImplementation(libs.archunit.junit5)
     testImplementation(mn.junit.jupiter.api)
     testImplementation(mn.junit.jupiter.params)
     testImplementation(mn.testcontainers.core)
@@ -141,11 +171,28 @@ tasks {
     named<JavaCompile>(dev.compileJavaTaskName) {
         options.encoding = "UTF-8"
         options.release = 25
+        // Error Prone is limited to compileJava: NullAway needs the asset packages marked with @NullMarked.
+        options.errorprone.enabled.set(false)
     }
     compileJava {
         options.encoding = "UTF-8"
         options.release = 25
         options.forkOptions.jvmArgs = listOf("-Dmicronaut.openapi.views.spec=rapidoc.enabled=true,openapi-explorer.enabled=true,swagger-ui.enabled=true,swagger-ui.theme=flattop")
+        options.errorprone {
+            disableWarningsInGeneratedCode.set(true)
+            // Micronaut's generated sources would otherwise be checked; they are not hand-written code.
+            excludedPaths.set(".*/build/generated/.*")
+            // NullAway checks only code marked @NullMarked (the asset packages, see package-info.java).
+            option("NullAway:OnlyNullMarked", "true")
+            // Only NullAway for now, so the other Error Prone checks do not flag code outside the asset packages.
+            disableAllChecks.set(true)
+            option("NullAway:JSpecifyMode", "true")
+            error("NullAway")
+        }
+    }
+    // Error Prone runs on the production code only; the tests are not null-checked.
+    compileTestJava {
+        options.errorprone.enabled.set(false)
     }
     jacocoTestReport {
         reports {

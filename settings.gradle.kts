@@ -43,6 +43,13 @@ dependencyResolutionManagement {
             version("logstash.logback.encoder", "9.0")
             version("janino", "3.1.12")
             version("opentelemetry.instrumentation.alpha", "2.20.1-alpha")
+            version("spotless", "8.10.4")
+            version("palantir.java.format", "2.102.0")
+            version("errorprone.plugin", "5.1.1")
+            version("error.prone.core", "2.50.0")
+            version("nullaway", "0.14.2")
+            version("jspecify", "1.0.1")
+            version("archunit", "1.5.1")
 
             library("uuid.creator", "com.github.f4b6a3", "uuid-creator").versionRef("uuid.creator")
             library("vulpes.api", "net.onelitefeather", "vulpes-model").versionRef("vulpes.model")
@@ -60,10 +67,18 @@ dependencyResolutionManagement {
             library("opentelemetry.exporter.otlp", "io.opentelemetry", "opentelemetry-exporter-otlp").withoutVersion()
             library("opentelemetry.logback.mdc", "io.opentelemetry.instrumentation", "opentelemetry-logback-mdc-1.0").versionRef("opentelemetry.instrumentation.alpha")
 
+            // Code standards for the asset packages (see build.gradle.kts).
+            library("error.prone.core", "com.google.errorprone", "error_prone_core").versionRef("error.prone.core")
+            library("nullaway", "com.uber.nullaway", "nullaway").versionRef("nullaway")
+            library("jspecify", "org.jspecify", "jspecify").versionRef("jspecify")
+            library("archunit.junit5", "com.tngtech.archunit", "archunit-junit5").versionRef("archunit")
+
             plugin("micronaut.application", "io.micronaut.application").versionRef("micronaut")
             plugin("micronaut.aot", "io.micronaut.aot").versionRef("micronaut")
             plugin("micronaut.test-resources", "io.micronaut.test-resources").versionRef("micronaut")
             plugin("cyclonedx", "org.cyclonedx.bom").versionRef("cyclonedx")
+            plugin("spotless", "com.diffplug.spotless").versionRef("spotless")
+            plugin("errorprone", "net.ltgt.errorprone").versionRef("errorprone.plugin")
         }
     }
 }
