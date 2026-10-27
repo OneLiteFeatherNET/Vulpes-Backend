@@ -20,4 +20,4 @@
 
 ## 4. Delivery
 
-- [ ] 4.1 Open the code pull request under the title `feat(asset): reject stale asset replacements with if-match`, from a branch based on the main branch that contains the merged project-assets feature
+- [ ] 4.1 Open the code pull request under the title `feat(asset): reject stale replacements and keep asset revisions`, from a branch based on the main branch that contains the merged project-assets feature
