@@ -16,6 +16,7 @@ import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.asset.AssetRevisionResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.service.AssetService;
 import net.onelitefeather.vulpes.backend.service.impl.AssetResponseMapper;
@@ -56,6 +57,22 @@ class AssetControllerTest {
         @Override
         public AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload, String ifMatch) {
             return response;
+        }
+
+        @Override
+        public Page<AssetRevisionResponseDTO> getRevisions(UUID projectId, UUID id, Pageable pageable) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public AssetContent getRevisionContent(UUID projectId, UUID id, UUID revisionId) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public AssetResponseDTO restoreRevision(
+                UUID projectId, UUID id, UUID revisionId, String ifMatch, String comment) {
+            throw new UnsupportedOperationException();
         }
 
         @Override

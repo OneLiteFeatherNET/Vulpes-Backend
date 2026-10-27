@@ -3,7 +3,9 @@ package net.onelitefeather.vulpes.backend.service.impl;
 import java.util.List;
 import java.util.UUID;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
+import net.onelitefeather.vulpes.api.model.asset.ProjectAssetRevisionEntity;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.asset.AssetRevisionResponseDTO;
 import org.jspecify.annotations.NullMarked;
 
 /**
@@ -39,5 +41,23 @@ public final class AssetResponseMapper {
                 List.copyOf(derivedAssetIds),
                 asset.getCreationDate(),
                 asset.getModificationDate());
+    }
+
+    /**
+     * Creates the response body of one revision of an asset.
+     *
+     * @param revision the stored revision
+     * @param current  whether the revision is the newest one of its asset
+     * @return the response body
+     */
+    public static AssetRevisionResponseDTO toRevisionDto(ProjectAssetRevisionEntity revision, boolean current) {
+        return new AssetRevisionResponseDTO(
+                revision.getId(),
+                revision.getNumber(),
+                revision.getSha1(),
+                revision.getSize(),
+                revision.getComment(),
+                revision.getCreationDate(),
+                current);
     }
 }

@@ -13,10 +13,16 @@ import org.jspecify.annotations.Nullable;
  * @param displayName the name the asset is shown by, {@code null} when replacing its content
  * @param fileName    the file name as the client sent it
  * @param content     the uploaded bytes
+ * @param comment     the optional comment of the revision, {@code null} if none
  * @author TheMeinerLP
  * @version 1.0.0
  * @since 3.3.0
  */
 @Introspected
 public record AssetUploadDTO(
-        @Nullable UUID id, @Nullable String key, @Nullable String displayName, String fileName, byte[] content) {}
+        @Nullable UUID id,
+        @Nullable String key,
+        @Nullable String displayName,
+        String fileName,
+        byte[] content,
+        @Nullable String comment) {}
