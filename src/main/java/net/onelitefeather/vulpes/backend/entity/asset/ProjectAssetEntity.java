@@ -13,6 +13,7 @@ import net.onelitefeather.vulpes.api.model.IdentifiableEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKeySpace;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
+import org.jspecify.annotations.Nullable;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -69,15 +70,15 @@ public class ProjectAssetEntity extends IdentifiableEntity {
     private String sha1;
 
     @Column(name = "width")
-    private Integer width;
+    private @Nullable Integer width;
 
     @Column(name = "height")
-    private Integer height;
+    private @Nullable Integer height;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "source_asset_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private ProjectAssetEntity sourceAsset;
+    private @Nullable ProjectAssetEntity sourceAsset;
 
     /**
      * Creates an empty entity, required by JPA. Use the setters to fill it.
@@ -149,27 +150,27 @@ public class ProjectAssetEntity extends IdentifiableEntity {
         this.sha1 = sha1;
     }
 
-    public Integer getWidth() {
+    public @Nullable Integer getWidth() {
         return width;
     }
 
-    public void setWidth(Integer width) {
+    public void setWidth(@Nullable Integer width) {
         this.width = width;
     }
 
-    public Integer getHeight() {
+    public @Nullable Integer getHeight() {
         return height;
     }
 
-    public void setHeight(Integer height) {
+    public void setHeight(@Nullable Integer height) {
         this.height = height;
     }
 
-    public ProjectAssetEntity getSourceAsset() {
+    public @Nullable ProjectAssetEntity getSourceAsset() {
         return sourceAsset;
     }
 
-    public void setSourceAsset(ProjectAssetEntity sourceAsset) {
+    public void setSourceAsset(@Nullable ProjectAssetEntity sourceAsset) {
         this.sourceAsset = sourceAsset;
     }
 }

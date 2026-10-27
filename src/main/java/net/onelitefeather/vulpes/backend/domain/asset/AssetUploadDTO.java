@@ -1,5 +1,7 @@
 package net.onelitefeather.vulpes.backend.domain.asset;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.UUID;
 
 /**
@@ -14,5 +16,5 @@ import java.util.UUID;
  * @version 1.0.0
  * @since 3.3.0
  */
-public record AssetUploadDTO(UUID id, String key, String fileName, byte[] content) {
+public record AssetUploadDTO(@Nullable UUID id, @Nullable String key, String fileName, byte[] content) {
 }

@@ -20,6 +20,8 @@ import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.storage.AssetStorage;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +43,7 @@ import java.util.UUID;
  * @since 3.3.0
  */
 @Singleton
+@NullMarked
 public class AssetPersistence {
 
     private static final String ASSET = "Asset";
@@ -194,10 +197,10 @@ public class AssetPersistence {
             String key,
             String fileName,
             AssetKind kind,
-            Integer width,
-            Integer height,
+            @Nullable Integer width,
+            @Nullable Integer height,
             byte[] content,
-            ProjectAssetEntity sourceAsset
+            @Nullable ProjectAssetEntity sourceAsset
     ) {
         ProjectAssetEntity asset = new ProjectAssetEntity();
         asset.setProject(project);

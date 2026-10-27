@@ -7,6 +7,8 @@ import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetEntity;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -16,6 +18,7 @@ import java.util.UUID;
  * <p>The bytes are kept in object storage, the metadata in the database. Uploading a Blockbench model
  * also stores the textures embedded in it as assets of their own.
  */
+@NullMarked
 public interface AssetService extends CrudService<ProjectAssetEntity, UUID, AssetUploadDTO, AssetResponseDTO> {
 
     /**
@@ -37,7 +40,7 @@ public interface AssetService extends CrudService<ProjectAssetEntity, UUID, Asse
      * @param pageable  pagination details
      * @return a page of assets
      */
-    Page<AssetResponseDTO> getAll(UUID projectId, AssetKind kind, Pageable pageable);
+    Page<AssetResponseDTO> getAll(UUID projectId, @Nullable AssetKind kind, Pageable pageable);
 
     /**
      * Returns the stored bytes of an asset.
