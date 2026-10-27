@@ -27,6 +27,7 @@ import java.util.UUID;
 import net.onelitefeather.vulpes.api.model.asset.AssetKind;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.asset.AssetRevisionResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
@@ -65,7 +66,8 @@ public class AssetController {
             summary = "Upload a new asset",
             operationId = "addAsset",
             description = "Uploads a .png (texture), .json (model) or .bbmodel (Blockbench model) file under the "
-                    + "given key. Textures embedded in a Blockbench model are stored as assets of their own.",
+                    + "given key. Textures embedded in a Blockbench model are stored as assets of their own. The "
+                    + "upload is revision 1 of the asset; an optional comment field is stored with it.",
             tags = {"Asset"})
     @ApiResponse(
             responseCode = "201",
@@ -103,8 +105,10 @@ public class AssetController {
             @PathVariable UUID projectId,
             @Part("file") CompletedFileUpload file,
             @Nullable @Part("key") String key,
-            @Nullable @Part("displayName") String displayName) {
-        AssetUploadDTO upload = new AssetUploadDTO(null, key, displayName, file.getFilename(), readBytes(file));
+            @Nullable @Part("displayName") String displayName,
+            @Nullable @Part("comment") String comment) {
+        AssetUploadDTO upload =
+                new AssetUploadDTO(null, key, displayName, file.getFilename(), readBytes(file), comment);
         AssetResponseDTO asset = assetService.create(projectId, upload);
         return HttpResponse.created(asset).header(HttpHeaders.ETAG, ETAG_QUOTE + asset.sha1() + ETAG_QUOTE);
     }
@@ -185,22 +189,16 @@ public class AssetController {
             @PathVariable UUID projectId,
             @PathVariable UUID id,
             @Nullable @Header(HttpHeaders.IF_NONE_MATCH) String ifNoneMatch) {
-        AssetContent content = assetService.getContent(projectId, id);
-        String etag = ETAG_QUOTE + content.sha1() + ETAG_QUOTE;
-        if (matchesEtag(ifNoneMatch, etag)) {
-            return HttpResponse.<byte[]>notModified().header(HttpHeaders.ETAG, etag);
-        }
-        return HttpResponse.ok(content.content())
-                .contentType(MediaType.of(content.contentType()))
-                .header(HttpHeaders.ETAG, etag);
+        return contentResponse(assetService.getContent(projectId, id), ifNoneMatch);
     }
 
     @Operation(
             summary = "Replace the content of an asset",
             operationId = "replaceAssetContent",
-            description = "Replaces the bytes of an asset with a file of the same kind. For a Blockbench model the "
-                    + "embedded textures are extracted again. Send If-Match with the ETag of the version you "
-                    + "edited to refuse the replacement with 412 if the asset changed since.",
+            description = "Replaces the bytes of an asset with a file of the same kind. The new content is the next "
+                    + "revision, with the optional comment field. For a Blockbench model the embedded textures are "
+                    + "extracted again. Send If-Match with the ETag of the version you edited to refuse the "
+                    + "replacement with 412 if the asset changed since.",
             tags = {"Asset"})
     @ApiResponse(
             responseCode = "200",
@@ -245,9 +243,113 @@ public class AssetController {
             @PathVariable UUID projectId,
             @PathVariable UUID id,
             @Part("file") CompletedFileUpload file,
-            @Nullable @Header(HttpHeaders.IF_MATCH) String ifMatch) {
-        AssetUploadDTO upload = new AssetUploadDTO(id, null, null, file.getFilename(), readBytes(file));
+            @Nullable @Header(HttpHeaders.IF_MATCH) String ifMatch,
+            @Nullable @Part("comment") String comment) {
+        AssetUploadDTO upload = new AssetUploadDTO(id, null, null, file.getFilename(), readBytes(file), comment);
         AssetResponseDTO asset = assetService.replaceContent(projectId, id, upload, ifMatch);
+        return HttpResponse.ok(asset).header(HttpHeaders.ETAG, ETAG_QUOTE + asset.sha1() + ETAG_QUOTE);
+    }
+
+    @Operation(
+            summary = "Get the revisions of an asset",
+            operationId = "getAssetRevisions",
+            description = "Retrieves the revisions of an asset, newest first. Each revision says whether it is the "
+                    + "current content.",
+            tags = {"Asset"})
+    @ApiResponse(
+            responseCode = "200",
+            description = "The revisions were retrieved.",
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON,
+                            array =
+                                    @ArraySchema(
+                                            schema = @Schema(implementation = AssetRevisionResponseDTO.class),
+                                            arraySchema = @Schema(implementation = Page.class))))
+    @ApiResponse(
+            responseCode = "404",
+            description = "The asset was not found, or does not belong to the given project.",
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
+    @Get("/{id}/revision")
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse<Page<AssetRevisionResponseDTO>> getRevisions(
+            @PathVariable UUID projectId, @PathVariable UUID id, Pageable pageable) {
+        return HttpResponse.ok(assetService.getRevisions(projectId, id, pageable));
+    }
+
+    @Operation(
+            summary = "Get the content of a revision",
+            operationId = "getAssetRevisionContent",
+            description = "Returns the stored bytes of one revision. The ETag is the SHA-1 digest of that revision. "
+                    + "A matching If-None-Match answers 304.",
+            tags = {"Asset"})
+    @ApiResponse(
+            responseCode = "200",
+            description = "The raw bytes of the revision.",
+            headers =
+                    @io.swagger.v3.oas.annotations.headers.Header(
+                            name = "ETag",
+                            description = "SHA-1 digest of the revision content in quotes",
+                            schema = @Schema(type = "string")))
+    @ApiResponse(responseCode = "304", description = "The client already holds this revision (If-None-Match matched).")
+    @ApiResponse(
+            responseCode = "404",
+            description = "The asset or the revision was not found, or the revision does not belong to the asset.",
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
+    @Get("/{id}/revision/{revisionId}/content")
+    public HttpResponse<byte[]> getRevisionContent(
+            @PathVariable UUID projectId,
+            @PathVariable UUID id,
+            @PathVariable UUID revisionId,
+            @Nullable @Header(HttpHeaders.IF_NONE_MATCH) String ifNoneMatch) {
+        return contentResponse(assetService.getRevisionContent(projectId, id, revisionId), ifNoneMatch);
+    }
+
+    @Operation(
+            summary = "Restore a revision",
+            operationId = "restoreAssetRevision",
+            description = "Makes an earlier revision the current content by writing its bytes as a new revision. "
+                    + "Send If-Match with the current ETag of the asset to refuse the restore with 412 if the asset "
+                    + "changed since.",
+            tags = {"Asset"})
+    @ApiResponse(
+            responseCode = "200",
+            description = "The revision was restored.",
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = AssetResponseDTO.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "The asset or the revision was not found, or the revision does not belong to the asset.",
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(
+            responseCode = "412",
+            description = "The If-Match header does not match the current content. The current ETag is sent in "
+                    + "the ETag header; nothing was changed.",
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
+    @Post("/{id}/revision/{revisionId}/restore")
+    @Consumes(MediaType.ALL)
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse<AssetResponseDTO> restoreRevision(
+            @PathVariable UUID projectId,
+            @PathVariable UUID id,
+            @PathVariable UUID revisionId,
+            @Nullable @Header(HttpHeaders.IF_MATCH) String ifMatch,
+            @Nullable @QueryValue String comment) {
+        AssetResponseDTO asset = assetService.restoreRevision(projectId, id, revisionId, ifMatch, comment);
         return HttpResponse.ok(asset).header(HttpHeaders.ETAG, ETAG_QUOTE + asset.sha1() + ETAG_QUOTE);
     }
 
@@ -298,6 +400,19 @@ public class AssetController {
         } catch (IOException exception) {
             throw ApiException.invalidRequest("The uploaded file could not be read.");
         }
+    }
+
+    /**
+     * Builds the answer of a content endpoint: the bytes with their ETag, or 304 when If-None-Match matches.
+     */
+    private static HttpResponse<byte[]> contentResponse(AssetContent content, @Nullable String ifNoneMatch) {
+        String etag = ETAG_QUOTE + content.sha1() + ETAG_QUOTE;
+        if (matchesEtag(ifNoneMatch, etag)) {
+            return HttpResponse.<byte[]>notModified().header(HttpHeaders.ETAG, etag);
+        }
+        return HttpResponse.ok(content.content())
+                .contentType(MediaType.of(content.contentType()))
+                .header(HttpHeaders.ETAG, etag);
     }
 
     /**
