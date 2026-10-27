@@ -1,6 +1,12 @@
 micronaut:
   server:
     port: 8085
+    cors:
+      configurations:
+        all:
+          # The Blockbench desktop plugin runs in a file:// renderer and sends the origin "null".
+          allowedOriginsRegex:
+            - '^(https?://(localhost|127\.0\.0\.1)(:\d+)?|null|file://.*)$'
   object-storage:
     local:
       assets:
