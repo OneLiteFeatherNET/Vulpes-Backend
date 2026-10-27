@@ -50,7 +50,7 @@ public interface AssetService extends CrudService<ProjectAssetEntity, UUID, Asse
 
     /**
      * Replaces the bytes of an asset. The new file must have the same kind. For a Blockbench model the
-     * textures are extracted again, and links to old textures move to new textures with the same key.
+     * textures are extracted again.
      *
      * @param projectId the project the asset must belong to
      * @param id        the asset

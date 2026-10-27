@@ -5,6 +5,7 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.micronaut.test.support.TestPropertyProvider;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.ValidatableResponse;
 import jakarta.inject.Inject;
 import net.datafaker.Faker;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetFixtures;
@@ -107,14 +108,34 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
                 .extract().path("id");
     }
 
-    private String createItem() {
+    /**
+     * Creates a project of its own, so a test can use fixed asset keys without seeing other tests' assets.
+     */
+    private UUID newProjectId() {
+        ProjectModelDTO project = new ProjectModelDTO(
+                null, FAKER.company().name(), "asset-it-" + UUID.randomUUID(), null, null, null, false);
+        return given()
+                .contentType(ContentType.JSON)
+                .body(project)
+        .when()
+                .post("/project")
+        .then()
+                .statusCode(200)
+                .extract().as(ProjectModelResponseDTO.ProjectModelDTO.class).id();
+    }
+
+    private String assetPath(UUID project, String suffix) {
+        return "/project/" + project + "/asset" + suffix;
+    }
+
+    private String createItem(UUID project) {
         String body = "{\"uiName\":\"Ruby\",\"key\":\"vulpes:item-" + UUID.randomUUID().toString().substring(0, 8)
                 + "\",\"groupName\":\"gems\"}";
         return given()
                 .contentType(ContentType.JSON)
                 .body(body)
         .when()
-                .post("/project/" + projectId + "/item")
+                .post("/project/" + project + "/item")
         .then()
                 .statusCode(200)
                 .extract().path("id");
@@ -210,52 +231,7 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
     }
 
     @Test
-    void linkTextureToItemIsListedWithEmbeddedAsset() {
-        String folder = uniqueFolder();
-        String textureId = uploadPng("vulpes:" + folder + "/ruby", AssetFixtures.png(16, 16));
-        String itemId = createItem();
-
-        given()
-                .contentType(ContentType.JSON)
-                .body("{\"targetType\":\"ITEM\",\"targetId\":\"" + itemId + "\",\"role\":\"TEXTURE\"}")
-        .when()
-                .post(assetPath("/" + textureId + "/link"))
-        .then()
-                .statusCode(201)
-                .body("assetId", is(textureId))
-                .body("role", is("TEXTURE"));
-
-        given()
-                .queryParam("targetType", "ITEM")
-                .queryParam("targetId", itemId)
-        .when()
-                .get(assetPath("/link"))
-        .then()
-                .statusCode(200)
-                .body("", hasSize(1))
-                .body("[0].asset.id", is(textureId))
-                .body("[0].asset.key", is("vulpes:" + folder + "/ruby"));
-    }
-
-    @Test
-    void roleMismatchReturns400OnRoleField() {
-        String textureId = uploadPng(
-                "vulpes:item/role-" + UUID.randomUUID().toString().substring(0, 8), AssetFixtures.png(16, 16));
-        String itemId = createItem();
-
-        given()
-                .contentType(ContentType.JSON)
-                .body("{\"targetType\":\"ITEM\",\"targetId\":\"" + itemId + "\",\"role\":\"MODEL\"}")
-        .when()
-                .post(assetPath("/" + textureId + "/link"))
-        .then()
-                .statusCode(400)
-                .body("code", is("VALIDATION_FAILED"))
-                .body("errors.field", hasItem("role"));
-    }
-
-    @Test
-    void deleteAssetRemovesLinksAndDerivedTextures() {
+    void deleteAssetRemovesDerivedTextures() {
         String folder = uniqueFolder();
         String bbId = given()
                 .multiPart("file", "gem.bbmodel",
@@ -273,14 +249,6 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
                 .statusCode(200)
                 .extract().path("content.find { it.sourceAssetId == '" + bbId + "' }.id");
         assertNotNull(derivedId, "the extracted texture must be listed with the model as source");
-        String itemId = createItem();
-        given()
-                .contentType(ContentType.JSON)
-                .body("{\"targetType\":\"ITEM\",\"targetId\":\"" + itemId + "\",\"role\":\"TEXTURE\"}")
-        .when()
-                .post(assetPath("/" + derivedId + "/link"))
-        .then()
-                .statusCode(201);
 
         given()
         .when()
@@ -294,14 +262,102 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
                 .get(assetPath("/" + derivedId))
         .then()
                 .statusCode(404);
+    }
+
+    @Test
+    void deletingModelKeepsItemModelComponentOfItem() {
+        UUID project = newProjectId();
+        String itemId = createItem(project);
         given()
-                .queryParam("targetType", "ITEM")
-                .queryParam("targetId", itemId)
+                .contentType(ContentType.JSON)
+                .body("{\"componentKey\":\"minecraft:item_model\",\"value\":\"vulpes:item/ruby\"}")
         .when()
-                .get(assetPath("/link"))
+                .put("/item/" + itemId + "/component")
+        .then()
+                .statusCode(200);
+        String modelId = given()
+                .multiPart("file", "ruby.json", AssetFixtures.utf8("{}"), "application/json")
+                .multiPart("key", "vulpes:item/ruby")
+        .when()
+                .post(assetPath(project, ""))
+        .then()
+                .statusCode(201)
+                .extract().path("id");
+
+        given()
+        .when()
+                .delete(assetPath(project, "/delete/" + modelId))
+        .then()
+                .statusCode(200);
+
+        given()
+        .when()
+                .get("/item/" + itemId + "/components")
         .then()
                 .statusCode(200)
-                .body("", empty());
+                .body("content.find { it.componentKey == 'minecraft:item_model' }.value", is("vulpes:item/ruby"));
+    }
+
+    private ValidatableResponse postAsset(UUID project, String fileName, String contentType, byte[] content, String key) {
+        return given()
+                .multiPart("file", fileName, content, contentType)
+                .multiPart("key", key)
+        .when()
+                .post(assetPath(project, ""))
+        .then();
+    }
+
+    @Test
+    void textureMayShareKeyWithModel() {
+        UUID project = newProjectId();
+        postAsset(project, "ruby.json", "application/json", AssetFixtures.utf8("{}"), "vulpes:item/ruby")
+                .statusCode(201);
+
+        postAsset(project, "ruby.png", "image/png", AssetFixtures.png(16, 16), "vulpes:item/ruby")
+                .statusCode(201);
+    }
+
+    @Test
+    void bbmodelTextureNamedAfterModelIsStoredWithSameKey() {
+        UUID project = newProjectId();
+        String bbId = postAsset(project, "ruby.bbmodel", "application/json",
+                AssetFixtures.utf8(AssetFixtures.bbmodelWithTextures("ruby")), "vulpes:item/ruby")
+                .statusCode(201)
+                .extract().path("id");
+
+        given()
+        .when()
+                .get(assetPath(project, "/" + bbId))
+        .then()
+                .statusCode(200)
+                .body("key", is("vulpes:item/ruby"));
+        given()
+        .when()
+                .get(assetPath(project, "/?kind=TEXTURE&size=500"))
+        .then()
+                .statusCode(200)
+                .body("content.find { it.sourceAssetId == '" + bbId + "' }.key", is("vulpes:item/ruby"));
+    }
+
+    @Test
+    void duplicateTextureKeyReturns409() {
+        UUID project = newProjectId();
+        postAsset(project, "ruby.png", "image/png", AssetFixtures.png(16, 16), "vulpes:item/ruby")
+                .statusCode(201);
+
+        postAsset(project, "ruby.png", "image/png", AssetFixtures.png(16, 16), "vulpes:item/ruby")
+                .statusCode(409);
+    }
+
+    @Test
+    void bbmodelWithKeyOfModelReturns409() {
+        UUID project = newProjectId();
+        postAsset(project, "ruby.json", "application/json", AssetFixtures.utf8("{}"), "vulpes:item/ruby")
+                .statusCode(201);
+
+        postAsset(project, "ruby.bbmodel", "application/json",
+                AssetFixtures.utf8(AssetFixtures.bbmodelWithTextures("gem")), "vulpes:item/ruby")
+                .statusCode(409);
     }
 
     @Test

@@ -6,7 +6,6 @@ import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
-import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
@@ -18,33 +17,26 @@ import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.annotation.Part;
 import io.micronaut.http.multipart.CompletedFileUpload;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkDTO;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkRequestDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetTargetType;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
-import net.onelitefeather.vulpes.backend.service.AssetLinkService;
 import net.onelitefeather.vulpes.backend.service.AssetService;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 
 /**
  * The {@link AssetController} contains endpoints for project assets: textures, Minecraft models and
- * Blockbench models, and their links to items, fonts and advancements.
+ * Blockbench models.
  *
  * <p>Uploads are multipart requests with the fields {@code file} and {@code key}. Files are limited to
  * 8 MB. The content endpoint answers with the stored bytes and an ETag of their SHA-1 digest.
@@ -59,18 +51,15 @@ public class AssetController {
     private static final String ETAG_QUOTE = "\"";
 
     private final AssetService assetService;
-    private final AssetLinkService assetLinkService;
 
     /**
      * Constructs the controller.
      *
-     * @param assetService     the service for assets
-     * @param assetLinkService the service for links between assets and models
+     * @param assetService the service for assets
      */
     @Inject
-    public AssetController(AssetService assetService, AssetLinkService assetLinkService) {
+    public AssetController(AssetService assetService) {
         this.assetService = assetService;
-        this.assetLinkService = assetLinkService;
     }
 
     @Operation(
@@ -228,8 +217,7 @@ public class AssetController {
             summary = "Replace the content of an asset",
             operationId = "replaceAssetContent",
             description = "Replaces the bytes of an asset with a file of the same kind. For a Blockbench model the "
-                    + "embedded textures are extracted again; links to old textures move to new textures with "
-                    + "the same key.",
+                    + "embedded textures are extracted again.",
             tags = {"Asset"}
     )
     @ApiResponse(
@@ -279,7 +267,7 @@ public class AssetController {
     @Operation(
             summary = "Remove an asset by ID",
             operationId = "removeAssetById",
-            description = "Removes an asset, its links, the textures extracted from it and their stored bytes.",
+            description = "Removes an asset, the textures extracted from it and their stored bytes.",
             tags = {"Asset"}
     )
     @ApiResponse(
@@ -307,7 +295,7 @@ public class AssetController {
     @Operation(
             summary = "Delete all assets",
             operationId = "deleteAllAssets",
-            description = "Deletes all assets of the given project, their links and their stored bytes.",
+            description = "Deletes all assets of the given project and their stored bytes.",
             tags = {"Asset"}
     )
     @ApiResponse(
@@ -318,112 +306,6 @@ public class AssetController {
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<Void> deleteAll(@PathVariable UUID projectId) {
         assetService.deleteAll(projectId);
-        return HttpResponse.noContent();
-    }
-
-    @Operation(
-            summary = "Link an asset to a model",
-            operationId = "linkAsset",
-            description = "Links an asset to an item, font or advancement of the given project.",
-            tags = {"Asset"}
-    )
-    @ApiResponse(
-            responseCode = "201",
-            description = "The link was created.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = AssetLinkDTO.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "400",
-            description = "The body failed validation, or the role does not fit the asset kind. 'errors' names the field 'role' in the second case.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "404",
-            description = "The asset or the target model was not found in the project.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
-    @ApiResponse(
-            responseCode = "409",
-            description = "The asset is already linked to this model.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
-    @Post("/{id}/link")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Validated
-    public HttpResponse<AssetLinkDTO> link(
-            @PathVariable UUID projectId,
-            @PathVariable UUID id,
-            @Valid @Body AssetLinkRequestDTO request
-    ) {
-        return HttpResponse.created(assetLinkService.link(projectId, id, request));
-    }
-
-    @Operation(
-            summary = "Get the assets linked to a model",
-            operationId = "getAssetLinks",
-            description = "Lists the asset links of one item, font or advancement, each with its asset embedded.",
-            tags = {"Asset"}
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "The links were retrieved.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    array = @ArraySchema(schema = @Schema(implementation = AssetLinkDTO.class))
-            )
-    )
-    @ApiResponse(
-            responseCode = "404",
-            description = "The target model was not found in the project.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
-    @Get("/link")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<List<AssetLinkDTO>> getLinks(
-            @PathVariable UUID projectId,
-            @QueryValue AssetTargetType targetType,
-            @QueryValue UUID targetId
-    ) {
-        return HttpResponse.ok(assetLinkService.getLinks(projectId, targetType, targetId));
-    }
-
-    @Operation(
-            summary = "Remove an asset link",
-            operationId = "unlinkAsset",
-            description = "Removes a link. The asset and the model are kept.",
-            tags = {"Asset"}
-    )
-    @ApiResponse(
-            responseCode = "204",
-            description = "The link was removed."
-    )
-    @ApiResponse(
-            responseCode = "404",
-            description = "The link was not found in the project.",
-            content = @Content(
-                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
-                    schema = @Schema(implementation = ProblemDetail.class)
-            )
-    )
-    @Delete("/link/{linkId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse<Void> unlink(@PathVariable UUID projectId, @PathVariable UUID linkId) {
-        assetLinkService.unlink(projectId, linkId);
         return HttpResponse.noContent();
     }
 

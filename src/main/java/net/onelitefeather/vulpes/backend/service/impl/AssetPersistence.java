@@ -8,27 +8,21 @@ import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetInspector;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKey;
+import net.onelitefeather.vulpes.backend.domain.asset.AssetKeySpace;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkRole;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetTargetType;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetViolationCode;
 import net.onelitefeather.vulpes.backend.domain.asset.BbModelTextureExtractor;
 import net.onelitefeather.vulpes.backend.domain.asset.BbModelTextureExtractor.ExtractedTexture;
 import net.onelitefeather.vulpes.backend.domain.asset.Sha1Hex;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
-import net.onelitefeather.vulpes.backend.entity.asset.AssetLinkEntity;
-import net.onelitefeather.vulpes.backend.entity.asset.AssetLinkRepository;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.storage.AssetStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -52,7 +46,6 @@ public class AssetPersistence {
     private static final String ASSET = "Asset";
 
     private final ProjectAssetRepository assetRepository;
-    private final AssetLinkRepository linkRepository;
     private final ProjectRepository projectRepository;
     private final AssetStorage storage;
 
@@ -60,19 +53,16 @@ public class AssetPersistence {
      * Constructs a new AssetPersistence.
      *
      * @param assetRepository   the repository of assets
-     * @param linkRepository    the repository of asset links
      * @param projectRepository the repository of projects
      * @param storage           the object storage holding the bytes
      */
     @Inject
     public AssetPersistence(
             ProjectAssetRepository assetRepository,
-            AssetLinkRepository linkRepository,
             ProjectRepository projectRepository,
             AssetStorage storage
     ) {
         this.assetRepository = assetRepository;
-        this.linkRepository = linkRepository;
         this.projectRepository = projectRepository;
         this.storage = storage;
     }
@@ -94,10 +84,10 @@ public class AssetPersistence {
         List<ExtractedTexture> textures = inspection.kind() == AssetKind.BBMODEL
                 ? BbModelTextureExtractor.extract(key, upload.content())
                 : List.of();
-        if (assetRepository.existsByProjectIdAndKey(projectId, key)) {
+        if (assetRepository.existsByProjectIdAndKeySpaceAndKey(projectId, AssetKeySpace.of(inspection.kind()), key)) {
             throw ApiException.conflict("An asset with the key '" + key + "' already exists.");
         }
-        requireTextureKeysAvailable(projectId, key, textures, Set.of());
+        requireTextureKeysAvailable(projectId, textures, Set.of());
 
         ProjectAssetEntity asset = store(
                 project, key, upload.fileName(), inspection.kind(),
@@ -112,7 +102,7 @@ public class AssetPersistence {
 
     /**
      * Replaces the bytes of an asset with a file of the same kind. For a Blockbench model the embedded
-     * textures are extracted again. Links to old textures move to the new textures with the same key.
+     * textures are extracted again.
      *
      * @param projectId the project
      * @param id        the asset
@@ -134,45 +124,25 @@ public class AssetPersistence {
         }
         List<ProjectAssetEntity> oldTextures = assetRepository.findBySourceAssetId(id);
         Set<String> replaceable = new HashSet<>();
-        replaceable.add(asset.getKey());
         oldTextures.forEach(texture -> replaceable.add(texture.getKey()));
         List<ExtractedTexture> textures = inspection.kind() == AssetKind.BBMODEL
                 ? BbModelTextureExtractor.extract(asset.getKey(), upload.content())
                 : List.of();
-        requireTextureKeysAvailable(projectId, asset.getKey(), textures, replaceable);
+        requireTextureKeysAvailable(projectId, textures, replaceable);
 
-        List<CarriedLink> carried = new ArrayList<>();
         for (ProjectAssetEntity oldTexture : oldTextures) {
-            for (AssetLinkEntity link : linkRepository.findByAssetId(oldTexture.getId())) {
-                carried.add(new CarriedLink(
-                        oldTexture.getKey(), link.getTargetType(), link.getTargetId(), link.getRole()));
-            }
             removeAsset(projectId, oldTexture);
         }
         // The old textures must be gone before rows with the same keys are inserted.
         assetRepository.flush();
 
         ProjectEntity project = asset.getProject();
-        Map<String, ProjectAssetEntity> newTextures = new HashMap<>();
         for (ExtractedTexture texture : textures) {
-            newTextures.put(texture.key(), store(
+            store(
                     project, texture.key(), texture.fileName(), AssetKind.TEXTURE,
                     texture.width(), texture.height(), texture.content(), asset
-            ));
+            );
         }
-        for (CarriedLink carry : carried) {
-            ProjectAssetEntity target = newTextures.get(carry.assetKey());
-            if (target == null) {
-                continue;
-            }
-            AssetLinkEntity moved = new AssetLinkEntity();
-            moved.setAsset(target);
-            moved.setTargetType(carry.targetType());
-            moved.setTargetId(carry.targetId());
-            moved.setRole(carry.role());
-            linkRepository.save(moved);
-        }
-
         asset.setFileName(upload.fileName());
         asset.setContentType(inspection.kind().contentType());
         asset.setSize(upload.content().length);
@@ -185,7 +155,7 @@ public class AssetPersistence {
     }
 
     /**
-     * Deletes an asset with its links, the textures extracted from it, and their bytes.
+     * Deletes an asset, the textures extracted from it, and their bytes.
      *
      * @param projectId the project
      * @param id        the asset
@@ -233,6 +203,7 @@ public class AssetPersistence {
         asset.setProject(project);
         asset.setKey(key);
         asset.setKind(kind);
+        asset.setKeySpace(AssetKeySpace.of(kind));
         asset.setFileName(fileName);
         asset.setContentType(kind.contentType());
         asset.setSize(content.length);
@@ -246,30 +217,27 @@ public class AssetPersistence {
     }
 
     /**
-     * Deletes one asset with its links and its bytes. Callers remove derived textures first.
+     * Deletes one asset and its bytes. Callers remove derived textures first.
      */
     private void removeAsset(UUID projectId, ProjectAssetEntity asset) {
-        linkRepository.deleteAll(linkRepository.findByAssetId(asset.getId()));
-        // The asset row is deleted by a direct statement, so the link deletes must reach the database first.
-        assetRepository.flush();
         storage.delete(AssetStorage.keyFor(projectId, asset.getId()));
         assetRepository.deleteById(asset.getId());
     }
 
     /**
-     * Rejects the upload if the model key or an extracted texture key is already taken, or repeated.
-     * Nothing is written before this check passes, so a rejected upload stores nothing.
+     * Rejects the upload if an extracted texture key is already taken as a texture, or repeated. The model
+     * key is not checked here: a model and a texture may share a key. Nothing is written before this check
+     * passes, so a rejected upload stores nothing.
      */
     private void requireTextureKeysAvailable(
             UUID projectId,
-            String modelKey,
             List<ExtractedTexture> textures,
             Set<String> replaceable
     ) {
         Set<String> seen = new HashSet<>();
-        seen.add(modelKey);
         for (ExtractedTexture texture : textures) {
-            boolean taken = assetRepository.existsByProjectIdAndKey(projectId, texture.key())
+            boolean taken = assetRepository.existsByProjectIdAndKeySpaceAndKey(
+                    projectId, AssetKeySpace.TEXTURE, texture.key())
                     && !replaceable.contains(texture.key());
             if (!seen.add(texture.key()) || taken) {
                 throw ApiException.conflict(
@@ -288,11 +256,5 @@ public class AssetPersistence {
             throw ApiException.notOwnedByProject(ASSET, id, projectId);
         }
         return asset;
-    }
-
-    /**
-     * A link of a replaced texture, kept in memory until the new texture with the same key exists.
-     */
-    private record CarriedLink(String assetKey, AssetTargetType targetType, UUID targetId, AssetLinkRole role) {
     }
 }

@@ -7,14 +7,9 @@ import io.micronaut.http.HttpStatus;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkDTO;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkRequestDTO;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkRole;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetTargetType;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetEntity;
-import net.onelitefeather.vulpes.backend.service.AssetLinkService;
 import net.onelitefeather.vulpes.backend.service.AssetService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -124,30 +119,6 @@ class AssetControllerTest {
         }
     }
 
-    /**
-     * Returns canned link answers.
-     */
-    private static class StubAssetLinkService implements AssetLinkService {
-        AssetLinkDTO link;
-        List<AssetLinkDTO> links = List.of();
-        UUID lastUnlinkedId;
-
-        @Override
-        public AssetLinkDTO link(UUID projectId, UUID assetId, AssetLinkRequestDTO request) {
-            return link;
-        }
-
-        @Override
-        public List<AssetLinkDTO> getLinks(UUID projectId, AssetTargetType targetType, UUID targetId) {
-            return links;
-        }
-
-        @Override
-        public void unlink(UUID projectId, UUID linkId) {
-            lastUnlinkedId = linkId;
-        }
-    }
-
     private static AssetResponseDTO sampleAsset(UUID projectId, UUID id) {
         ProjectEntity project = new ProjectEntity(projectId, "Test Project", "test-project", null, null, null, false);
         ProjectAssetEntity entity = new ProjectAssetEntity();
@@ -170,7 +141,7 @@ class AssetControllerTest {
         StubAssetService assets = new StubAssetService();
         assets.response = sampleAsset(projectId, id);
 
-        HttpResponse<AssetResponseDTO> response = new AssetController(assets, new StubAssetLinkService())
+        HttpResponse<AssetResponseDTO> response = new AssetController(assets)
                 .getById(projectId, id);
 
         assertEquals(HttpStatus.OK, response.getStatus(), "a found asset must answer 200");
@@ -183,7 +154,7 @@ class AssetControllerTest {
         StubAssetService assets = new StubAssetService();
         assets.response = sampleAsset(projectId, UUID.randomUUID());
 
-        new AssetController(assets, new StubAssetLinkService())
+        new AssetController(assets)
                 .getAll(projectId, AssetKind.TEXTURE, Pageable.from(0, 10));
 
         assertEquals(AssetKind.TEXTURE, assets.lastKind, "the kind query parameter must reach the service");
@@ -195,7 +166,7 @@ class AssetControllerTest {
         StubAssetService assets = new StubAssetService();
         assets.content = new AssetContent(PNG_BYTES, "image/png", SHA1);
 
-        HttpResponse<byte[]> response = new AssetController(assets, new StubAssetLinkService())
+        HttpResponse<byte[]> response = new AssetController(assets)
                 .getContent(projectId, UUID.randomUUID(), null);
 
         assertEquals(HttpStatus.OK, response.getStatus(), "content without a matching If-None-Match must answer 200");
@@ -209,7 +180,7 @@ class AssetControllerTest {
         StubAssetService assets = new StubAssetService();
         assets.content = new AssetContent(PNG_BYTES, "image/png", SHA1);
 
-        HttpResponse<byte[]> response = new AssetController(assets, new StubAssetLinkService())
+        HttpResponse<byte[]> response = new AssetController(assets)
                 .getContent(projectId, UUID.randomUUID(), "\"" + SHA1 + "\"");
 
         assertEquals(HttpStatus.NOT_MODIFIED, response.getStatus(), "a matching If-None-Match must answer 304");
@@ -221,36 +192,10 @@ class AssetControllerTest {
         StubAssetService assets = new StubAssetService();
         assets.content = new AssetContent(PNG_BYTES, "image/png", SHA1);
 
-        HttpResponse<byte[]> response = new AssetController(assets, new StubAssetLinkService())
+        HttpResponse<byte[]> response = new AssetController(assets)
                 .getContent(projectId, UUID.randomUUID(), "\"ffffffffffffffffffffffffffffffffffffffff\"");
 
         assertEquals(HttpStatus.OK, response.getStatus(), "a stale If-None-Match must still get the content");
-    }
-
-    @Test
-    void link_returnsCreated() {
-        StubAssetLinkService links = new StubAssetLinkService();
-        UUID projectId = UUID.randomUUID();
-        UUID assetId = UUID.randomUUID();
-        links.link = new AssetLinkDTO(UUID.randomUUID(), assetId, AssetTargetType.ITEM, UUID.randomUUID(),
-                AssetLinkRole.TEXTURE, sampleAsset(projectId, assetId));
-
-        HttpResponse<AssetLinkDTO> response = new AssetController(new StubAssetService(), links)
-                .link(projectId, assetId, new AssetLinkRequestDTO(AssetTargetType.ITEM, UUID.randomUUID(), AssetLinkRole.TEXTURE));
-
-        assertEquals(HttpStatus.CREATED, response.getStatus(), "a new link must answer 201");
-    }
-
-    @Test
-    void unlink_returnsNoContentAndRemovesLink() {
-        StubAssetLinkService links = new StubAssetLinkService();
-        UUID linkId = UUID.randomUUID();
-
-        HttpResponse<Void> response = new AssetController(new StubAssetService(), links)
-                .unlink(UUID.randomUUID(), linkId);
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatus(), "a removed link must answer 204");
-        assertEquals(linkId, links.lastUnlinkedId, "the link id must reach the service");
     }
 
     @Test
@@ -260,7 +205,7 @@ class AssetControllerTest {
         StubAssetService assets = new StubAssetService();
         assets.response = sampleAsset(projectId, id);
 
-        HttpResponse<AssetResponseDTO> response = new AssetController(assets, new StubAssetLinkService())
+        HttpResponse<AssetResponseDTO> response = new AssetController(assets)
                 .remove(projectId, id);
 
         assertEquals(HttpStatus.OK, response.getStatus(), "a removed asset must answer 200");

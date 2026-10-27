@@ -4,6 +4,7 @@ import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.data.jpa.repository.JpaRepository;
+import net.onelitefeather.vulpes.backend.domain.asset.AssetKeySpace;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public interface ProjectAssetRepository extends JpaRepository<ProjectAssetEntity
 
     Page<ProjectAssetEntity> findByProjectIdAndKind(UUID projectId, AssetKind kind, Pageable pageable);
 
-    boolean existsByProjectIdAndKey(UUID projectId, String key);
+    boolean existsByProjectIdAndKeySpaceAndKey(UUID projectId, AssetKeySpace keySpace, String key);
 
     List<ProjectAssetEntity> findBySourceAssetId(UUID sourceAssetId);
 }
