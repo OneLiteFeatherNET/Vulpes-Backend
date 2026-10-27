@@ -71,6 +71,12 @@ public enum ErrorCode {
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported media type"),
 
     /**
+     * The request body exceeds the size limit of the server, for example an uploaded file larger than
+     * the multipart limit. Nothing from the request is stored.
+     */
+    PAYLOAD_TOO_LARGE(HttpStatus.REQUEST_ENTITY_TOO_LARGE, "Payload too large"),
+
+    /**
      * Something failed that the client cannot act on. The response never carries details about it; the
      * cause is written to the server log under {@link ProblemDetail#traceId()}.
      */
@@ -132,6 +138,7 @@ public enum ErrorCode {
             case CONFLICT -> RESOURCE_CONFLICT;
             case METHOD_NOT_ALLOWED -> METHOD_NOT_ALLOWED;
             case UNSUPPORTED_MEDIA_TYPE -> UNSUPPORTED_MEDIA_TYPE;
+            case REQUEST_ENTITY_TOO_LARGE -> PAYLOAD_TOO_LARGE;
             default -> status.getCode() < 500 ? INVALID_REQUEST : INTERNAL_ERROR;
         };
     }
