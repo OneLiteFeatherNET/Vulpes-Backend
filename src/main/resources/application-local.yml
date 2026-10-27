@@ -1,6 +1,12 @@
 micronaut:
   server:
     port: 8085
+  object-storage:
+    local:
+      assets:
+        # All worktrees share the one local database, so they share one asset directory as well.
+        # Override with MICRONAUT_OBJECT_STORAGE_LOCAL_ASSETS_PATH.
+        path: ${user.home}/.local/share/vulpes/assets
 
 datasources:
   default:
