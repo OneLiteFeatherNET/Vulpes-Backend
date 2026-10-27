@@ -105,7 +105,8 @@ public class AssetController {
             @Nullable @Part("key") String key,
             @Nullable @Part("displayName") String displayName) {
         AssetUploadDTO upload = new AssetUploadDTO(null, key, displayName, file.getFilename(), readBytes(file));
-        return HttpResponse.created(assetService.create(projectId, upload));
+        AssetResponseDTO asset = assetService.create(projectId, upload);
+        return HttpResponse.created(asset).header(HttpHeaders.ETAG, ETAG_QUOTE + asset.sha1() + ETAG_QUOTE);
     }
 
     @Operation(
@@ -198,7 +199,8 @@ public class AssetController {
             summary = "Replace the content of an asset",
             operationId = "replaceAssetContent",
             description = "Replaces the bytes of an asset with a file of the same kind. For a Blockbench model the "
-                    + "embedded textures are extracted again.",
+                    + "embedded textures are extracted again. Send If-Match with the ETag of the version you "
+                    + "edited to refuse the replacement with 412 if the asset changed since.",
             tags = {"Asset"})
     @ApiResponse(
             responseCode = "200",
@@ -228,13 +230,25 @@ public class AssetController {
                     @Content(
                             mediaType = MediaType.APPLICATION_JSON_PROBLEM,
                             schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(
+            responseCode = "412",
+            description = "The If-Match header does not match the current content. The current ETag is sent in "
+                    + "the ETag header; nothing was changed.",
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     @Post("/{id}/content")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<AssetResponseDTO> replaceContent(
-            @PathVariable UUID projectId, @PathVariable UUID id, @Part("file") CompletedFileUpload file) {
+            @PathVariable UUID projectId,
+            @PathVariable UUID id,
+            @Part("file") CompletedFileUpload file,
+            @Nullable @Header(HttpHeaders.IF_MATCH) String ifMatch) {
         AssetUploadDTO upload = new AssetUploadDTO(id, null, null, file.getFilename(), readBytes(file));
-        return HttpResponse.ok(assetService.replaceContent(projectId, id, upload));
+        AssetResponseDTO asset = assetService.replaceContent(projectId, id, upload, ifMatch);
+        return HttpResponse.ok(asset).header(HttpHeaders.ETAG, ETAG_QUOTE + asset.sha1() + ETAG_QUOTE);
     }
 
     @Operation(

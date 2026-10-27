@@ -15,7 +15,9 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.micronaut.test.support.TestPropertyProvider;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
+import io.restassured.specification.RequestSpecification;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -390,6 +392,109 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
                 .statusCode(400)
                 .body("errors.field", hasItem("file"))
                 .body("errors.code", hasItem("ASSET_UNSUPPORTED_TYPE"));
+    }
+
+    /**
+     * Replaces the content of an asset. The If-Match header is sent only when one is given.
+     */
+    private Response replaceContent(String id, byte[] png, String ifMatch) {
+        RequestSpecification request = given().multiPart("file", "ruby.png", png, "image/png");
+        if (ifMatch != null) {
+            request = request.header("If-Match", ifMatch);
+        }
+        return request.when().post(assetPath("/" + id + "/content"));
+    }
+
+    private static String shortId() {
+        return UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    @Test
+    void uploadResponseCarriesEtagOfStoredBytes() {
+        byte[] png = AssetFixtures.png(16, 16);
+
+        given().multiPart("file", "ruby.png", png, "image/png")
+                .multiPart("key", "vulpes:item/upload-etag-" + shortId())
+                .multiPart("displayName", "Ruby")
+                .when()
+                .post(assetPath(""))
+                .then()
+                .statusCode(201)
+                .header("ETag", "\"" + Sha1Hex.of(png) + "\"");
+    }
+
+    @Test
+    void replaceWithMatchingIfMatchReturns200AndNewEtag() {
+        byte[] first = AssetFixtures.png(16, 16);
+        byte[] second = AssetFixtures.png(16, 8);
+        String id = uploadPng("vulpes:item/match-" + shortId(), first);
+
+        replaceContent(id, second, "\"" + Sha1Hex.of(first) + "\"")
+                .then()
+                .statusCode(200)
+                .header("ETag", "\"" + Sha1Hex.of(second) + "\"")
+                .body("sha1", is(Sha1Hex.of(second)));
+    }
+
+    @Test
+    void replaceWithStaleIfMatchReturns412WithCurrentEtagAndKeepsContent() {
+        byte[] first = AssetFixtures.png(16, 16);
+        byte[] second = AssetFixtures.png(16, 8);
+        byte[] third = AssetFixtures.png(8, 8);
+        String id = uploadPng("vulpes:item/stale-" + shortId(), first);
+        replaceContent(id, second, null).then().statusCode(200);
+
+        replaceContent(id, third, "\"" + Sha1Hex.of(first) + "\"")
+                .then()
+                .statusCode(412)
+                .header("ETag", "\"" + Sha1Hex.of(second) + "\"")
+                .body("code", is("ASSET_PRECONDITION_FAILED"));
+
+        byte[] served = given().when()
+                .get(assetPath("/" + id + "/content"))
+                .then()
+                .statusCode(200)
+                .extract()
+                .asByteArray();
+        assertArrayEquals(second, served, "a refused replacement must leave the stored content unchanged");
+    }
+
+    @Test
+    void replaceWithoutIfMatchKeepsLastWriterWins() {
+        byte[] first = AssetFixtures.png(16, 16);
+        byte[] second = AssetFixtures.png(16, 8);
+        byte[] third = AssetFixtures.png(8, 8);
+        String id = uploadPng("vulpes:item/plain-" + shortId(), first);
+        replaceContent(id, second, null).then().statusCode(200);
+
+        replaceContent(id, third, null).then().statusCode(200).body("sha1", is(Sha1Hex.of(third)));
+    }
+
+    @Test
+    void replaceWithWildcardIfMatchReturns200() {
+        byte[] first = AssetFixtures.png(16, 16);
+        byte[] second = AssetFixtures.png(16, 8);
+        String id = uploadPng("vulpes:item/wildcard-" + shortId(), first);
+
+        replaceContent(id, second, "*").then().statusCode(200).body("sha1", is(Sha1Hex.of(second)));
+    }
+
+    @Test
+    void replaceWithWeakIfMatchReturns412() {
+        byte[] first = AssetFixtures.png(16, 16);
+        byte[] second = AssetFixtures.png(16, 8);
+        String id = uploadPng("vulpes:item/weak-" + shortId(), first);
+
+        replaceContent(id, second, "W/\"" + Sha1Hex.of(first) + "\"").then().statusCode(412);
+    }
+
+    @Test
+    void replaceWithUnquotedIfMatchReturns412() {
+        byte[] first = AssetFixtures.png(16, 16);
+        byte[] second = AssetFixtures.png(16, 8);
+        String id = uploadPng("vulpes:item/unquoted-" + shortId(), first);
+
+        replaceContent(id, second, Sha1Hex.of(first)).then().statusCode(412);
     }
 
     @Test

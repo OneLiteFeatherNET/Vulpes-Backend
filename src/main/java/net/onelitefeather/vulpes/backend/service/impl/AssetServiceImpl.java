@@ -76,12 +76,12 @@ public class AssetServiceImpl extends AbstractCrudService<ProjectAssetEntity, UU
         if (upload.id() == null) {
             throw ApiException.invalidRequest("An id is required to update an asset.");
         }
-        return replaceContent(projectId, upload.id(), upload);
+        return replaceContent(projectId, upload.id(), upload, null);
     }
 
     @Override
-    public AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload) {
-        return getAsset(projectId, persistence.replaceContent(projectId, id, upload));
+    public AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload, @Nullable String ifMatch) {
+        return getAsset(projectId, persistence.replaceContent(projectId, id, upload, ifMatch));
     }
 
     @Override

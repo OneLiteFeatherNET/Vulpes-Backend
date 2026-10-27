@@ -57,7 +57,8 @@ public interface AssetService extends CrudService<ProjectAssetEntity, UUID, Asse
      * @param projectId the project the asset must belong to
      * @param id        the asset
      * @param upload    the new file
+     * @param ifMatch   the If-Match value the client holds, or {@code null} to replace unconditionally
      * @return the updated asset
      */
-    AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload);
+    AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload, @Nullable String ifMatch);
 }

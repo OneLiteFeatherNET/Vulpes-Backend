@@ -1,10 +1,12 @@
 package net.onelitefeather.vulpes.backend.entity.asset;
 
+import io.micronaut.data.annotation.Query;
 import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.jpa.repository.JpaRepository;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import net.onelitefeather.vulpes.api.model.asset.AssetKeySpace;
 import net.onelitefeather.vulpes.api.model.asset.AssetKind;
@@ -27,4 +29,10 @@ public interface ProjectAssetRepository extends JpaRepository<ProjectAssetEntity
     boolean existsByProjectIdAndKeySpaceAndKey(UUID projectId, AssetKeySpace keySpace, String key);
 
     List<ProjectAssetEntity> findBySourceAssetId(UUID sourceAssetId);
+
+    /**
+     * Loads an asset with a row lock that lasts until the surrounding transaction ends.
+     */
+    @Query(value = "SELECT * FROM project_asset WHERE id = :id FOR UPDATE", nativeQuery = true)
+    Optional<ProjectAssetEntity> findByIdForUpdate(UUID id);
 }
