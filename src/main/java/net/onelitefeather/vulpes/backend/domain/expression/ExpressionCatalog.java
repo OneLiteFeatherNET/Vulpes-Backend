@@ -75,10 +75,37 @@ public final class ExpressionCatalog {
         List<FunctionDTO> functions = new ArrayList<>();
         for (String name : dictionary.getAvailableFunctionNames()) {
             FunctionIfc function = dictionary.getFunction(name);
-            functions.add(new FunctionDTO(name, categoryOf(function), parametersOf(function)));
+            functions.add(function instanceof ProjectExpressionFunction projectFunction
+                    ? projectFunctionOf(name, projectFunction)
+                    : builtInFunctionOf(name, function));
         }
         functions.sort(Comparator.comparing(FunctionDTO::category).thenComparing(FunctionDTO::name));
         return List.copyOf(functions);
+    }
+
+    private static FunctionDTO builtInFunctionOf(String name, FunctionIfc function) {
+        return new FunctionDTO(name, categoryOf(function), parametersOf(function), null, null, null);
+    }
+
+    private static FunctionDTO projectFunctionOf(String name, ProjectExpressionFunction function) {
+        List<ParameterDTO> parameters = function.parameters().stream()
+                .map(parameter -> new ParameterDTO(
+                        parameter.name(),
+                        false,
+                        false,
+                        false,
+                        false,
+                        parameter.type() == null ? ExpressionVariableType.NUMBER : parameter.type()
+                ))
+                .toList();
+        return new FunctionDTO(
+                name,
+                FunctionCategory.PROJECT,
+                parameters,
+                function.description(),
+                function.kind(),
+                function.returnType()
+        );
     }
 
     private static FunctionCategory categoryOf(FunctionIfc function) {
@@ -102,7 +129,8 @@ public final class ExpressionCatalog {
                 parameter.isVarArg(),
                 parameter.isLazy(),
                 parameter.isNonZero(),
-                parameter.isNonNegative()
+                parameter.isNonNegative(),
+                null
         );
     }
 

@@ -129,4 +129,69 @@ class ExpressionCatalogTest {
         int count = (int) fixed + (hasVarArg ? 1 : 0);
         return IntStream.range(0, count).mapToObj(index -> "1").collect(joining(", "));
     }
+
+    @Test
+    void testDescribe_projectFunctionListedInProjectCategory() {
+        ExpressionCatalogDTO catalog = ExpressionCatalog.describe(ProjectExpressionConfiguration.of(List.of(
+                projectFunction("damage_bonus", ExpressionFunctionKind.INTERFACE, "Bonus from gear.", null))));
+
+        FunctionDTO damage = catalog.functions().stream()
+                .filter(function -> function.name().equals("damage_bonus"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("the project function must be in the catalog"));
+
+        assertEquals(FunctionCategory.PROJECT, damage.category(), "a project function must be in the PROJECT category");
+        assertEquals("Bonus from gear.", damage.description(), "the comment must be the description");
+        assertEquals(ExpressionFunctionKind.INTERFACE, damage.kind(), "the kind must be reported");
+        assertEquals(ExpressionVariableType.NUMBER, damage.returnType(), "the return type must be reported");
+    }
+
+    @Test
+    void testDescribe_projectFunctionParametersCarryTheirTypes() {
+        ExpressionCatalogDTO catalog = ExpressionCatalog.describe(ProjectExpressionConfiguration.of(List.of(
+                projectFunction("is_hit", ExpressionFunctionKind.FORMULA, null, ExpressionVariableType.BOOLEAN))));
+
+        FunctionDTO hit = catalog.functions().stream()
+                .filter(function -> function.name().equals("is_hit"))
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(ExpressionVariableType.BOOLEAN, hit.parameters().getFirst().type(),
+                "a project parameter must carry its declared type");
+    }
+
+    @Test
+    void testDescribe_projectFunctionsKeepBuiltInFunctions() {
+        ExpressionCatalogDTO catalog = ExpressionCatalog.describe(ProjectExpressionConfiguration.of(List.of(
+                projectFunction("damage_bonus", ExpressionFunctionKind.FORMULA, null, ExpressionVariableType.NUMBER))));
+
+        assertEquals(CATALOG.functions().size() + 1, catalog.functions().size(),
+                "the project catalog must hold every built-in function and the project function");
+        assertEquals(FunctionCategory.BASIC, catalog.functions().stream()
+                .filter(function -> function.name().equals("ROUND"))
+                .findFirst()
+                .orElseThrow()
+                .category(), "a built-in function must keep its EvalEx category");
+    }
+
+    @Test
+    void testDescribe_builtInFunctionHasNoProjectFields() {
+        assertNull(function("ROUND").kind(), "a built-in function must have no kind");
+        assertNull(function("ROUND").returnType(), "a built-in function must have no return type");
+        assertNull(function("ROUND").description(), "a built-in function must have no description");
+        assertNull(function("ROUND").parameters().getFirst().type(), "a built-in parameter must have no type");
+    }
+
+    private static ExpressionFunctionDTO projectFunction(
+            String name,
+            ExpressionFunctionKind kind,
+            String comment,
+            ExpressionVariableType parameterType
+    ) {
+        List<ExpressionVariableDTO> parameters = parameterType == null
+                ? List.of(new ExpressionVariableDTO("attack", ExpressionVariableType.NUMBER, null))
+                : List.of(new ExpressionVariableDTO("flag", parameterType, null));
+        return new ExpressionFunctionDTO(null, "UI " + name, name, kind, ExpressionVariableType.NUMBER, parameters,
+                kind == ExpressionFunctionKind.FORMULA ? "1" : null, comment);
+    }
 }

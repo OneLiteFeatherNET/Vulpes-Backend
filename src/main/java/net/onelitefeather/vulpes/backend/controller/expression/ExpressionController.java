@@ -222,7 +222,7 @@ public class ExpressionController {
     @Operation(
             summary = "Evaluate an expression",
             operationId = "evaluateExpression",
-            description = "Evaluates an expression with the given variable values. Nothing is stored.",
+            description = "Evaluates an expression with the given variable values, the project's functions can be called. Nothing is stored.",
             tags = {"Expression"}
     )
     @ApiResponse(
@@ -244,13 +244,13 @@ public class ExpressionController {
     @Post("/evaluate")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ExpressionEvaluationResultDTO> evaluate(@PathVariable UUID projectId, @Valid @Body ExpressionEvaluateDTO request) {
-        return HttpResponse.ok(expressionService.evaluate(request));
+        return HttpResponse.ok(expressionService.evaluate(projectId, request));
     }
 
     @Operation(
             summary = "Validate an expression",
             operationId = "validateExpression",
-            description = "Checks an expression while it is edited. Nothing is stored. A parse error is reported in the body, not as a failed request.",
+            description = "Checks an expression while it is edited, the project's functions can be called. Nothing is stored. A parse error is reported in the body, not as a failed request.",
             tags = {"Expression"}
     )
     @ApiResponse(
@@ -264,6 +264,6 @@ public class ExpressionController {
     @Post("/validate")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ExpressionValidationResultDTO> validate(@PathVariable UUID projectId, @Valid @Body ExpressionValidateDTO request) {
-        return HttpResponse.ok(expressionService.validate(request));
+        return HttpResponse.ok(expressionService.validate(projectId, request));
     }
 }

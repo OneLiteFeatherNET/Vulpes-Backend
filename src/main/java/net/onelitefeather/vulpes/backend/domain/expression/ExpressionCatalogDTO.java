@@ -32,7 +32,11 @@ public record ExpressionCatalogDTO(
         STRING,
         DATE_TIME,
         TRIGONOMETRIC,
-        OTHER
+        OTHER,
+        /**
+         * A function the project defined, see {@link ExpressionFunctionKind}.
+         */
+        PROJECT
     }
 
     /**
@@ -49,16 +53,25 @@ public record ExpressionCatalogDTO(
     /**
      * A function with its parameters.
      *
-     * @param name       the name as used in expressions
-     * @param category   the category the function belongs to
-     * @param parameters the parameters in call order
+     * @param name        the name as used in expressions
+     * @param category    the category the function belongs to
+     * @param parameters  the parameters in call order
+     * @param description the description of a project function, {@code null} for built-in functions
+     * @param kind        how a project function is implemented, {@code null} for built-in functions
+     * @param returnType  the type a project function returns, {@code null} for built-in functions
      */
     @Schema(description = "An EvalEx function")
     @Serdeable
     public record FunctionDTO(
             @Schema(description = "Name of the function as used in expressions") String name,
             @Schema(description = "Category of the function") FunctionCategory category,
-            @Schema(description = "Parameters in call order") List<ParameterDTO> parameters
+            @Schema(description = "Parameters in call order") List<ParameterDTO> parameters,
+            @Schema(description = "Description of a project function, null for built-in functions", nullable = true)
+            String description,
+            @Schema(description = "FORMULA or INTERFACE for a project function, null for built-in functions", nullable = true)
+            ExpressionFunctionKind kind,
+            @Schema(description = "Type a project function returns, null for built-in functions", nullable = true)
+            ExpressionVariableType returnType
     ) {
     }
 
@@ -70,6 +83,7 @@ public record ExpressionCatalogDTO(
      * @param lazy        {@code true} if the argument is evaluated only when needed
      * @param nonZero     {@code true} if the argument must not be zero
      * @param nonNegative {@code true} if the argument must not be negative
+     * @param type        the type of a project function parameter, {@code null} for built-in functions
      */
     @Schema(description = "A parameter of an EvalEx function")
     @Serdeable
@@ -78,7 +92,9 @@ public record ExpressionCatalogDTO(
             @Schema(description = "True if the parameter may be repeated") boolean varArg,
             @Schema(description = "True if the argument is evaluated lazily") boolean lazy,
             @Schema(description = "True if the argument must not be zero") boolean nonZero,
-            @Schema(description = "True if the argument must not be negative") boolean nonNegative
+            @Schema(description = "True if the argument must not be negative") boolean nonNegative,
+            @Schema(description = "Type of a project function parameter, null for built-in functions", nullable = true)
+            ExpressionVariableType type
     ) {
     }
 
