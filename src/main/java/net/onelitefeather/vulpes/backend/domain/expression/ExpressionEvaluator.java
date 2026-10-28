@@ -25,6 +25,9 @@ import java.util.regex.Pattern;
  * <p>This class knows nothing about HTTP or persistence. Every failure is reported as an
  * {@link ApiException} carrying {@link Violation violations}, so the same error body is
  * produced whether the expression is checked on save or evaluated on request.
+ *
+ * <p>Methods without a configuration parameter use {@link #CONFIGURATION}. Project expressions pass the
+ * configuration from {@link ProjectExpressionConfiguration}, which adds the project's own functions.
  */
 public final class ExpressionEvaluator {
 
@@ -54,8 +57,24 @@ public final class ExpressionEvaluator {
             @Nullable String expression,
             @Nullable List<ExpressionVariableDTO> variables
     ) {
-        List<Violation> violations = new ArrayList<>(variableNameViolations(variables));
-        violations.addAll(syntaxViolations(expression));
+        requireValidDefinition(expression, variables, CONFIGURATION);
+    }
+
+    /**
+     * Checks that an expression parses with the given configuration and that its variable names are usable.
+     *
+     * @param expression    the EvalEx formula, {@code null} or empty is accepted without parsing
+     * @param variables     the variables the expression references, {@code null} means none
+     * @param configuration the EvalEx configuration the expression is parsed with
+     * @throws ApiException {@code VALIDATION_FAILED} listing every violation found
+     */
+    public static void requireValidDefinition(
+            @Nullable String expression,
+            @Nullable List<ExpressionVariableDTO> variables,
+            ExpressionConfiguration configuration
+    ) {
+        List<Violation> violations = new ArrayList<>(variableNameViolations(FIELD_VARIABLES, variables));
+        violations.addAll(syntaxViolations(expression, configuration));
         if (!violations.isEmpty()) {
             throw ApiException.validationFailed(violations);
         }
@@ -74,6 +93,26 @@ public final class ExpressionEvaluator {
             @Nullable String expression,
             Map<String, String> values,
             Map<String, ExpressionVariableType> types
+    ) {
+        return evaluate(expression, values, types, CONFIGURATION);
+    }
+
+    /**
+     * Evaluates an expression with the given variable values and EvalEx configuration.
+     *
+     * @param expression    the EvalEx formula, {@code null} is treated as empty
+     * @param values        the value of each variable as text, keyed by variable name, a {@code null} value is
+     *                      a missing value
+     * @param types         the type of each variable, a variable without an entry is a NUMBER
+     * @param configuration the EvalEx configuration the expression is parsed and evaluated with
+     * @return the result as text together with its EvalEx data type
+     * @throws ApiException {@code VALIDATION_FAILED} if a name, a value, the expression or the evaluation is invalid
+     */
+    public static ExpressionEvaluationResultDTO evaluate(
+            @Nullable String expression,
+            Map<String, String> values,
+            Map<String, ExpressionVariableType> types,
+            ExpressionConfiguration configuration
     ) {
         List<Violation> violations = new ArrayList<>();
         Map<String, Object> converted = new LinkedHashMap<>();
@@ -96,21 +135,22 @@ public final class ExpressionEvaluator {
         }
 
         try {
-            Expression evalExpression = new Expression(expression == null ? "" : expression, CONFIGURATION);
+            Expression evalExpression = new Expression(expression == null ? "" : expression, configuration);
             converted.forEach(evalExpression::with);
             return toResult(evalExpression.evaluate());
         } catch (ParseException | EvaluationException failure) {
-            throw ApiException.validationFailed(List.of(expressionViolation(failure)));
+            throw ApiException.validationFailed(List.of(expressionViolation(FIELD_EXPRESSION, failure)));
         }
     }
 
     /**
      * Lists a violation for every variable whose name is invalid or used more than once.
      *
+     * @param field     the field the violations are reported on, {@code variables} or {@code parameters}
      * @param variables the variables to check, may be {@code null}
      * @return the violations, empty when all names are usable
      */
-    private static List<Violation> variableNameViolations(@Nullable List<ExpressionVariableDTO> variables) {
+    static List<Violation> variableNameViolations(String field, @Nullable List<ExpressionVariableDTO> variables) {
         List<Violation> violations = new ArrayList<>();
         if (variables == null) {
             return violations;
@@ -119,10 +159,10 @@ public final class ExpressionEvaluator {
         for (ExpressionVariableDTO variable : variables) {
             String name = variable.name();
             if (!isValidName(name)) {
-                violations.add(new Violation(FIELD_VARIABLES, CODE_VARIABLE_INVALID, invalidNameMessage(name)));
+                violations.add(new Violation(field, CODE_VARIABLE_INVALID, invalidNameMessage(name)));
             } else if (!seen.add(name)) {
                 violations.add(new Violation(
-                        FIELD_VARIABLES,
+                        field,
                         CODE_VARIABLE_INVALID,
                         "Variable '%s' is defined more than once.".formatted(name)
                 ));
@@ -134,18 +174,19 @@ public final class ExpressionEvaluator {
     /**
      * Parses the expression and reports the first syntax error.
      *
-     * @param expression the EvalEx formula, {@code null} or empty yields no violation
+     * @param expression    the EvalEx formula, {@code null} or empty yields no violation
+     * @param configuration the EvalEx configuration the expression is parsed with
      * @return the violation, or an empty list when the expression parses
      */
-    private static List<Violation> syntaxViolations(@Nullable String expression) {
+    private static List<Violation> syntaxViolations(@Nullable String expression, ExpressionConfiguration configuration) {
         if (expression == null || expression.isEmpty()) {
             return List.of();
         }
         try {
-            new Expression(expression, CONFIGURATION).validate();
+            new Expression(expression, configuration).validate();
             return List.of();
         } catch (ParseException parseException) {
-            return List.of(expressionViolation(parseException));
+            return List.of(expressionViolation(FIELD_EXPRESSION, parseException));
         }
     }
 
@@ -204,12 +245,13 @@ public final class ExpressionEvaluator {
     /**
      * Describes a parse or evaluation failure with the position in the expression it refers to.
      *
+     * @param field   the field the violation is reported on
      * @param failure the EvalEx exception
-     * @return the violation on the expression field
+     * @return the violation on the given field
      */
-    private static Violation expressionViolation(BaseException failure) {
+    static Violation expressionViolation(String field, BaseException failure) {
         return new Violation(
-                FIELD_EXPRESSION,
+                field,
                 CODE_EXPRESSION_INVALID,
                 "%s (position %d-%d)".formatted(failure.getMessage(), failure.getStartPosition(), failure.getEndPosition())
         );

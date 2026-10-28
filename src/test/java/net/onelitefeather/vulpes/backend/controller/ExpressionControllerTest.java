@@ -101,17 +101,22 @@ class ExpressionControllerTest {
         }
 
         @Override
-        public ExpressionEvaluationResultDTO evaluate(ExpressionEvaluateDTO request) {
+        public ExpressionEvaluationResultDTO evaluate(UUID projectId, ExpressionEvaluateDTO request) {
             return evaluationResponse;
         }
 
         @Override
-        public ExpressionValidationResultDTO validate(ExpressionValidateDTO request) {
+        public ExpressionValidationResultDTO validate(UUID projectId, ExpressionValidateDTO request) {
             return validationResponse;
         }
 
         @Override
         public ExpressionCatalogDTO catalog() {
+            return catalogResponse;
+        }
+
+        @Override
+        public ExpressionCatalogDTO catalog(UUID projectId) {
             return catalogResponse;
         }
     }
