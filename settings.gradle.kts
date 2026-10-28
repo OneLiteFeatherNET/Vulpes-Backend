@@ -43,6 +43,7 @@ dependencyResolutionManagement {
             version("logstash.logback.encoder", "9.0")
             version("janino", "3.1.12")
             version("opentelemetry.instrumentation.alpha", "2.20.1-alpha")
+            version("evalex", "3.8.0")
 
             library("uuid.creator", "com.github.f4b6a3", "uuid-creator").versionRef("uuid.creator")
             library("vulpes.api", "net.onelitefeather", "vulpes-model").versionRef("vulpes.model")
@@ -52,6 +53,7 @@ dependencyResolutionManagement {
 
             library("hibernate.validator", "org.hibernate.validator", "hibernate-validator").versionRef("hibernate.validator")
             library("jakarta.validation", "jakarta.validation", "jakarta.validation-api").versionRef("jakarta.validation")
+            library("evalex", "com.ezylang", "EvalEx").versionRef("evalex")
 
             // Observability — JSON logging + OpenTelemetry (see build.gradle.kts).
             // OTLP exporter version is managed by the Micronaut platform BOM.

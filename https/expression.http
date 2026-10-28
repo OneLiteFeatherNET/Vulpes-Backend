@@ -1,0 +1,94 @@
+### Base config
+@server = http://localhost:8085
+@projectId =
+@id =
+
+### Add a new expression
+POST {{server}}/project/{{projectId}}/expression
+Content-Type: application/json
+
+{
+  "uiName": "Damage",
+  "expression": "a * 2 + b",
+  "comment": "Scratch expression",
+  "variables": [
+    { "name": "a", "type": "NUMBER", "testValue": "3" },
+    { "name": "b", "type": "NUMBER", "testValue": "1" }
+  ]
+}
+
+### Get an expression by id
+GET {{server}}/project/{{projectId}}/expression/{{id}}
+
+### Get all expressions of the project
+GET {{server}}/project/{{projectId}}/expression/?page=0&size=20
+
+### Update an expression
+POST {{server}}/project/{{projectId}}/expression/update
+Content-Type: application/json
+
+{
+  "id": "{{id}}",
+  "uiName": "Damage v2",
+  "expression": "a * 3 + b",
+  "variables": [
+    { "name": "a", "type": "NUMBER", "testValue": "3" },
+    { "name": "b", "type": "NUMBER", "testValue": "1" }
+  ]
+}
+
+### Evaluate an expression without storing it
+POST {{server}}/project/{{projectId}}/expression/evaluate
+Content-Type: application/json
+
+{
+  "expression": "a * 2 + b",
+  "variables": { "a": "3", "b": "1" },
+  "types": { "a": "NUMBER", "b": "NUMBER" }
+}
+
+### Evaluate a boolean expression
+POST {{server}}/project/{{projectId}}/expression/evaluate
+Content-Type: application/json
+
+{
+  "expression": "flag && count > 2",
+  "variables": { "flag": "true", "count": "3" },
+  "types": { "flag": "BOOLEAN", "count": "NUMBER" }
+}
+
+### Evaluate with a parse error (expects 400, field expression)
+POST {{server}}/project/{{projectId}}/expression/evaluate
+Content-Type: application/json
+
+{
+  "expression": "a * (2 + b",
+  "variables": { "a": "3", "b": "1" }
+}
+
+### Delete an expression by id
+DELETE {{server}}/project/{{projectId}}/expression/delete/{{id}}
+
+### Delete all expressions of the project
+DELETE {{server}}/project/{{projectId}}/expression/delete/
+
+### Get the expression catalog (functions, operators, constants; not project-scoped)
+GET {{server}}/expression/catalog
+
+### Validate an expression while editing (always 200, a parse error is in the body)
+POST {{server}}/project/{{projectId}}/expression/validate
+Content-Type: application/json
+
+{
+  "expression": "a * 2 + b + undeclared",
+  "variables": ["a", "b", "unused"]
+}
+
+### Validate an expression with a parse error (valid false, errors[0] start 4 end 5)
+POST {{server}}/project/{{projectId}}/expression/validate
+Content-Type: application/json
+
+{
+  "expression": "a + * b",
+  "variables": ["a", "b"]
+}

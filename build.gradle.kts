@@ -74,6 +74,8 @@ dependencies {
     implementation(libs.vulpes.api)
     // UUID Creator
     implementation(libs.uuid.creator)
+    // Expression evaluation for the expression model (EvalEx)
+    implementation(libs.evalex)
 
     testImplementation(mn.junit.jupiter.api)
     testImplementation(mn.junit.jupiter.params)
