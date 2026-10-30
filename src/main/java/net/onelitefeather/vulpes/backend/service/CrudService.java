@@ -2,7 +2,12 @@ package net.onelitefeather.vulpes.backend.service;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import io.micronaut.validation.Validated;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.groups.Default;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -27,7 +32,8 @@ public interface CrudService<E, ID, REQ, RES> {
      * @param dto the request DTO
      * @return the created entity mapped to the response DTO
      */
-    RES create(REQ dto);
+    @Validated(groups = {Default.class, ValidationGroup.Create.class})
+    RES create(@NotNull @Valid REQ dto);
 
     /**
      * Updates an existing entity with the data from the given request DTO.
@@ -37,7 +43,8 @@ public interface CrudService<E, ID, REQ, RES> {
      * @throws ApiException {@code INVALID_REQUEST} if the DTO carries no identifier,
      *                      {@code RESOURCE_NOT_FOUND} if no entity has that identifier
      */
-    RES update(REQ dto);
+    @Validated(groups = {Default.class, ValidationGroup.Update.class})
+    RES update(@NotNull @Valid REQ dto);
 
     /**
      * Deletes an entity by its identifier.
@@ -46,7 +53,7 @@ public interface CrudService<E, ID, REQ, RES> {
      * @return the deleted entity mapped to the response DTO
      * @throws ApiException {@code RESOURCE_NOT_FOUND} if no entity has that identifier
      */
-    RES delete(ID id);
+    RES delete(@NotNull ID id);
 
     /**
      * Deletes all entities.
@@ -59,7 +66,7 @@ public interface CrudService<E, ID, REQ, RES> {
      * @param pageable pagination details
      * @return a page of response DTOs
      */
-    Page<RES> getAll(Pageable pageable);
+    Page<RES> getAll(@NotNull Pageable pageable);
 
     /**
      * Finds an entity by its identifier.
@@ -67,7 +74,7 @@ public interface CrudService<E, ID, REQ, RES> {
      * @param id the identifier to look for
      * @return an optional containing the entity if present
      */
-    Optional<E> findById(ID id);
+    Optional<E> findById(@NotNull ID id);
 
     /**
      * Creates a new entity from the given request DTO, scoped to a project.
@@ -77,7 +84,8 @@ public interface CrudService<E, ID, REQ, RES> {
      * @return the created entity mapped to the response DTO
      * @throws ApiException {@code PROJECT_NOT_FOUND} if the project does not exist
      */
-    RES create(UUID projectId, REQ dto);
+    @Validated(groups = {Default.class, ValidationGroup.Create.class})
+    RES create(@NotNull UUID projectId, @NotNull @Valid REQ dto);
 
     /**
      * Updates an existing entity with the data from the given request DTO, scoped to a project.
@@ -89,7 +97,8 @@ public interface CrudService<E, ID, REQ, RES> {
      *                      {@code RESOURCE_NOT_FOUND} if no such entity exists or it belongs to a
      *                      different project, {@code PROJECT_NOT_FOUND} if the project does not exist
      */
-    RES update(UUID projectId, REQ dto);
+    @Validated(groups = {Default.class, ValidationGroup.Update.class})
+    RES update(@NotNull UUID projectId, @NotNull @Valid REQ dto);
 
     /**
      * Deletes an entity by its identifier, scoped to a project.
@@ -100,14 +109,14 @@ public interface CrudService<E, ID, REQ, RES> {
      * @throws ApiException {@code RESOURCE_NOT_FOUND} if no such entity exists or it belongs to a
      *                      different project
      */
-    RES delete(UUID projectId, ID id);
+    RES delete(@NotNull UUID projectId, @NotNull ID id);
 
     /**
      * Deletes all entities belonging to a project.
      *
      * @param projectId the identifier of the owning project
      */
-    void deleteAll(UUID projectId);
+    void deleteAll(@NotNull UUID projectId);
 
     /**
      * Retrieves all entities belonging to a project, with pagination support.
@@ -116,7 +125,7 @@ public interface CrudService<E, ID, REQ, RES> {
      * @param pageable  pagination details
      * @return a page of response DTOs belonging to the project
      */
-    Page<RES> getAll(UUID projectId, Pageable pageable);
+    Page<RES> getAll(@NotNull UUID projectId, @NotNull Pageable pageable);
 
     /**
      * Finds an entity by its identifier, scoped to a project.
@@ -125,5 +134,5 @@ public interface CrudService<E, ID, REQ, RES> {
      * @param id        the identifier to look for
      * @return an optional containing the entity if present and owned by the project
      */
-    Optional<E> findById(UUID projectId, ID id);
+    Optional<E> findById(@NotNull UUID projectId, @NotNull ID id);
 }
