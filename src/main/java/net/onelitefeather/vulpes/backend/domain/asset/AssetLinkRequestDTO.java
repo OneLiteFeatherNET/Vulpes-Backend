@@ -1,5 +1,7 @@
 package net.onelitefeather.vulpes.backend.domain.asset;
 
+import net.onelitefeather.vulpes.api.model.asset.AssetLinkRole;
+import net.onelitefeather.vulpes.api.model.asset.AssetTargetType;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;

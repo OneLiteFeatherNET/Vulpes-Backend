@@ -7,19 +7,20 @@ import jakarta.transaction.Transactional;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetInspector;
+import net.onelitefeather.vulpes.backend.domain.asset.AssetDisplayName;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetKey;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkRole;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetTargetType;
+import net.onelitefeather.vulpes.api.model.asset.AssetKind;
+import net.onelitefeather.vulpes.api.model.asset.AssetLinkRole;
+import net.onelitefeather.vulpes.api.model.asset.AssetTargetType;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetViolationCode;
 import net.onelitefeather.vulpes.backend.domain.asset.BbModelTextureExtractor;
 import net.onelitefeather.vulpes.backend.domain.asset.BbModelTextureExtractor.ExtractedTexture;
 import net.onelitefeather.vulpes.backend.domain.asset.Sha1Hex;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
-import net.onelitefeather.vulpes.backend.entity.asset.AssetLinkEntity;
+import net.onelitefeather.vulpes.api.model.asset.AssetLinkEntity;
 import net.onelitefeather.vulpes.backend.entity.asset.AssetLinkRepository;
-import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetEntity;
+import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.storage.AssetStorage;
@@ -81,15 +82,16 @@ public class AssetPersistence {
      * Stores an upload. A Blockbench model also stores the textures embedded in it.
      *
      * @param projectId the project
-     * @param upload    the key and the file
+     * @param upload    the key, the display name and the file
      * @return the id of the stored asset
-     * @throws ApiException {@code VALIDATION_FAILED} for a bad key or file, {@code RESOURCE_CONFLICT} if a
+     * @throws ApiException {@code VALIDATION_FAILED} for a bad key, display name or file, {@code RESOURCE_CONFLICT} if a
      *                      key is taken, {@code PROJECT_NOT_FOUND} if the project does not exist
      */
     @Transactional
     public UUID create(UUID projectId, AssetUploadDTO upload) {
         ProjectEntity project = requireProject(projectId);
         String key = AssetKey.requireValid(upload.key());
+        String displayName = AssetDisplayName.requireValid(upload.displayName());
         AssetInspector.Inspection inspection = AssetInspector.inspect(upload.fileName(), upload.content());
         List<ExtractedTexture> textures = inspection.kind() == AssetKind.BBMODEL
                 ? BbModelTextureExtractor.extract(key, upload.content())
@@ -100,11 +102,11 @@ public class AssetPersistence {
         requireTextureKeysAvailable(projectId, key, textures, Set.of());
 
         ProjectAssetEntity asset = store(
-                project, key, upload.fileName(), inspection.kind(),
+                project, key, displayName, upload.fileName(), inspection.kind(),
                 inspection.width(), inspection.height(), upload.content(), null
         );
         for (ExtractedTexture texture : textures) {
-            store(project, texture.key(), texture.fileName(), AssetKind.TEXTURE,
+            store(project, texture.key(), texture.displayName(), texture.fileName(), AssetKind.TEXTURE,
                     texture.width(), texture.height(), texture.content(), asset);
         }
         return asset.getId();
@@ -156,7 +158,7 @@ public class AssetPersistence {
         Map<String, ProjectAssetEntity> newTextures = new HashMap<>();
         for (ExtractedTexture texture : textures) {
             newTextures.put(texture.key(), store(
-                    project, texture.key(), texture.fileName(), AssetKind.TEXTURE,
+                    project, texture.key(), texture.displayName(), texture.fileName(), AssetKind.TEXTURE,
                     texture.width(), texture.height(), texture.content(), asset
             ));
         }
@@ -222,6 +224,7 @@ public class AssetPersistence {
     private ProjectAssetEntity store(
             ProjectEntity project,
             String key,
+            String displayName,
             String fileName,
             AssetKind kind,
             Integer width,
@@ -232,6 +235,7 @@ public class AssetPersistence {
         ProjectAssetEntity asset = new ProjectAssetEntity();
         asset.setProject(project);
         asset.setKey(key);
+        asset.setDisplayName(displayName);
         asset.setKind(kind);
         asset.setFileName(fileName);
         asset.setContentType(kind.contentType());

@@ -2,7 +2,7 @@ package net.onelitefeather.vulpes.backend.service;
 
 import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkRequestDTO;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetTargetType;
+import net.onelitefeather.vulpes.api.model.asset.AssetTargetType;
 
 import java.util.List;
 import java.util.UUID;

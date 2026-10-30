@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.domain.asset;
 
+import net.onelitefeather.vulpes.api.model.asset.AssetKind;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

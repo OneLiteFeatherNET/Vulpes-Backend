@@ -25,7 +25,18 @@ class BbModelTextureExtractorTest {
         assertEquals(1, textures.size(), "one embedded texture must be extracted");
         assertEquals("vulpes:item/ruby_side", textures.get(0).key(), "the key must keep the model folder");
         assertEquals("ruby_side.png", textures.get(0).fileName(), "the file name must be the sanitized name");
+        assertEquals("Ruby Side", textures.get(0).displayName(), "the display name must be the name in the model");
         assertEquals(16, textures.get(0).width(), "the width must be read from the embedded PNG");
+    }
+
+    @Test
+    void unnamedTextureIsShownByItsSanitizedName() {
+        String model = AssetFixtures.bbmodelWithTextures("  ");
+
+        List<ExtractedTexture> textures = BbModelTextureExtractor.extract(
+                "vulpes:item/ruby", AssetFixtures.utf8(model));
+
+        assertEquals("texture_0", textures.get(0).displayName(), "a blank name must fall back to the sanitized name");
     }
 
     @Test

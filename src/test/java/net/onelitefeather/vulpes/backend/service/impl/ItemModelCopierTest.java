@@ -158,11 +158,6 @@ class ItemModelCopierTest {
         }
 
         @Override
-        public List<ItemEntity> findAllWithFetches(Pageable pageable) {
-            return findAll();
-        }
-
-        @Override
         public Page<ItemEntity> findByProjectId(UUID projectId, Pageable pageable) {
             List<ItemEntity> matching = store.values().stream()
                     .filter(e -> e.getProject().getId().equals(projectId))
@@ -267,6 +262,11 @@ class ItemModelCopierTest {
     private static class FakeProjectRepository extends FakePageableRepository<ProjectEntity, UUID> implements ProjectRepository {
         FakeProjectRepository() {
             super(ProjectEntity::getId);
+        }
+
+        @Override
+        public Optional<ProjectEntity> findByKey(String key) {
+            return store.values().stream().filter(project -> key.equals(project.getKey())).findFirst();
         }
     }
 

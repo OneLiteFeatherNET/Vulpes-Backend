@@ -2,8 +2,8 @@ package net.onelitefeather.vulpes.backend.domain.asset.validation;
 
 import net.onelitefeather.vulpes.backend.domain.ValidationTestBase;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkRequestDTO;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkRole;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetTargetType;
+import net.onelitefeather.vulpes.api.model.asset.AssetLinkRole;
+import net.onelitefeather.vulpes.api.model.asset.AssetTargetType;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

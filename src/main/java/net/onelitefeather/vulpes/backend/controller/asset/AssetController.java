@@ -27,11 +27,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
+import net.onelitefeather.vulpes.api.model.asset.AssetKind;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetLinkRequestDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetTargetType;
+import net.onelitefeather.vulpes.api.model.asset.AssetTargetType;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
@@ -46,7 +46,7 @@ import java.util.UUID;
  * The {@link AssetController} contains endpoints for project assets: textures, Minecraft models and
  * Blockbench models, and their links to items, fonts and advancements.
  *
- * <p>Uploads are multipart requests with the fields {@code file} and {@code key}. Files are limited to
+ * <p>Uploads are multipart requests with the fields {@code file}, {@code key} and {@code displayName}. Files are limited to
  * 8 MB. The content endpoint answers with the stored bytes and an ETag of their SHA-1 digest.
  *
  * @author TheMeinerLP
@@ -119,9 +119,10 @@ public class AssetController {
     public HttpResponse<AssetResponseDTO> add(
             @PathVariable UUID projectId,
             @Part("file") CompletedFileUpload file,
-            @Nullable @Part("key") String key
+            @Nullable @Part("key") String key,
+            @Nullable @Part("displayName") String displayName
     ) {
-        AssetUploadDTO upload = new AssetUploadDTO(null, key, file.getFilename(), readBytes(file));
+        AssetUploadDTO upload = new AssetUploadDTO(null, key, displayName, file.getFilename(), readBytes(file));
         return HttpResponse.created(assetService.create(projectId, upload));
     }
 
@@ -272,7 +273,7 @@ public class AssetController {
             @PathVariable UUID id,
             @Part("file") CompletedFileUpload file
     ) {
-        AssetUploadDTO upload = new AssetUploadDTO(id, null, file.getFilename(), readBytes(file));
+        AssetUploadDTO upload = new AssetUploadDTO(id, null, null, file.getFilename(), readBytes(file));
         return HttpResponse.ok(assetService.replaceContent(projectId, id, upload));
     }
 

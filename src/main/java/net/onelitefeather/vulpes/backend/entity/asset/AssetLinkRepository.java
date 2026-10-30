@@ -1,8 +1,9 @@
 package net.onelitefeather.vulpes.backend.entity.asset;
 
+import net.onelitefeather.vulpes.api.model.asset.AssetLinkEntity;
 import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.jpa.repository.JpaRepository;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetTargetType;
+import net.onelitefeather.vulpes.api.model.asset.AssetTargetType;
 
 import java.util.List;
 import java.util.UUID;

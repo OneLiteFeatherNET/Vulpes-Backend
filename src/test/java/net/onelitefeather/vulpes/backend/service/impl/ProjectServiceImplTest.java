@@ -32,6 +32,11 @@ class ProjectServiceImplTest {
         final Map<UUID, ProjectEntity> store = new LinkedHashMap<>();
 
         @Override
+        public Optional<ProjectEntity> findByKey(String key) {
+            return store.values().stream().filter(project -> key.equals(project.getKey())).findFirst();
+        }
+
+        @Override
         public <S extends ProjectEntity> S save(S entity) {
             if (entity.getId() == null) {
                 entity.setId(UUID.randomUUID());

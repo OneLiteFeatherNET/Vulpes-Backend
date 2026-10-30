@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.domain.asset;
 
+import net.onelitefeather.vulpes.api.model.asset.AssetKind;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;

@@ -146,6 +146,11 @@ class DimensionServiceImplTest {
         FakeProjectRepository() {
             super(ProjectEntity::getId);
         }
+
+        @Override
+        public Optional<ProjectEntity> findByKey(String key) {
+            return store.values().stream().filter(project -> key.equals(project.getKey())).findFirst();
+        }
     }
 
     private static class FakeDimensionTypeRepository extends FakePageableRepository<DimensionTypeEntity, UUID> implements DimensionTypeRepository {
