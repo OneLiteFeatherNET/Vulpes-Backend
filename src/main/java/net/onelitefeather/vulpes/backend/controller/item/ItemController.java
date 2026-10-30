@@ -11,20 +11,17 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ItemService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.UUID;
 
@@ -74,10 +71,9 @@ public class ItemController {
     )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<ItemModelResponseDTO.ItemModelDTO> add(
             @PathVariable UUID projectId,
-            @Valid @Body ItemModelDTO itemModel
+            @Body ItemModelDTO itemModel
     ) {
         return HttpResponse.ok(itemService.create(projectId, itemModel));
     }
@@ -171,10 +167,9 @@ public class ItemController {
     )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<ItemModelResponseDTO.ItemModelDTO> update(
             @PathVariable UUID projectId,
-            @Valid @Body ItemModelDTO itemModel
+            @Body ItemModelDTO itemModel
     ) {
         return HttpResponse.ok(itemService.update(projectId, itemModel));
     }

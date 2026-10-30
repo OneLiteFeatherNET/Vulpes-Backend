@@ -11,20 +11,17 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.AttributeService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.UUID;
 
@@ -69,8 +66,7 @@ public class AttributeController {
             )
     )
     @Post
-    @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> add(@PathVariable UUID projectId, @Valid @Body AttributeModelDTO model) {
+    public HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> add(@PathVariable UUID projectId, @Body AttributeModelDTO model) {
         return HttpResponse.ok(attributeService.create(projectId, model));
     }
 
@@ -105,8 +101,7 @@ public class AttributeController {
             )
     )
     @Post("/update")
-    @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> update(@PathVariable UUID projectId, @Valid @Body AttributeModelDTO model) {
+    public HttpResponse<AttributeModelResponseDTO.AttributeModelDTO> update(@PathVariable UUID projectId, @Body AttributeModelDTO model) {
         return HttpResponse.ok(attributeService.update(projectId, model));
     }
 

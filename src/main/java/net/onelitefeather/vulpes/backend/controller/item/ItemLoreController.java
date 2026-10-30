@@ -26,7 +26,6 @@ import net.onelitefeather.vulpes.backend.domain.item.ItemLoreDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreReorderDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemLoreResponseDTO;
 import net.onelitefeather.vulpes.backend.service.ItemService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
 import java.util.UUID;
@@ -102,8 +101,7 @@ public class ItemLoreController {
             "/lore/{itemId}",
             "/{itemId}/lore"
     })
-    @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<ItemLoreResponseDTO.ItemLoreDTO> updateLore(@PathVariable("itemId") UUID itemId, @Valid @Body ItemLoreDTO lore) {
+    public HttpResponse<ItemLoreResponseDTO.ItemLoreDTO> updateLore(@PathVariable("itemId") UUID itemId, @Body ItemLoreDTO lore) {
         return HttpResponse.ok(itemService.updateLoreById(itemId, lore));
     }
 
@@ -141,8 +139,7 @@ public class ItemLoreController {
             "/lore/{itemId}",
             "/{itemId}/lore"
     })
-    @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<ItemLoreResponseDTO.ItemLoreDTO> createLore(@PathVariable("itemId") UUID itemId, @Valid @Body ItemLoreDTO lore) {
+    public HttpResponse<ItemLoreResponseDTO.ItemLoreDTO> createLore(@PathVariable("itemId") UUID itemId, @Body ItemLoreDTO lore) {
         return HttpResponse.ok(itemService.createLoreById(itemId, lore));
     }
 

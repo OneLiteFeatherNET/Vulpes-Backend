@@ -12,19 +12,16 @@ import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.Put;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.item.ItemComponentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemComponentResponseDTO;
 import net.onelitefeather.vulpes.backend.service.item.ItemComponentService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
 import java.util.UUID;
@@ -81,10 +78,9 @@ public class ItemComponentController {
             )
     )
     @Put("/{itemId}/component")
-    @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<ItemComponentResponseDTO.ItemComponentDTO> createComponent(
             @PathVariable("itemId") UUID itemId,
-            @Valid @Body ItemComponentDTO component
+            @Body ItemComponentDTO component
     ) {
         return HttpResponse.ok(componentService.createComponent(itemId, component));
     }
@@ -162,10 +158,9 @@ public class ItemComponentController {
             )
     )
     @Post("/{itemId}/component")
-    @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<ItemComponentResponseDTO.ItemComponentDTO> updateComponent(
             @PathVariable("itemId") UUID itemId,
-            @Valid @Body ItemComponentDTO component
+            @Body ItemComponentDTO component
     ) {
         return HttpResponse.ok(componentService.updateComponent(itemId, component));
     }

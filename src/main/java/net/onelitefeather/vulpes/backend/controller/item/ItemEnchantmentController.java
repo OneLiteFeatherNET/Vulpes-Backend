@@ -12,19 +12,16 @@ import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.Put;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemEnchantmentResponseDTO;
 import net.onelitefeather.vulpes.backend.service.ItemService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
 import java.util.UUID;
@@ -73,8 +70,7 @@ public class ItemEnchantmentController {
             "/enchantment/{itemId}",
             "/{itemId}/enchantment"
     })
-    @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> createEnchantment(@PathVariable("itemId") UUID itemId, @Valid @Body ItemEnchantmentDTO enchantment) {
+    public HttpResponse<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> createEnchantment(@PathVariable("itemId") UUID itemId, @Body ItemEnchantmentDTO enchantment) {
         var createResult = itemService.createEnchantmentById(itemId, enchantment);
         return HttpResponse.ok(createResult);
     }
@@ -140,8 +136,7 @@ public class ItemEnchantmentController {
             "/enchantment/{itemId}",
             "/{itemId}/enchantment"
     })
-    @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> updateEnchantment(@PathVariable("itemId") UUID itemId, @Valid @Body ItemEnchantmentDTO enchantment) {
+    public HttpResponse<ItemEnchantmentResponseDTO.ItemEnchantmentDTO> updateEnchantment(@PathVariable("itemId") UUID itemId, @Body ItemEnchantmentDTO enchantment) {
         return HttpResponse.ok(itemService.updateEnchantmentById(itemId, enchantment));
     }
 

@@ -11,20 +11,17 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelResponseDTO;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ProjectService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.UUID;
 
@@ -92,8 +89,7 @@ public class ProjectController {
     )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> add(@Valid @Body ProjectModelDTO model) {
+    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> add(@Body ProjectModelDTO model) {
         ProjectModelResponseDTO.ProjectModelDTO result = projectService.create(model);
         return HttpResponse.ok(result);
     }
@@ -208,8 +204,7 @@ public class ProjectController {
     )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> update(@Valid @Body ProjectModelDTO model) {
+    public HttpResponse<ProjectModelResponseDTO.ProjectModelDTO> update(@Body ProjectModelDTO model) {
         return HttpResponse.ok(projectService.update(model));
     }
 

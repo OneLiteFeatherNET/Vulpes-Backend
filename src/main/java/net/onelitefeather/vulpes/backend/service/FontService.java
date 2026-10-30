@@ -2,11 +2,16 @@ package net.onelitefeather.vulpes.backend.service;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import io.micronaut.validation.Validated;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.groups.Default;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringResponseDTO;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +28,7 @@ public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO,
      * @param pageable pagination information
      * @return a list of characters
      */
-    Page<FontStringResponseDTO.FontStringDTO> findCharsByFontId(UUID id, Pageable pageable);
+    Page<FontStringResponseDTO.FontStringDTO> findCharsByFontId(@NotNull UUID id, @NotNull Pageable pageable);
 
     /**
      * Updates the character of a font by its ID.
@@ -32,7 +37,8 @@ public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO,
      * @param charModel the new character to set
      * @return the updated character
      */
-    FontStringResponseDTO.FontStringDTO updateCharByFontId(UUID id, FontStringDTO charModel);
+    @Validated(groups = {Default.class, ValidationGroup.Update.class})
+    FontStringResponseDTO.FontStringDTO updateCharByFontId(@NotNull UUID id, @NotNull @Valid FontStringDTO charModel);
 
     /**
      * Creates the character of a font by its ID.
@@ -41,7 +47,8 @@ public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO,
      * @param charModel the new character to set
      * @return the updated character
      */
-    FontStringResponseDTO.FontStringDTO createCharByFontId(UUID id, FontStringDTO charModel);
+    @Validated(groups = {Default.class, ValidationGroup.Create.class})
+    FontStringResponseDTO.FontStringDTO createCharByFontId(@NotNull UUID id, @NotNull @Valid FontStringDTO charModel);
 
     /**
      * Deletes the character of a font by its ID.
@@ -50,7 +57,7 @@ public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO,
      * @param charId the ID of the character to delete
      * @return the deleted character
      */
-    FontStringResponseDTO.FontStringDTO deleteCharByFontId(UUID fontId, UUID charId);
+    FontStringResponseDTO.FontStringDTO deleteCharByFontId(@NotNull UUID fontId, @NotNull UUID charId);
 
     /**
      * Deletes all characters of a font by its ID.
@@ -58,5 +65,5 @@ public interface FontService extends CrudService<FontEntity, UUID, FontModelDTO,
      * @param fontId the ID of the font
      * @return the list of deleted characters
      */
-    List<FontStringResponseDTO.FontStringDTO> deleteAllCharByFontId(UUID fontId);
+    List<FontStringResponseDTO.FontStringDTO> deleteAllCharByFontId(@NotNull UUID fontId);
 }

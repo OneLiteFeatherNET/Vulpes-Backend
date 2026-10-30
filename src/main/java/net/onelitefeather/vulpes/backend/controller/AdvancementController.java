@@ -5,20 +5,17 @@ import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.*;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.advancement.AdvancementModelDTO;
 import net.onelitefeather.vulpes.backend.domain.advancement.AdvancementModelResponseDTO;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.AdvancementService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.UUID;
 
@@ -72,8 +69,7 @@ public class AdvancementController {
     )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<AdvancementModelResponseDTO.AdvancementModelDTO> add(@PathVariable UUID projectId, @Valid @Body AdvancementModelDTO model) {
+    public HttpResponse<AdvancementModelResponseDTO.AdvancementModelDTO> add(@PathVariable UUID projectId, @Body AdvancementModelDTO model) {
         return HttpResponse.ok(advancementService.create(projectId, model));
     }
 
@@ -208,8 +204,7 @@ public class AdvancementController {
     )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<AdvancementModelResponseDTO.AdvancementModelDTO> update(@PathVariable UUID projectId, @Valid @Body AdvancementModelDTO model) {
+    public HttpResponse<AdvancementModelResponseDTO.AdvancementModelDTO> update(@PathVariable UUID projectId, @Body AdvancementModelDTO model) {
         return HttpResponse.ok(advancementService.update(projectId, model));
     }
 }
