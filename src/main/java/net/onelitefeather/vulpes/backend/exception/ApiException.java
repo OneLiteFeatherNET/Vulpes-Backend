@@ -2,6 +2,9 @@ package net.onelitefeather.vulpes.backend.exception;
 
 import io.micronaut.core.annotation.Nullable;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
+
+import java.util.List;
 
 /**
  * The exception every layer below the controller raises to fail a request with a defined HTTP status
@@ -26,6 +29,7 @@ public class ApiException extends RuntimeException {
 
     private final transient ErrorCode code;
     private final transient String internalDetail;
+    private final transient List<ProblemDetail.Violation> violations;
 
     /**
      * Constructs a new exception carrying only the client-facing detail.
@@ -45,9 +49,27 @@ public class ApiException extends RuntimeException {
      * @param internalDetail the explanation for the server log, never sent to the client
      */
     public ApiException(ErrorCode code, String detail, @Nullable String internalDetail) {
+        this(code, detail, internalDetail, List.of());
+    }
+
+    /**
+     * Constructs a new exception carrying field-level violations for the response body.
+     *
+     * @param code           the error code determining status, title and problem type
+     * @param detail         the client-facing explanation, safe to expose
+     * @param internalDetail the explanation for the server log, never sent to the client
+     * @param violations     the field-level violations, empty unless the code is {@code VALIDATION_FAILED}
+     */
+    public ApiException(
+            ErrorCode code,
+            String detail,
+            @Nullable String internalDetail,
+            List<ProblemDetail.Violation> violations
+    ) {
         super(detail);
         this.code = code;
         this.internalDetail = internalDetail;
+        this.violations = List.copyOf(violations);
     }
 
     /**
@@ -76,6 +98,15 @@ public class ApiException extends RuntimeException {
      */
     public @Nullable String internalDetail() {
         return internalDetail;
+    }
+
+    /**
+     * Returns the field-level violations to list in the response body.
+     *
+     * @return the violations, empty when the failure is not a validation failure
+     */
+    public List<ProblemDetail.Violation> violations() {
+        return violations;
     }
 
     /**
@@ -142,6 +173,21 @@ public class ApiException extends RuntimeException {
      */
     public static ApiException invalidRequest(String detail) {
         return new ApiException(ErrorCode.INVALID_REQUEST, detail);
+    }
+
+    /**
+     * The request body or its values failed a check, and the offending fields are named.
+     *
+     * @param violations the field-level violations to list in the response body
+     * @return the exception to throw
+     */
+    public static ApiException validationFailed(List<ProblemDetail.Violation> violations) {
+        return new ApiException(
+                ErrorCode.VALIDATION_FAILED,
+                "The request contains invalid values. See 'errors' for the affected fields.",
+                null,
+                violations
+        );
     }
 
     /**

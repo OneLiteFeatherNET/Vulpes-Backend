@@ -106,7 +106,8 @@ public class ProblemErrorResponseProcessor implements ErrorResponseProcessor<Pro
     ) {
         if (cause instanceof ApiException apiException) {
             return problemDetailFactory.create(
-                    apiException.code(), apiException.detail(), errorContext.getRequest(), traceId);
+                    apiException.code(), apiException.detail(), errorContext.getRequest(), traceId,
+                    apiException.violations());
         }
 
         if (cause instanceof ConstraintViolationException violationException) {

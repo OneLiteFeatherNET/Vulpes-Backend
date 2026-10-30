@@ -1,0 +1,77 @@
+### Base config
+@server = http://localhost:8085
+@projectId =
+@id =
+@bbId =
+@linkId =
+@itemId =
+
+### Upload a texture (multipart: file + key)
+POST {{server}}/project/{{projectId}}/asset
+Content-Type: multipart/form-data; boundary=AssetBoundary
+
+--AssetBoundary
+Content-Disposition: form-data; name="key"
+
+vulpes:item/ruby
+--AssetBoundary
+Content-Disposition: form-data; name="file"; filename="ruby.png"
+Content-Type: image/png
+
+< ./ruby.png
+--AssetBoundary--
+
+### Upload a Blockbench model, its embedded textures are extracted
+POST {{server}}/project/{{projectId}}/asset
+Content-Type: multipart/form-data; boundary=AssetBoundary
+
+--AssetBoundary
+Content-Disposition: form-data; name="key"
+
+vulpes:item/gem
+--AssetBoundary
+Content-Disposition: form-data; name="file"; filename="gem.bbmodel"
+Content-Type: application/json
+
+< ./gem.bbmodel
+--AssetBoundary--
+
+### Get one asset
+GET {{server}}/project/{{projectId}}/asset/{{id}}
+
+### List textures only
+GET {{server}}/project/{{projectId}}/asset/?kind=TEXTURE&page=0&size=20
+
+### Download the bytes, send If-None-Match to get 304
+GET {{server}}/project/{{projectId}}/asset/{{id}}/content
+If-None-Match: "sha1-of-the-content"
+
+### Replace the content with a file of the same kind
+POST {{server}}/project/{{projectId}}/asset/{{id}}/content
+Content-Type: multipart/form-data; boundary=AssetBoundary
+
+--AssetBoundary
+Content-Disposition: form-data; name="file"; filename="ruby.png"
+Content-Type: image/png
+
+< ./ruby-v2.png
+--AssetBoundary--
+
+### Link an asset to an item (role TEXTURE for textures, MODEL for models)
+POST {{server}}/project/{{projectId}}/asset/{{id}}/link
+Content-Type: application/json
+
+{
+  "targetType": "ITEM",
+  "targetId": "{{itemId}}",
+  "role": "TEXTURE"
+}
+
+### List the assets linked to an item
+GET {{server}}/project/{{projectId}}/asset/link?targetType=ITEM&targetId={{itemId}}
+
+### Remove a link
+DELETE {{server}}/project/{{projectId}}/asset/link/{{linkId}}
+
+### Delete an asset (also removes its links and the textures extracted from it)
+DELETE {{server}}/project/{{projectId}}/asset/delete/{{bbId}}
