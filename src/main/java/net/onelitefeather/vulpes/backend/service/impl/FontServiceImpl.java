@@ -70,8 +70,16 @@ public class FontServiceImpl
     @Override
     public FontStringResponseDTO.FontStringDTO updateCharByFontId(UUID id, FontStringDTO charModel) {
         var fontEntity = requireFont(id);
-        var charEntity = charModel.toEntity();
-        charEntity.setFont(fontEntity);
+        if (charModel.id() == null) {
+            throw ApiException.invalidRequest("An id is required to update a font character.");
+        }
+        var charEntity = this.fontStringRepository.findById(charModel.id())
+                .orElseThrow(() -> ApiException.notFound(FONT_CHARACTER));
+        if (!fontEntity.getId().equals(charEntity.getFont().getId())) {
+            throw ApiException.notOwnedBy(FONT_CHARACTER, charModel.id(), "font", id);
+        }
+        charEntity.setLine(charModel.line());
+        charEntity.setOrderIndex(charModel.orderIndex());
         var updatedChar = this.fontStringRepository.update(charEntity);
         return FontStringResponseDTO.FontStringDTO.createDTO(updatedChar);
     }
