@@ -182,5 +182,10 @@ final class AdvancementFakes {
         FakeProjectRepository() {
             super(ProjectEntity::getId);
         }
+
+        @Override
+        public Optional<ProjectEntity> findByKey(String key) {
+            return findAll().stream().filter(project -> key.equals(project.getKey())).findFirst();
+        }
     }
 }

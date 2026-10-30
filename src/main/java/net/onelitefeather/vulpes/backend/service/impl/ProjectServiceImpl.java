@@ -39,10 +39,7 @@ public class ProjectServiceImpl
      */
     @Override
     public Optional<ProjectEntity> findProjectByKey(String key) {
-        return projectRepository.findAll()
-                .stream()
-                .filter(project -> key.equals(project.getKey()))
-                .findFirst();
+        return projectRepository.findByKey(key);
     }
 
     /**

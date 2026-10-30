@@ -70,6 +70,11 @@ class ProjectServiceImplTest {
         }
 
         @Override
+        public Optional<ProjectEntity> findByKey(String key) {
+            return store.values().stream().filter(project -> key.equals(project.getKey())).findFirst();
+        }
+
+        @Override
         public List<ProjectEntity> findAll() {
             return new ArrayList<>(store.values());
         }
