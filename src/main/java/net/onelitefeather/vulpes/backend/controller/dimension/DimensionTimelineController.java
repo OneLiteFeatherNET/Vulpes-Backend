@@ -12,7 +12,6 @@ import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.Put;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,7 +22,6 @@ import net.onelitefeather.vulpes.backend.domain.dimension.DimensionTimelineDTO;
 import net.onelitefeather.vulpes.backend.domain.dimension.DimensionTimelineResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.service.DimensionService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
 import java.util.UUID;
@@ -101,7 +99,6 @@ public class DimensionTimelineController {
             "/timeline/{dimensionId}",
             "/{dimensionId}/timeline"
     })
-    @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<DimensionTimelineResponseDTO.DimensionTimelineDTO> updateTimeline(
             @PathVariable("dimensionId") UUID dimensionId, @Body DimensionTimelineDTO timeline
     ) {
@@ -142,7 +139,6 @@ public class DimensionTimelineController {
             "/timeline/{dimensionId}",
             "/{dimensionId}/timeline"
     })
-    @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<DimensionTimelineResponseDTO.DimensionTimelineDTO> createTimeline(
             @PathVariable("dimensionId") UUID dimensionId, @Body DimensionTimelineDTO timeline
     ) {

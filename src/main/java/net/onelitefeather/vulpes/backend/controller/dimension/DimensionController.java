@@ -11,20 +11,17 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.dimension.DimensionModelDTO;
 import net.onelitefeather.vulpes.backend.domain.dimension.DimensionModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.DimensionService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.UUID;
 
@@ -75,10 +72,9 @@ public class DimensionController {
     )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<DimensionModelResponseDTO.DimensionModelDTO> add(
             @PathVariable UUID projectId,
-            @Valid @Body DimensionModelDTO dimensionModel
+            @Body DimensionModelDTO dimensionModel
     ) {
         return HttpResponse.ok(dimensionService.create(projectId, dimensionModel));
     }
@@ -172,10 +168,9 @@ public class DimensionController {
     )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<DimensionModelResponseDTO.DimensionModelDTO> update(
             @PathVariable UUID projectId,
-            @Valid @Body DimensionModelDTO dimensionModel
+            @Body DimensionModelDTO dimensionModel
     ) {
         return HttpResponse.ok(dimensionService.update(projectId, dimensionModel));
     }
