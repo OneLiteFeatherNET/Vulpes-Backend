@@ -11,7 +11,6 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -19,12 +18,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundFileSourceDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
 import net.onelitefeather.vulpes.backend.service.SoundService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.UUID;
 
@@ -108,10 +105,9 @@ public class SoundSourceController {
     )
     @Post("/{id}/sources")
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Create.class)
     public HttpResponse<SoundResponseDTO.SoundFileSourceDTO> createSource(
             @PathVariable("id") UUID soundEventId,
-            @Valid @Body SoundFileSourceDTO sourceDTO
+            @Body SoundFileSourceDTO sourceDTO
     ) {
         return HttpResponse.ok(soundService.createAndLinkSource(soundEventId, sourceDTO));
     }
@@ -155,10 +151,9 @@ public class SoundSourceController {
     )
     @Post("/{id}/sources/update")
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Update.class)
     public HttpResponse<SoundResponseDTO.SoundFileSourceDTO> updateSource(
             @PathVariable("id") UUID soundEventId,
-            @Valid @Body SoundFileSourceDTO sourceDTO
+            @Body SoundFileSourceDTO sourceDTO
     ) {
         return HttpResponse.ok(soundService.updateLinkedSource(soundEventId, sourceDTO));
     }

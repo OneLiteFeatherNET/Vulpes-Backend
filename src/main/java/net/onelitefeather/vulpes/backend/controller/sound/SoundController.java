@@ -11,20 +11,17 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundResponseDTO;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.SoundService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.UUID;
 
@@ -78,8 +75,7 @@ public class SoundController {
     )
     @Post
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<SoundResponseDTO.SoundModelDTO> add(@PathVariable UUID projectId, @Valid @Body SoundEventDTO dtoModel) {
+    public HttpResponse<SoundResponseDTO.SoundModelDTO> add(@PathVariable UUID projectId, @Body SoundEventDTO dtoModel) {
         return HttpResponse.ok(soundService.create(projectId, dtoModel));
     }
 
@@ -214,8 +210,7 @@ public class SoundController {
     )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<SoundResponseDTO.SoundModelDTO> update(@PathVariable UUID projectId, @Valid @Body SoundEventDTO model) {
+    public HttpResponse<SoundResponseDTO.SoundModelDTO> update(@PathVariable UUID projectId, @Body SoundEventDTO model) {
         return HttpResponse.ok(soundService.update(projectId, model));
     }
 }
