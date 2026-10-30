@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DisplayName("Integration tests for the enchantments of an item")
+@DisplayName("Integration tests for the lore and the enchantments of an item")
 @EnabledIfDockerAvailable
 class ItemSubResourceIntegrationTest {
 
@@ -57,12 +57,39 @@ class ItemSubResourceIntegrationTest {
                 .id();
     }
 
+    private String createLore(String text) {
+        return given().contentType(ContentType.JSON).body("{\"text\":\"" + text + "\"}")
+                .put(itemPath + "/lore")
+                .then().statusCode(200)
+                .extract().jsonPath().getString("id");
+    }
+
+    private JsonPath lore() {
+        return given().get(itemPath + "/lore").then().statusCode(200).extract().jsonPath();
+    }
+
     private String createEnchantment(String path, String name) {
         return given().contentType(ContentType.JSON)
                 .body("{\"name\":\"" + name + "\",\"level\":1,\"unsafe\":false}")
                 .put(path + "/enchantment")
                 .then().statusCode(200)
                 .extract().jsonPath().getString("id");
+    }
+
+    @Test
+    @DisplayName("deleting a lore line closes the gap, so a new line gets a free index")
+    void deleteLoreKeepsTheIndicesUnique() {
+        createLore("first");
+        String second = createLore("second");
+        createLore("third");
+
+        given().delete(itemPath + "/lore/" + second).then().statusCode(200);
+        createLore("fourth");
+
+        JsonPath page = lore();
+        assertEquals(List.of(0, 1, 2), page.getList("content.orderIndex", Integer.class).stream().sorted().toList());
+        assertEquals(2, page.getInt("content.find { it.text == 'fourth' }.orderIndex"));
+        assertEquals(1, page.getInt("content.find { it.text == 'third' }.orderIndex"));
     }
 
     @Test

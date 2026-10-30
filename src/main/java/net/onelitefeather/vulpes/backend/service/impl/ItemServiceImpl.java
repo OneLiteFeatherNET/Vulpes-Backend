@@ -28,6 +28,7 @@ import net.onelitefeather.vulpes.backend.service.item.ItemComponentRules;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -151,13 +152,17 @@ public class ItemServiceImpl
         var item = requireItem(id);
         var entity = loreDto.toEntity();
         entity.setItem(item);
-        int nextIndex = (int) this.itemLoreRepository.findLoreById(item.getId(), Pageable.unpaged()).getTotalSize();
+        // Appended after the highest index rather than at the line count, so a gap left in older
+        // data can't hand out an index another line already has.
+        List<ItemLoreEntity> loreLines = orderedLore(item);
+        int nextIndex = loreLines.isEmpty() ? 0 : loreLines.getLast().getOrderIndex() + 1;
         entity.setOrderIndex(nextIndex);
         var saved = this.itemLoreRepository.save(entity);
         return ItemLoreResponseDTO.ItemLoreDTO.createDTO(saved);
     }
 
     @Override
+    @Transactional
     public ItemLoreResponseDTO.ItemLoreDTO deleteLoreById(UUID id, UUID loreId) {
         var item = requireItem(id);
         var entity = this.itemLoreRepository.findById(loreId).orElseThrow(() -> ApiException.notFound(LORE_ENTRY));
@@ -165,6 +170,12 @@ public class ItemServiceImpl
             throw ApiException.notOwnedBy(LORE_ENTRY, loreId, "item", id);
         }
         this.itemLoreRepository.deleteById(entity.getId());
+
+        // Close the gap so the remaining lines keep the indices 0..n-1
+        List<ItemLoreEntity> remaining = orderedLore(item).stream()
+                .filter(line -> !line.getId().equals(entity.getId()))
+                .toList();
+        reindex(remaining);
         return ItemLoreResponseDTO.ItemLoreDTO.createDTO(entity);
     }
 
@@ -172,8 +183,7 @@ public class ItemServiceImpl
     @Transactional
     public ItemLoreResponseDTO.ItemLoreDTO reorderLoreById(UUID id, UUID entryId, int newIndex) {
         var item = requireItem(id);
-        List<ItemLoreEntity> loreLines = new ArrayList<>(
-                this.itemLoreRepository.findLoreById(item.getId(), Pageable.unpaged()).getContent());
+        List<ItemLoreEntity> loreLines = new ArrayList<>(orderedLore(item));
 
         var entryToMove = loreLines.stream()
                 .filter(entry -> entry.getId().equals(entryId))
@@ -183,13 +193,33 @@ public class ItemServiceImpl
         loreLines.remove(entryToMove);
         int clampedIndex = Math.max(0, Math.min(newIndex, loreLines.size()));
         loreLines.add(clampedIndex, entryToMove);
+        reindex(loreLines);
 
+        return ItemLoreResponseDTO.ItemLoreDTO.createDTO(entryToMove);
+    }
+
+    /**
+     * Returns the lore lines of the given item sorted by their order index.
+     *
+     * @param item the item whose lore is loaded
+     * @return the lore lines in display order
+     */
+    private List<ItemLoreEntity> orderedLore(ItemEntity item) {
+        return this.itemLoreRepository.findLoreById(item.getId(), Pageable.unpaged()).getContent().stream()
+                .sorted(Comparator.comparingInt(ItemLoreEntity::getOrderIndex))
+                .toList();
+    }
+
+    /**
+     * Gives the lore lines the order indices 0..n-1 in the order of the list and stores them.
+     *
+     * @param loreLines the lore lines in their new order
+     */
+    private void reindex(List<ItemLoreEntity> loreLines) {
         for (int i = 0; i < loreLines.size(); i++) {
             loreLines.get(i).setOrderIndex(i);
         }
         this.itemLoreRepository.updateAll(loreLines);
-
-        return ItemLoreResponseDTO.ItemLoreDTO.createDTO(entryToMove);
     }
 
     @Override
