@@ -2,8 +2,13 @@ package net.onelitefeather.vulpes.backend.service.item;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import io.micronaut.validation.Validated;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.groups.Default;
 import net.onelitefeather.vulpes.backend.domain.item.ItemComponentDTO;
 import net.onelitefeather.vulpes.backend.domain.item.ItemComponentResponseDTO;
+import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +30,7 @@ public interface ItemComponentService {
      * @param pageable the page to return
      * @return the components on the page
      */
-    Page<ItemComponentResponseDTO.ItemComponentDTO> findComponents(UUID itemId, Pageable pageable);
+    Page<ItemComponentResponseDTO.ItemComponentDTO> findComponents(@NotNull UUID itemId, @NotNull Pageable pageable);
 
     /**
      * Adds a component to an item.
@@ -34,7 +39,8 @@ public interface ItemComponentService {
      * @param component the component to add
      * @return the stored component
      */
-    ItemComponentResponseDTO.ItemComponentDTO createComponent(UUID itemId, ItemComponentDTO component);
+    @Validated(groups = {Default.class, ValidationGroup.Create.class})
+    ItemComponentResponseDTO.ItemComponentDTO createComponent(@NotNull UUID itemId, @NotNull @Valid ItemComponentDTO component);
 
     /**
      * Updates a component of an item.
@@ -43,7 +49,8 @@ public interface ItemComponentService {
      * @param component the component with its id
      * @return the stored component
      */
-    ItemComponentResponseDTO.ItemComponentDTO updateComponent(UUID itemId, ItemComponentDTO component);
+    @Validated(groups = {Default.class, ValidationGroup.Update.class})
+    ItemComponentResponseDTO.ItemComponentDTO updateComponent(@NotNull UUID itemId, @NotNull @Valid ItemComponentDTO component);
 
     /**
      * Removes a component from an item.
@@ -52,7 +59,7 @@ public interface ItemComponentService {
      * @param componentId the id of the component entry
      * @return the removed component
      */
-    ItemComponentResponseDTO.ItemComponentDTO deleteComponent(UUID itemId, UUID componentId);
+    ItemComponentResponseDTO.ItemComponentDTO deleteComponent(@NotNull UUID itemId, @NotNull UUID componentId);
 
     /**
      * Removes all components from an item.
@@ -60,5 +67,5 @@ public interface ItemComponentService {
      * @param itemId the id of the item
      * @return the removed components
      */
-    List<ItemComponentResponseDTO.ItemComponentDTO> deleteAllComponents(UUID itemId);
+    List<ItemComponentResponseDTO.ItemComponentDTO> deleteAllComponents(@NotNull UUID itemId);
 }
