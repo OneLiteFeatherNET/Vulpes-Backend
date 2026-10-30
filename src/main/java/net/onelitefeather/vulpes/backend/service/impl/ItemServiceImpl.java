@@ -203,10 +203,20 @@ public class ItemServiceImpl
     }
 
     @Override
+    @Transactional
     public ItemEnchantmentResponseDTO.ItemEnchantmentDTO updateEnchantmentById(UUID id, ItemEnchantmentDTO enchantment) {
         var item = requireItem(id);
-        ItemEnchantmentEntity entity = enchantment.toEntity();
-        entity.setItem(item);
+        if (enchantment.id() == null) {
+            throw ApiException.invalidRequest("An id is required to update an enchantment.");
+        }
+        var entity = this.itemEnchantmentRepository.findById(enchantment.id())
+                .orElseThrow(() -> ApiException.notFound(ENCHANTMENT));
+        if (!entity.getItem().getId().equals(item.getId())) {
+            throw ApiException.notOwnedBy(ENCHANTMENT, enchantment.id(), "item", id);
+        }
+        entity.setName(enchantment.name());
+        entity.setLevel(enchantment.level());
+        entity.setUnsafe(enchantment.unsafe());
         var saved = this.itemEnchantmentRepository.update(entity);
         return ItemEnchantmentResponseDTO.ItemEnchantmentDTO.createDTO(saved);
     }
