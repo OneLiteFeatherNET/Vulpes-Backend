@@ -12,19 +12,16 @@ import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.Put;
-import io.micronaut.validation.Validated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringResponseDTO;
 import net.onelitefeather.vulpes.backend.service.FontService;
-import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 
 import java.util.List;
 import java.util.UUID;
@@ -63,8 +60,7 @@ public class FontCharController {
     )
     @Put("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Create.class)
-    public HttpResponse<FontStringResponseDTO.FontStringDTO> createChar(@PathVariable UUID id, @Valid @Body FontStringDTO charModel) {
+    public HttpResponse<FontStringResponseDTO.FontStringDTO> createChar(@PathVariable UUID id, @Body FontStringDTO charModel) {
         return HttpResponse.ok(fontService.createCharByFontId(id, charModel));
     }
 
@@ -123,8 +119,7 @@ public class FontCharController {
     )
     @Post("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Validated(groups = ValidationGroup.Update.class)
-    public HttpResponse<FontStringResponseDTO.FontStringDTO> updateChar(@PathVariable UUID id, @Valid @Body FontStringDTO charModel) {
+    public HttpResponse<FontStringResponseDTO.FontStringDTO> updateChar(@PathVariable UUID id, @Body FontStringDTO charModel) {
         return HttpResponse.ok(fontService.updateCharByFontId(id, charModel));
     }
 
