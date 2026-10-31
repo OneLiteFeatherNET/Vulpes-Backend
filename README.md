@@ -139,6 +139,7 @@ This holds for framework errors too — unbindable path variables, malformed JSO
 ### For contributors
 
 - Raise failures with `ApiException`; the status, title and problem type come from the `ErrorCode` you pass.
+- When a check outside Bean Validation rejects specific fields, raise `ApiException.validationFailed(violations)`; the violations end up in `errors`, the same as for an annotated constraint.
 - The message you pass **is the response body**. Author it at the throw site from data the caller already sent us. Never forward a message from JDBC, Hibernate or any other lower layer — those carry table names, column names and SQL fragments ([CWE-209](https://cwe.mitre.org/data/definitions/209.html)). Details for 5xx are a fixed constant for the same reason.
 - When the honest reason differs from what the caller may learn — a cross-project access, for instance — pass it as `internalDetail`. It is logged and never serialized.
 
