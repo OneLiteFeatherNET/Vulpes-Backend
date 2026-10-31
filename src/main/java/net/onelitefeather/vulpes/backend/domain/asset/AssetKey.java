@@ -1,10 +1,10 @@
 package net.onelitefeather.vulpes.backend.domain.asset;
 
-import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
-import net.onelitefeather.vulpes.backend.exception.ApiException;
-
 import java.util.List;
 import java.util.regex.Pattern;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Validation rules for asset keys, the Minecraft resource locations an asset is addressed by.
@@ -22,8 +22,7 @@ public final class AssetKey {
     private static final Pattern PATTERN = Pattern.compile("^[a-z0-9_.-]+:[a-z0-9_./-]+$");
     private static final Pattern EXTENSION = Pattern.compile("\\.[a-z0-9]{1,5}$");
 
-    private AssetKey() {
-    }
+    private AssetKey() {}
 
     /**
      * Checks whether a key follows the rules.
@@ -47,13 +46,14 @@ public final class AssetKey {
      * @throws ApiException {@code VALIDATION_FAILED} with an {@code ASSET_KEY_INVALID} violation on
      *                      field {@code key}
      */
-    public static String requireValid(String key) {
-        if (!isValid(key)) {
-            throw ApiException.validationFailed(List.of(new ProblemDetail.Violation(
-                    "key",
-                    AssetViolationCode.KEY_INVALID,
-                    "must look like 'namespace:path' in lowercase without a file extension, for example 'vulpes:item/ruby'"
-            )));
+    public static String requireValid(@Nullable String key) {
+        if (key == null || !isValid(key)) {
+            throw ApiException.validationFailed(
+                    List.of(
+                            new ProblemDetail.Violation(
+                                    "key",
+                                    AssetViolationCode.KEY_INVALID,
+                                    "must look like 'namespace:path' in lowercase without a file extension, for example 'vulpes:item/ruby'")));
         }
         return key;
     }

@@ -2,13 +2,14 @@ package net.onelitefeather.vulpes.backend.service;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import java.util.UUID;
 import net.onelitefeather.vulpes.api.model.asset.AssetKind;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
-
-import java.util.UUID;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service interface for managing project assets: textures, models and Blockbench models.
@@ -16,6 +17,7 @@ import java.util.UUID;
  * <p>The bytes are kept in object storage, the metadata in the database. Uploading a Blockbench model
  * also stores the textures embedded in it as assets of their own.
  */
+@NullMarked
 public interface AssetService extends CrudService<ProjectAssetEntity, UUID, AssetUploadDTO, AssetResponseDTO> {
 
     /**
@@ -37,7 +39,7 @@ public interface AssetService extends CrudService<ProjectAssetEntity, UUID, Asse
      * @param pageable  pagination details
      * @return a page of assets
      */
-    Page<AssetResponseDTO> getAll(UUID projectId, AssetKind kind, Pageable pageable);
+    Page<AssetResponseDTO> getAll(UUID projectId, @Nullable AssetKind kind, Pageable pageable);
 
     /**
      * Returns the stored bytes of an asset.

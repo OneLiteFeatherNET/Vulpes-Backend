@@ -1,9 +1,16 @@
 package net.onelitefeather.vulpes.backend.controller.asset;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import net.onelitefeather.vulpes.api.model.asset.AssetKind;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
@@ -11,16 +18,9 @@ import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import net.onelitefeather.vulpes.backend.service.AssetService;
+import net.onelitefeather.vulpes.backend.service.impl.AssetResponseMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 @DisplayName("Unit tests for AssetController (stub services, no context)")
 class AssetControllerTest {
@@ -65,8 +65,7 @@ class AssetControllerTest {
         }
 
         @Override
-        public void deleteAll(UUID projectId) {
-        }
+        public void deleteAll(UUID projectId) {}
 
         @Override
         public AssetResponseDTO create(UUID projectId, AssetUploadDTO upload) {
@@ -131,7 +130,7 @@ class AssetControllerTest {
         entity.setSha1(SHA1);
         entity.setWidth(16);
         entity.setHeight(16);
-        return AssetResponseDTO.createDTO(entity, List.of());
+        return AssetResponseMapper.toDto(entity, List.of());
     }
 
     @Test
@@ -141,8 +140,7 @@ class AssetControllerTest {
         StubAssetService assets = new StubAssetService();
         assets.response = sampleAsset(projectId, id);
 
-        HttpResponse<AssetResponseDTO> response = new AssetController(assets)
-                .getById(projectId, id);
+        HttpResponse<AssetResponseDTO> response = new AssetController(assets).getById(projectId, id);
 
         assertEquals(HttpStatus.OK, response.getStatus(), "a found asset must answer 200");
         assertEquals("vulpes:item/ruby", response.body().key(), "the body must carry the asset key");
@@ -154,8 +152,7 @@ class AssetControllerTest {
         StubAssetService assets = new StubAssetService();
         assets.response = sampleAsset(projectId, UUID.randomUUID());
 
-        new AssetController(assets)
-                .getAll(projectId, AssetKind.TEXTURE, Pageable.from(0, 10));
+        new AssetController(assets).getAll(projectId, AssetKind.TEXTURE, Pageable.from(0, 10));
 
         assertEquals(AssetKind.TEXTURE, assets.lastKind, "the kind query parameter must reach the service");
     }
@@ -166,8 +163,7 @@ class AssetControllerTest {
         StubAssetService assets = new StubAssetService();
         assets.content = new AssetContent(PNG_BYTES, "image/png", SHA1);
 
-        HttpResponse<byte[]> response = new AssetController(assets)
-                .getContent(projectId, UUID.randomUUID(), null);
+        HttpResponse<byte[]> response = new AssetController(assets).getContent(projectId, UUID.randomUUID(), null);
 
         assertEquals(HttpStatus.OK, response.getStatus(), "content without a matching If-None-Match must answer 200");
         assertArrayEquals(PNG_BYTES, response.body(), "the body must be the stored bytes");
@@ -180,8 +176,8 @@ class AssetControllerTest {
         StubAssetService assets = new StubAssetService();
         assets.content = new AssetContent(PNG_BYTES, "image/png", SHA1);
 
-        HttpResponse<byte[]> response = new AssetController(assets)
-                .getContent(projectId, UUID.randomUUID(), "\"" + SHA1 + "\"");
+        HttpResponse<byte[]> response =
+                new AssetController(assets).getContent(projectId, UUID.randomUUID(), "\"" + SHA1 + "\"");
 
         assertEquals(HttpStatus.NOT_MODIFIED, response.getStatus(), "a matching If-None-Match must answer 304");
     }
@@ -205,8 +201,7 @@ class AssetControllerTest {
         StubAssetService assets = new StubAssetService();
         assets.response = sampleAsset(projectId, id);
 
-        HttpResponse<AssetResponseDTO> response = new AssetController(assets)
-                .remove(projectId, id);
+        HttpResponse<AssetResponseDTO> response = new AssetController(assets).remove(projectId, id);
 
         assertEquals(HttpStatus.OK, response.getStatus(), "a removed asset must answer 200");
         assertEquals(id, assets.lastDeletedId, "the asset id must reach the service");

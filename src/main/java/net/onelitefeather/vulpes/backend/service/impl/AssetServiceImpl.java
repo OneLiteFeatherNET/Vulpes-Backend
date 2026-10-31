@@ -4,6 +4,8 @@ import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import java.util.List;
+import java.util.UUID;
 import net.onelitefeather.vulpes.api.model.asset.AssetKind;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
@@ -15,9 +17,8 @@ import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.AssetService;
 import net.onelitefeather.vulpes.backend.storage.AssetStorage;
-
-import java.util.List;
-import java.util.UUID;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation of the {@link AssetService} interface.
@@ -26,8 +27,8 @@ import java.util.UUID;
  * read back from the database afterwards, so the audit timestamps are always filled in.
  */
 @Singleton
-public class AssetServiceImpl
-        extends AbstractCrudService<ProjectAssetEntity, UUID, AssetUploadDTO, AssetResponseDTO>
+@NullMarked
+public class AssetServiceImpl extends AbstractCrudService<ProjectAssetEntity, UUID, AssetUploadDTO, AssetResponseDTO>
         implements AssetService {
 
     private static final String ASSET = "Asset";
@@ -49,19 +50,17 @@ public class AssetServiceImpl
             ProjectAssetRepository assetRepository,
             ProjectRepository projectRepository,
             AssetPersistence persistence,
-            AssetStorage storage
-    ) {
+            AssetStorage storage) {
         super(
                 assetRepository,
                 projectRepository,
                 // Unused: create and update are overridden, because an upload may create several assets.
                 null,
-                asset -> AssetResponseDTO.createDTO(asset, derivedIdsOf(assetRepository, asset)),
+                asset -> AssetResponseMapper.toDto(asset, derivedIdsOf(assetRepository, asset)),
                 asset -> asset.getProject().getId(),
                 assetRepository::findByProjectId,
                 AssetUploadDTO::id,
-                ASSET
-        );
+                ASSET);
         this.assetRepository = assetRepository;
         this.persistence = persistence;
         this.storage = storage;
@@ -103,26 +102,26 @@ public class AssetServiceImpl
         if (!projectId.equals(asset.getProject().getId())) {
             throw ApiException.notOwnedByProject(ASSET, id, projectId);
         }
-        return AssetResponseDTO.createDTO(asset, derivedIdsOf(assetRepository, asset));
+        return AssetResponseMapper.toDto(asset, derivedIdsOf(assetRepository, asset));
     }
 
     @Override
-    public Page<AssetResponseDTO> getAll(UUID projectId, AssetKind kind, Pageable pageable) {
+    public Page<AssetResponseDTO> getAll(UUID projectId, @Nullable AssetKind kind, Pageable pageable) {
         Page<ProjectAssetEntity> page = kind == null
                 ? assetRepository.findByProjectId(projectId, pageable)
                 : assetRepository.findByProjectIdAndKind(projectId, kind, pageable);
-        return page.map(asset -> AssetResponseDTO.createDTO(asset, derivedIdsOf(assetRepository, asset)));
+        return page.map(asset -> AssetResponseMapper.toDto(asset, derivedIdsOf(assetRepository, asset)));
     }
 
     @Override
     public AssetContent getContent(UUID projectId, UUID id) {
         AssetResponseDTO asset = getAsset(projectId, id);
         String key = AssetStorage.keyFor(projectId, id);
-        byte[] content = storage.get(key).orElseThrow(() -> new ApiException(
-                ErrorCode.INTERNAL_ERROR,
-                "Internal server error",
-                "Asset " + id + " has no stored content under " + key
-        ));
+        byte[] content = storage.get(key)
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.INTERNAL_ERROR,
+                        "Internal server error",
+                        "Asset " + id + " has no stored content under " + key));
         return new AssetContent(content, asset.contentType(), asset.sha1());
     }
 

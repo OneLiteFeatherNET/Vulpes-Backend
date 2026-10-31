@@ -2,17 +2,17 @@ package net.onelitefeather.vulpes.backend.domain.asset;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.onelitefeather.vulpes.api.model.asset.AssetKind;
-import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
-import net.onelitefeather.vulpes.backend.exception.ApiException;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import javax.imageio.ImageIO;
+import net.onelitefeather.vulpes.api.model.asset.AssetKind;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Decides the {@link AssetKind} of an upload from its file extension and its content, and validates
@@ -35,8 +35,7 @@ public final class AssetInspector {
     private static final byte[] PNG_SIGNATURE = {(byte) 0x89, 'P', 'N', 'G', '\r', '\n', (byte) 0x1A, '\n'};
     private static final ObjectMapper JSON = new ObjectMapper();
 
-    private AssetInspector() {
-    }
+    private AssetInspector() {}
 
     /**
      * The result of a successful inspection.
@@ -45,8 +44,10 @@ public final class AssetInspector {
      * @param width       the width in pixels, only for textures, otherwise {@code null}
      * @param height      the height in pixels, only for textures, otherwise {@code null}
      */
-    public record Inspection(AssetKind kind, Integer width, Integer height) {
-    }
+    public record Inspection(
+            AssetKind kind,
+            @Nullable Integer width,
+            @Nullable Integer height) {}
 
     /**
      * The dimensions of a decoded PNG.
@@ -54,8 +55,7 @@ public final class AssetInspector {
      * @param width  the width in pixels
      * @param height the height in pixels
      */
-    public record PngDimensions(int width, int height) {
-    }
+    public record PngDimensions(int width, int height) {}
 
     /**
      * Inspects an upload.
@@ -80,10 +80,8 @@ public final class AssetInspector {
                 readJsonObject(content, "file");
                 yield new Inspection(AssetKind.BBMODEL, null, null);
             }
-            default -> throw fileViolation(
-                    AssetViolationCode.UNSUPPORTED_TYPE,
-                    "must be a .png, .json or .bbmodel file"
-            );
+            default ->
+                throw fileViolation(AssetViolationCode.UNSUPPORTED_TYPE, "must be a .png, .json or .bbmodel file");
         };
     }
 
@@ -97,7 +95,8 @@ public final class AssetInspector {
      * @throws ApiException {@code VALIDATION_FAILED} with {@code ASSET_INVALID_CONTENT} on the field
      */
     public static PngDimensions readPng(byte[] content, String field) {
-        if (content == null || content.length < PNG_SIGNATURE.length
+        if (content == null
+                || content.length < PNG_SIGNATURE.length
                 || !Arrays.equals(content, 0, PNG_SIGNATURE.length, PNG_SIGNATURE, 0, PNG_SIGNATURE.length)) {
             throw violation(field, AssetViolationCode.INVALID_CONTENT, "must be a valid PNG image");
         }
