@@ -8,12 +8,14 @@ import java.util.List;
 import java.util.UUID;
 import net.onelitefeather.vulpes.api.model.asset.AssetKind;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
+import net.onelitefeather.vulpes.api.model.asset.ProjectAssetRevisionEntity;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.asset.AssetRevisionResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
-import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRepository;
+import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRevisionRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.AssetService;
 import net.onelitefeather.vulpes.backend.storage.AssetStorage;
@@ -32,22 +34,26 @@ public class AssetServiceImpl extends AbstractCrudService<ProjectAssetEntity, UU
         implements AssetService {
 
     private static final String ASSET = "Asset";
+    private static final String REVISION = "Asset revision";
 
     private final ProjectAssetRepository assetRepository;
+    private final ProjectAssetRevisionRepository revisionRepository;
     private final AssetPersistence persistence;
     private final AssetStorage storage;
 
     /**
      * Constructs a new AssetServiceImpl.
      *
-     * @param assetRepository   the repository of assets
-     * @param projectRepository the repository of projects
-     * @param persistence       the transactional writes
-     * @param storage           the object storage holding the bytes
+     * @param assetRepository    the repository of assets
+     * @param revisionRepository the repository of asset revisions
+     * @param projectRepository  the repository of projects
+     * @param persistence        the transactional writes
+     * @param storage            the object storage holding the bytes
      */
     @Inject
     public AssetServiceImpl(
             ProjectAssetRepository assetRepository,
+            ProjectAssetRevisionRepository revisionRepository,
             ProjectRepository projectRepository,
             AssetPersistence persistence,
             AssetStorage storage) {
@@ -62,6 +68,7 @@ public class AssetServiceImpl extends AbstractCrudService<ProjectAssetEntity, UU
                 AssetUploadDTO::id,
                 ASSET);
         this.assetRepository = assetRepository;
+        this.revisionRepository = revisionRepository;
         this.persistence = persistence;
         this.storage = storage;
     }
@@ -76,12 +83,12 @@ public class AssetServiceImpl extends AbstractCrudService<ProjectAssetEntity, UU
         if (upload.id() == null) {
             throw ApiException.invalidRequest("An id is required to update an asset.");
         }
-        return replaceContent(projectId, upload.id(), upload);
+        return replaceContent(projectId, upload.id(), upload, null);
     }
 
     @Override
-    public AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload) {
-        return getAsset(projectId, persistence.replaceContent(projectId, id, upload));
+    public AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload, @Nullable String ifMatch) {
+        return getAsset(projectId, persistence.replaceContent(projectId, id, upload, ifMatch));
     }
 
     @Override
@@ -116,13 +123,39 @@ public class AssetServiceImpl extends AbstractCrudService<ProjectAssetEntity, UU
     @Override
     public AssetContent getContent(UUID projectId, UUID id) {
         AssetResponseDTO asset = getAsset(projectId, id);
-        String key = AssetStorage.keyFor(projectId, id);
-        byte[] content = storage.get(key)
-                .orElseThrow(() -> new ApiException(
-                        ErrorCode.INTERNAL_ERROR,
-                        "Internal server error",
-                        "Asset " + id + " has no stored content under " + key));
-        return new AssetContent(content, asset.contentType(), asset.sha1());
+        // The newest revision is the current content. An asset without revisions still has its legacy bytes.
+        String key = revisionRepository
+                .findFirstByAssetIdOrderByNumberDesc(id)
+                .map(ProjectAssetRevisionEntity::getStorageKey)
+                .orElseGet(() -> AssetStorage.keyFor(projectId, id));
+        return new AssetContent(storage.require(key), asset.contentType(), asset.sha1());
+    }
+
+    @Override
+    public Page<AssetRevisionResponseDTO> getRevisions(UUID projectId, UUID id, Pageable pageable) {
+        persistence.ensureRevisions(projectId, id);
+        int newest = revisionRepository
+                .findFirstByAssetIdOrderByNumberDesc(id)
+                .map(ProjectAssetRevisionEntity::getNumber)
+                .orElse(0);
+        return revisionRepository
+                .findByAssetIdOrderByNumberDesc(id, pageable)
+                .map(revision -> AssetResponseMapper.toRevisionDto(revision, revision.getNumber() == newest));
+    }
+
+    @Override
+    public AssetContent getRevisionContent(UUID projectId, UUID id, UUID revisionId) {
+        AssetResponseDTO asset = getAsset(projectId, id);
+        ProjectAssetRevisionEntity revision = revisionRepository
+                .findByIdAndAssetId(revisionId, id)
+                .orElseThrow(() -> ApiException.notFound(REVISION));
+        return new AssetContent(storage.require(revision.getStorageKey()), asset.contentType(), revision.getSha1());
+    }
+
+    @Override
+    public AssetResponseDTO restoreRevision(
+            UUID projectId, UUID id, UUID revisionId, @Nullable String ifMatch, @Nullable String comment) {
+        return getAsset(projectId, persistence.restoreRevision(projectId, id, revisionId, ifMatch, comment));
     }
 
     private static List<UUID> derivedIdsOf(ProjectAssetRepository repository, ProjectAssetEntity asset) {

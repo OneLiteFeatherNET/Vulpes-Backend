@@ -22,5 +22,8 @@ public final class AssetViolationCode {
     /** The display name is blank or longer than its column. */
     public static final String DISPLAY_NAME_INVALID = "ASSET_DISPLAY_NAME_INVALID";
 
+    /** The comment of a revision is longer than 500 characters. */
+    public static final String COMMENT_TOO_LONG = "ASSET_COMMENT_TOO_LONG";
+
     private AssetViolationCode() {}
 }

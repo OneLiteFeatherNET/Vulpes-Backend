@@ -1,8 +1,10 @@
 package net.onelitefeather.vulpes.backend.exception;
 
+import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.server.exceptions.ExceptionHandler;
 import jakarta.inject.Singleton;
@@ -50,9 +52,13 @@ public class ApiExceptionHandler implements ExceptionHandler<ApiException, HttpR
         ErrorCode code = exception.code();
         String traceId = problemDetailFactory.currentTraceId();
         log(request, exception, code, traceId);
-        return HttpResponse.<ProblemDetail>status(code.status())
+        MutableHttpResponse<ProblemDetail> response = HttpResponse.<ProblemDetail>status(code.status())
                 .contentType(MediaType.APPLICATION_JSON_PROBLEM_TYPE)
                 .body(problemDetailFactory.create(code, exception.detail(), request, traceId, exception.violations()));
+        if (exception.currentEtag() != null) {
+            response.header(HttpHeaders.ETAG, exception.currentEtag());
+        }
+        return response;
     }
 
     /**

@@ -52,6 +52,22 @@ public class AssetStorage {
     }
 
     /**
+     * Returns the object key of one revision of an asset, {@code <projectId>/revisions/<assetId>/<number>}.
+     *
+     * <p>The key is known before the revision row is inserted, and it is immutable: the number is unique per
+     * asset and never reused. The {@code revisions} segment keeps these keys apart from the legacy key of the
+     * asset, because the local store cannot hold a file {@code <projectId>/<assetId>} and a directory below it.
+     *
+     * @param projectId the project the asset belongs to
+     * @param assetId   the asset
+     * @param number    the position of the revision, starting at 1
+     * @return the object key
+     */
+    public static String revisionKeyFor(UUID projectId, UUID assetId, int number) {
+        return projectId + "/revisions/" + assetId + "/" + number;
+    }
+
+    /**
      * Stores or overwrites the bytes under the given key.
      *
      * @param key         the object key
@@ -72,6 +88,18 @@ public class AssetStorage {
     public Optional<byte[]> get(String key) {
         Optional<ObjectStorageEntry<?>> entry = storage.retrieve(key);
         return entry.map(found -> read(key, found));
+    }
+
+    /**
+     * Reads the bytes stored under the given key, which must exist.
+     *
+     * @param key the object key
+     * @return the bytes
+     * @throws ApiException {@code INTERNAL_ERROR} if nothing is stored under the key, or it cannot be read
+     */
+    public byte[] require(String key) {
+        return get(key).orElseThrow(() -> new ApiException(
+                ErrorCode.INTERNAL_ERROR, "Internal server error", "Object storage has no content under " + key));
     }
 
     /**

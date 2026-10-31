@@ -7,6 +7,7 @@ import net.onelitefeather.vulpes.api.model.asset.AssetKind;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.asset.AssetRevisionResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -57,7 +58,42 @@ public interface AssetService extends CrudService<ProjectAssetEntity, UUID, Asse
      * @param projectId the project the asset must belong to
      * @param id        the asset
      * @param upload    the new file
+     * @param ifMatch   the If-Match value the client holds, or {@code null} to replace unconditionally
      * @return the updated asset
      */
-    AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload);
+    AssetResponseDTO replaceContent(UUID projectId, UUID id, AssetUploadDTO upload, @Nullable String ifMatch);
+
+    /**
+     * Returns the revisions of an asset, newest first. An asset created before revisions existed gets its
+     * revision 1 here.
+     *
+     * @param projectId the project the asset must belong to
+     * @param id        the asset
+     * @param pageable  pagination details
+     * @return a page of revisions
+     */
+    Page<AssetRevisionResponseDTO> getRevisions(UUID projectId, UUID id, Pageable pageable);
+
+    /**
+     * Returns the stored bytes of one revision of an asset.
+     *
+     * @param projectId  the project the asset must belong to
+     * @param id         the asset
+     * @param revisionId the revision, which must belong to the asset
+     * @return the bytes, their media type and the digest of the revision
+     */
+    AssetContent getRevisionContent(UUID projectId, UUID id, UUID revisionId);
+
+    /**
+     * Makes an earlier revision the current content by writing it as a new revision.
+     *
+     * @param projectId  the project the asset must belong to
+     * @param id         the asset
+     * @param revisionId the revision to restore
+     * @param ifMatch    the If-Match value the client holds, or {@code null} to restore unconditionally
+     * @param comment    the comment of the new revision, or {@code null} for the default
+     * @return the updated asset
+     */
+    AssetResponseDTO restoreRevision(
+            UUID projectId, UUID id, UUID revisionId, @Nullable String ifMatch, @Nullable String comment);
 }
