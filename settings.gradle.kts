@@ -45,7 +45,7 @@ dependencyResolutionManagement {
             version("opentelemetry.instrumentation.alpha", "2.20.1-alpha")
             version("spotless", "8.10.4")
             version("palantir.java.format", "2.102.0")
-            version("errorprone.plugin", "5.1.1")
+            version("errorprone.plugin", "5.2.0")
             version("error.prone.core", "2.50.0")
             version("nullaway", "0.14.3")
             version("jspecify", "1.0.1")
