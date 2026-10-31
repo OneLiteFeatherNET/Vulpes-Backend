@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.exception;
 
+import io.micronaut.core.annotation.Introspected;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
@@ -60,6 +61,12 @@ public class ProblemErrorResponseProcessor implements ErrorResponseProcessor<Pro
      */
     private static final int MAX_CAUSE_DEPTH = 16;
 
+    /**
+     * The message template Micronaut gives a violation for a validated type without bean introspection.
+     * Such a violation has no constraint annotation to report.
+     */
+    private static final String NOT_INTROSPECTED_TEMPLATE = "{" + Introspected.class.getName() + ".message}";
+
     private final ProblemDetailFactory problemDetailFactory;
 
     /**
@@ -108,6 +115,16 @@ public class ProblemErrorResponseProcessor implements ErrorResponseProcessor<Pro
             return problemDetailFactory.create(
                     apiException.code(), apiException.detail(), errorContext.getRequest(), traceId,
                     apiException.violations());
+        }
+
+        if (cause instanceof ConstraintViolationException violationException
+                && hasNotIntrospectedViolation(violationException)) {
+            LOG.error(
+                    "{} {} validated a type without bean introspection traceId={}",
+                    errorContext.getRequest().getMethod(), errorContext.getRequest().getPath(), traceId, cause
+            );
+            return problemDetailFactory.create(
+                    ErrorCode.INTERNAL_ERROR, INTERNAL_DETAIL, errorContext.getRequest(), traceId);
         }
 
         if (cause instanceof ConstraintViolationException violationException) {
@@ -162,6 +179,19 @@ public class ProblemErrorResponseProcessor implements ErrorResponseProcessor<Pro
                 .filter(message -> message != null && !message.isBlank())
                 .findFirst()
                 .orElseGet(code::title);
+    }
+
+    /**
+     * Tells whether the validation failed because a validated type lacks bean introspection. That is a
+     * mistake on the server, not in the request, and the violation carries no constraint annotation.
+     *
+     * @param exception the validation failure
+     * @return {@code true} if any violation is about a type without introspection
+     */
+    private static boolean hasNotIntrospectedViolation(ConstraintViolationException exception) {
+        return exception.getConstraintViolations().stream()
+                .anyMatch(violation -> NOT_INTROSPECTED_TEMPLATE.equals(
+                        violation.getConstraintDescriptor().getMessageTemplate()));
     }
 
     /**
