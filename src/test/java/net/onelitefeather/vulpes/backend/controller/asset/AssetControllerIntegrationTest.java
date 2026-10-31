@@ -101,6 +101,7 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
         return given()
                 .multiPart("file", "ruby.png", png, "image/png")
                 .multiPart("key", key)
+                .multiPart("displayName", "Ruby")
         .when()
                 .post(assetPath(""))
         .then()
@@ -149,11 +150,13 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
         given()
                 .multiPart("file", "ruby.png", png, "image/png")
                 .multiPart("key", key)
+                .multiPart("displayName", "Ruby")
         .when()
                 .post(assetPath(""))
         .then()
                 .statusCode(201)
                 .body("key", is(key))
+                .body("displayName", is("Ruby"))
                 .body("kind", is("TEXTURE"))
                 .body("fileName", is("ruby.png"))
                 .body("contentType", is("image/png"))
@@ -168,6 +171,19 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
     }
 
     @Test
+    void uploadWithoutDisplayNameReturns400OnDisplayNameField() {
+        given()
+                .multiPart("file", "ruby.png", AssetFixtures.png(16, 16), "image/png")
+                .multiPart("key", "vulpes:item/unnamed-" + UUID.randomUUID().toString().substring(0, 8))
+        .when()
+                .post(assetPath(""))
+        .then()
+                .statusCode(400)
+                .body("errors.field", hasItem("displayName"))
+                .body("errors.code", hasItem("ASSET_DISPLAY_NAME_INVALID"));
+    }
+
+    @Test
     void duplicateKeyReturns409() {
         String key = "vulpes:item/dup-" + UUID.randomUUID().toString().substring(0, 8);
         uploadPng(key, AssetFixtures.png(16, 16));
@@ -175,6 +191,7 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
         given()
                 .multiPart("file", "ruby.png", AssetFixtures.png(16, 16), "image/png")
                 .multiPart("key", key)
+                .multiPart("displayName", "Ruby")
         .when()
                 .post(assetPath(""))
         .then()
@@ -213,6 +230,7 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
         String bbId = given()
                 .multiPart("file", "gem.bbmodel", AssetFixtures.utf8(bbmodel), "application/json")
                 .multiPart("key", bbKey)
+                .multiPart("displayName", "Ruby")
         .when()
                 .post(assetPath(""))
         .then()
@@ -237,6 +255,7 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
                 .multiPart("file", "gem.bbmodel",
                         AssetFixtures.utf8(AssetFixtures.bbmodelWithTextures("Gem Texture")), "application/json")
                 .multiPart("key", "vulpes:" + folder + "/gem")
+                .multiPart("displayName", "Ruby")
         .when()
                 .post(assetPath(""))
         .then()
@@ -278,6 +297,7 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
         String modelId = given()
                 .multiPart("file", "ruby.json", AssetFixtures.utf8("{}"), "application/json")
                 .multiPart("key", "vulpes:item/ruby")
+                .multiPart("displayName", "Ruby")
         .when()
                 .post(assetPath(project, ""))
         .then()
@@ -302,6 +322,7 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
         return given()
                 .multiPart("file", fileName, content, contentType)
                 .multiPart("key", key)
+                .multiPart("displayName", "Ruby")
         .when()
                 .post(assetPath(project, ""))
         .then();
