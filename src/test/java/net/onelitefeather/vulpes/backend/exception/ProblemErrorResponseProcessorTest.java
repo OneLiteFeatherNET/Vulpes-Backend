@@ -165,6 +165,19 @@ class ProblemErrorResponseProcessorTest {
     }
 
     @Test
+    @DisplayName("an ApiException reaching the processor keeps its field-level violations")
+    void keepsViolationsOfApiException() {
+        ProblemDetail.Violation violation = new ProblemDetail.Violation("displayName", "NotBlank", "must not be blank");
+
+        MutableHttpResponse<ProblemDetail> response = processor.processResponse(
+                contextOf(ApiException.validationFailed(List.of(violation))), responseOf(HttpStatus.BAD_REQUEST));
+
+        assertEquals(400, response.getStatus().getCode());
+        assertEquals(ErrorCode.VALIDATION_FAILED, response.body().code());
+        assertEquals(List.of(violation), response.body().errors());
+    }
+
+    @Test
     @DisplayName("a framework client error keeps the message that names what the caller got wrong")
     void clientError_keepsFrameworkMessage() {
         ErrorContext context = ErrorContext.builder(HttpRequest.GET("/project/nope"))

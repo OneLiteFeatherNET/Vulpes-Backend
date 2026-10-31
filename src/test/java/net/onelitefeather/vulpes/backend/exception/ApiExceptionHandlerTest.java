@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -69,6 +71,29 @@ class ApiExceptionHandlerTest {
         assertEquals("Attribute not found.", body.detail());
         assertTrue(exception.internalDetail().contains("project-9"), "the log line keeps the real reason");
         assertTrue(body.detail().indexOf("project-9") < 0, "the caller must not learn the owning project");
+    }
+
+    @Test
+    @DisplayName("the field-level violations of a validation failure reach the body")
+    void listsViolationsOfValidationFailure() {
+        HttpRequest<?> request = HttpRequest.POST("/project/1/attribute", "");
+        ProblemDetail.Violation violation = new ProblemDetail.Violation("displayName", "NotBlank", "must not be blank");
+
+        HttpResponse<ProblemDetail> response = handler.handle(request, ApiException.validationFailed(List.of(violation)));
+
+        assertEquals(400, response.getStatus().getCode());
+        assertEquals(ErrorCode.VALIDATION_FAILED, response.body().code());
+        assertEquals(List.of(violation), response.body().errors());
+    }
+
+    @Test
+    @DisplayName("a failure without violations sends an empty error list")
+    void sendsNoViolationsByDefault() {
+        HttpRequest<?> request = HttpRequest.GET("/project/1/attribute");
+
+        HttpResponse<ProblemDetail> response = handler.handle(request, ApiException.notFound("Attribute"));
+
+        assertTrue(response.body().errors().isEmpty());
     }
 
     @Test
