@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.service.impl;
 
+import io.micronaut.context.event.ApplicationEventPublisher;
 import io.micronaut.data.model.Pageable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -26,6 +27,7 @@ import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRepository;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRevisionRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
+import net.onelitefeather.vulpes.backend.service.session.AssetContentSaved;
 import net.onelitefeather.vulpes.backend.storage.AssetStorage;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -55,6 +57,7 @@ public class AssetPersistence {
     private final ProjectAssetRevisionRepository revisionRepository;
     private final ProjectRepository projectRepository;
     private final AssetStorage storage;
+    private final ApplicationEventPublisher<AssetContentSaved> contentSaved;
 
     /**
      * Constructs a new AssetPersistence.
@@ -63,17 +66,20 @@ public class AssetPersistence {
      * @param revisionRepository the repository of asset revisions
      * @param projectRepository  the repository of projects
      * @param storage            the object storage holding the bytes
+     * @param contentSaved       announces a stored content; listeners act after the commit
      */
     @Inject
     public AssetPersistence(
             ProjectAssetRepository assetRepository,
             ProjectAssetRevisionRepository revisionRepository,
             ProjectRepository projectRepository,
-            AssetStorage storage) {
+            AssetStorage storage,
+            ApplicationEventPublisher<AssetContentSaved> contentSaved) {
         this.assetRepository = assetRepository;
         this.revisionRepository = revisionRepository;
         this.projectRepository = projectRepository;
         this.storage = storage;
+        this.contentSaved = contentSaved;
     }
 
     /**
@@ -124,6 +130,7 @@ public class AssetPersistence {
                     asset,
                     null);
         }
+        contentSaved.publishEvent(new AssetContentSaved(asset.getId(), asset.getSha1(), 1));
         return asset.getId();
     }
 
@@ -324,6 +331,7 @@ public class AssetPersistence {
         asset.setHeight(inspection.height());
         assetRepository.update(asset);
         addRevision(asset, number, content, comment);
+        contentSaved.publishEvent(new AssetContentSaved(asset.getId(), asset.getSha1(), number));
     }
 
     /**

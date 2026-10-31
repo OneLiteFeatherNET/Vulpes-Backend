@@ -122,6 +122,8 @@ dependencies {
     testImplementation(libs.datafaker)
     testImplementation(libs.hibernate.validator)
     testImplementation(libs.jakarta.validation)
+    // StepVerifier for the asset event hub (Reactor BOM is imported by the Micronaut platform)
+    testImplementation("io.projectreactor:reactor-test")
 
     testRuntimeOnly(mn.junit.jupiter.engine)
 
