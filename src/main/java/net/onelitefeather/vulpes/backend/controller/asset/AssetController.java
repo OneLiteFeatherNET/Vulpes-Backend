@@ -38,8 +38,8 @@ import java.util.UUID;
  * The {@link AssetController} contains endpoints for project assets: textures, Minecraft models and
  * Blockbench models.
  *
- * <p>Uploads are multipart requests with the fields {@code file} and {@code key}. Files are limited to
- * 8 MB. The content endpoint answers with the stored bytes and an ETag of their SHA-1 digest.
+ * <p>Uploads are multipart requests with the fields {@code file}, {@code key} and {@code displayName}.
+ * Files are limited to 8 MB. The content endpoint answers with the stored bytes and an ETag of their SHA-1 digest.
  *
  * @author TheMeinerLP
  * @version 1.0.0
@@ -108,9 +108,10 @@ public class AssetController {
     public HttpResponse<AssetResponseDTO> add(
             @PathVariable UUID projectId,
             @Part("file") CompletedFileUpload file,
-            @Nullable @Part("key") String key
+            @Nullable @Part("key") String key,
+            @Nullable @Part("displayName") String displayName
     ) {
-        AssetUploadDTO upload = new AssetUploadDTO(null, key, file.getFilename(), readBytes(file));
+        AssetUploadDTO upload = new AssetUploadDTO(null, key, displayName, file.getFilename(), readBytes(file));
         return HttpResponse.created(assetService.create(projectId, upload));
     }
 
@@ -260,7 +261,7 @@ public class AssetController {
             @PathVariable UUID id,
             @Part("file") CompletedFileUpload file
     ) {
-        AssetUploadDTO upload = new AssetUploadDTO(id, null, file.getFilename(), readBytes(file));
+        AssetUploadDTO upload = new AssetUploadDTO(id, null, null, file.getFilename(), readBytes(file));
         return HttpResponse.ok(assetService.replaceContent(projectId, id, upload));
     }
 

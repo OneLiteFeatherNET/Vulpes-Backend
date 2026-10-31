@@ -47,6 +47,9 @@ public class ProjectAssetEntity extends IdentifiableEntity {
     @Column(name = "key", nullable = false, length = 200)
     private String key;
 
+    @Column(name = "display_name", nullable = false)
+    private String displayName;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "kind", nullable = false, length = 16)
     private AssetKind kind;
@@ -99,6 +102,14 @@ public class ProjectAssetEntity extends IdentifiableEntity {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public AssetKind getKind() {

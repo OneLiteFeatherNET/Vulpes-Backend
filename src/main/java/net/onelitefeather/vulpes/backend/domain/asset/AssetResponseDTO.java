@@ -16,6 +16,7 @@ import java.util.UUID;
  * @param id              the unique identifier of the asset
  * @param projectId       the project the asset belongs to
  * @param key             the Minecraft resource location, unique per project
+ * @param displayName     the name the asset is shown by
  * @param kind            the kind of the asset
  * @param fileName        the file name of the upload
  * @param contentType     the media type the content is served with
@@ -38,6 +39,7 @@ public record AssetResponseDTO(
         @Schema(description = "Id of the asset") UUID id,
         @Schema(description = "Project the asset belongs to") UUID projectId,
         @Schema(description = "Minecraft resource location without file extension", example = "vulpes:item/ruby") String key,
+        @Schema(description = "Name the asset is shown by", example = "Ruby") String displayName,
         @Schema(description = "Kind of the asset") AssetKind kind,
         @Schema(description = "File name of the upload", example = "ruby.png") String fileName,
         @Schema(description = "Media type of the content", example = "image/png") String contentType,
@@ -63,6 +65,7 @@ public record AssetResponseDTO(
                 asset.getId(),
                 asset.getProject().getId(),
                 asset.getKey(),
+                asset.getDisplayName(),
                 asset.getKind(),
                 asset.getFileName(),
                 asset.getContentType(),

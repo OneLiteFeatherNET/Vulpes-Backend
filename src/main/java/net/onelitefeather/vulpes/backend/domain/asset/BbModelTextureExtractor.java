@@ -16,7 +16,8 @@ import java.util.Locale;
  * becomes one texture. Other sources are ignored. The key of a texture is derived from the key of the
  * model: the namespace and the folder of the model are kept, and the texture name is sanitized. For
  * example, the model {@code vulpes:item/ruby} with a texture named {@code Ruby Side.png} yields
- * {@code vulpes:item/ruby_side}.
+ * {@code vulpes:item/ruby_side}. The display name is the texture name without its extension, here
+ * {@code Ruby Side}, or the sanitized name when the model doesn't name the texture.
  *
  * @author TheMeinerLP
  * @version 1.0.0
@@ -32,13 +33,16 @@ public final class BbModelTextureExtractor {
     /**
      * A texture extracted from a Blockbench model.
      *
-     * @param key     the derived asset key
-     * @param fileName the file name, the sanitized texture name with {@code .png}
-     * @param content the decoded PNG bytes
-     * @param width   the width in pixels
-     * @param height  the height in pixels
+     * @param key         the derived asset key
+     * @param displayName the texture name as the model shows it, without extension
+     * @param fileName    the file name, the sanitized texture name with {@code .png}
+     * @param content     the decoded PNG bytes
+     * @param width       the width in pixels
+     * @param height      the height in pixels
      */
-    public record ExtractedTexture(String key, String fileName, byte[] content, int width, int height) {
+    public record ExtractedTexture(
+            String key, String displayName, String fileName, byte[] content, int width, int height
+    ) {
     }
 
     /**
@@ -65,9 +69,11 @@ public final class BbModelTextureExtractor {
             }
             byte[] png = decodeBase64(source.asText().substring(DATA_URI_PREFIX.length()));
             AssetInspector.PngDimensions dimensions = AssetInspector.readPng(png, "file");
-            String name = sanitizeName(textureName(texture), index);
+            String rawName = textureName(texture);
+            String name = sanitizeName(rawName, index);
             result.add(new ExtractedTexture(
                     deriveKey(bbmodelKey, name),
+                    displayName(rawName, name),
                     name + ".png",
                     png,
                     dimensions.width(),
@@ -110,6 +116,23 @@ public final class BbModelTextureExtractor {
         }
         name = name.trim().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_-]", "_");
         return name.isEmpty() ? "texture_" + index : name;
+    }
+
+    /**
+     * Returns the texture name without its extension, as the model shows it.
+     *
+     * @param rawName       the texture name as stored in the model, may be blank
+     * @param sanitizedName the sanitized name, used when no usable name remains
+     * @return the display name
+     */
+    static String displayName(String rawName, String sanitizedName) {
+        String name = rawName;
+        int dot = name.lastIndexOf('.');
+        if (dot > 0) {
+            name = name.substring(0, dot);
+        }
+        name = name.trim();
+        return name.isEmpty() ? sanitizedName : name;
     }
 
     private static String textureName(JsonNode texture) {
