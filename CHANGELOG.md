@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.3.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.2.0...v3.3.0) (2026-10-31)
+
+
+### Features
+
+* **asset:** reject stale replacements and keep asset revisions ([#242](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/242)) ([bb40f81](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/bb40f8146c42e111ec6350f181d6ae452d5f7383))
+* **asset:** upload project assets and store them with vulpes model ([#253](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/253)) ([0597b35](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/0597b35d00c47ca53f7662d7428d5649354c4bb6))
+* **attribute:** add endpoint to get one by an provided id ([#235](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/235)) ([9b2c68d](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/9b2c68d6f85537f6f00674289a32dd7ccd4e6330))
+
+
+### Bug Fixes
+
+* **controller:** verify ownership of enchantment and font character updates and keep lore indices unique ([#246](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/246)) ([62a5331](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/62a5331719b9a5fc6ab863e21d806afe59dcdd3c))
+* **deps:** update dependency com.uber.nullaway:nullaway to v0.14.3 ([#255](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/255)) ([20880fc](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/20880fced358bfa7a9cbe127c0058a8893817046))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v3.3.0 ([#248](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/248)) ([4471e75](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/4471e75086b34f0a91e6e5fedd9391f2edf0a87f))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v3.4.0 ([#249](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/249)) ([7c798c4](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/7c798c4399b869c2a8103084f01575771968a6cb))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v3.5.0 ([#251](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/251)) ([735b5af](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/735b5afcb35c408edeb84b7d98e0d398584371a4))
+* **exception:** answer a validated type without introspection as a server error ([#252](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/252)) ([6f0704d](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/6f0704d9e1a224d76e7d39c71d63479a51f97d61))
+
 ## [3.2.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.1.3...v3.2.0) (2026-10-18)
 
 
