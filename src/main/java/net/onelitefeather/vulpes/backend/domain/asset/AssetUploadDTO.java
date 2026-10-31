@@ -1,10 +1,12 @@
 package net.onelitefeather.vulpes.backend.domain.asset;
 
+import io.micronaut.core.annotation.Introspected;
+
 import java.util.UUID;
 
 /**
  * The internal request for storing an asset. It is built by the controller from the multipart
- * request and is never serialized.
+ * request and is never serialized. It is introspected, so the service can validate it.
  *
  * @param id          the asset to replace, {@code null} when creating
  * @param key         the asset key, {@code null} when replacing its content
@@ -15,5 +17,6 @@ import java.util.UUID;
  * @version 1.0.0
  * @since 3.3.0
  */
+@Introspected
 public record AssetUploadDTO(UUID id, String key, String displayName, String fileName, byte[] content) {
 }
