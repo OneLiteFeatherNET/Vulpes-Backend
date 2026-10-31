@@ -47,7 +47,7 @@ dependencyResolutionManagement {
             version("palantir.java.format", "2.102.0")
             version("errorprone.plugin", "5.1.1")
             version("error.prone.core", "2.50.0")
-            version("nullaway", "0.14.2")
+            version("nullaway", "0.14.3")
             version("jspecify", "1.0.1")
             version("archunit", "1.5.1")
 
