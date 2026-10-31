@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.exception;
 
+import io.micronaut.core.annotation.Introspected;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -49,6 +50,20 @@ class ProblemErrorResponseProcessorTest {
         public void add(@Valid ProjectModelDTO model) {
             // never invoked; only its signature is validated
         }
+    }
+
+    /**
+     * A value Micronaut has no bean introspection for, so it cannot validate it.
+     */
+    record NotIntrospected(String value) {
+    }
+
+    /**
+     * Cascades into {@link NotIntrospected}, like a service method validating a request type that lacks
+     * introspection.
+     */
+    @Introspected
+    record CascadesIntoNotIntrospected(@Valid NotIntrospected value) {
     }
 
     @BeforeAll
@@ -152,6 +167,22 @@ class ProblemErrorResponseProcessorTest {
                 "the handler method name must not leak into the field path: " + fields);
         assertTrue(body.errors().stream().allMatch(violation -> "NotBlank".equals(violation.code())),
                 "the violated constraint is reported so the client can localize it");
+    }
+
+    @Test
+    @DisplayName("a validated type without bean introspection is a server error, not a client error")
+    void notIntrospectedTypeIsAServerError() {
+        Set<ConstraintViolation<CascadesIntoNotIntrospected>> violations = io.micronaut.validation.validator.Validator
+                .getInstance()
+                .validate(new CascadesIntoNotIntrospected(new NotIntrospected("value")));
+        assertFalse(violations.isEmpty(), "the fixture must actually produce the not-introspected violation");
+
+        MutableHttpResponse<ProblemDetail> response = processor.processResponse(
+                contextOf(new ConstraintViolationException(violations)), responseOf(HttpStatus.BAD_REQUEST));
+
+        assertEquals(500, response.getStatus().getCode());
+        assertEquals(ErrorCode.INTERNAL_ERROR, response.body().code());
+        assertTrue(response.body().errors().isEmpty(), "the caller did nothing wrong, so no field is named");
     }
 
     @Test
