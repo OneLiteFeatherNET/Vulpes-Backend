@@ -4,8 +4,9 @@ import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.data.jpa.repository.JpaRepository;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetKeySpace;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
+import net.onelitefeather.vulpes.api.model.asset.AssetKeySpace;
+import net.onelitefeather.vulpes.api.model.asset.AssetKind;
+import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 
 import java.util.List;
 import java.util.UUID;

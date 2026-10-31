@@ -111,11 +111,6 @@ vulpes:
 
 jpa:
   default:
-    # Entities from the vulpes-model library plus the ones this service maps itself
-    entity-scan:
-      packages:
-        - net.onelitefeather.vulpes.api.model
-        - net.onelitefeather.vulpes.backend.entity
     properties:
       hibernate:
         hbm2ddl.auto: update  # Use `none` in production

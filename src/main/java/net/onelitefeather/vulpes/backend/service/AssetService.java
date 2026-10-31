@@ -2,11 +2,11 @@ package net.onelitefeather.vulpes.backend.service;
 
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
+import net.onelitefeather.vulpes.api.model.asset.AssetKind;
+import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetContent;
-import net.onelitefeather.vulpes.backend.domain.asset.AssetKind;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.asset.AssetUploadDTO;
-import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetEntity;
 
 import java.util.UUID;
 
