@@ -42,3 +42,6 @@ out/
 ## Docker ##
 docker/
 /.micronaut/test-resources/test-resources-port.txt
+
+## Local project asset storage (VULPES_ASSET_PATH default) ##
+/data/

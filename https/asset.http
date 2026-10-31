@@ -1,0 +1,59 @@
+### Base config
+@server = http://localhost:8085
+@projectId =
+@id =
+@bbId =
+
+### Upload a texture (multipart: file + key)
+POST {{server}}/project/{{projectId}}/asset
+Content-Type: multipart/form-data; boundary=AssetBoundary
+
+--AssetBoundary
+Content-Disposition: form-data; name="key"
+
+vulpes:item/ruby
+--AssetBoundary
+Content-Disposition: form-data; name="file"; filename="ruby.png"
+Content-Type: image/png
+
+< ./ruby.png
+--AssetBoundary--
+
+### Upload a Blockbench model, its embedded textures are extracted
+POST {{server}}/project/{{projectId}}/asset
+Content-Type: multipart/form-data; boundary=AssetBoundary
+
+--AssetBoundary
+Content-Disposition: form-data; name="key"
+
+vulpes:item/gem
+--AssetBoundary
+Content-Disposition: form-data; name="file"; filename="gem.bbmodel"
+Content-Type: application/json
+
+< ./gem.bbmodel
+--AssetBoundary--
+
+### Get one asset
+GET {{server}}/project/{{projectId}}/asset/{{id}}
+
+### List textures only
+GET {{server}}/project/{{projectId}}/asset/?kind=TEXTURE&page=0&size=20
+
+### Download the bytes, send If-None-Match to get 304
+GET {{server}}/project/{{projectId}}/asset/{{id}}/content
+If-None-Match: "sha1-of-the-content"
+
+### Replace the content with a file of the same kind
+POST {{server}}/project/{{projectId}}/asset/{{id}}/content
+Content-Type: multipart/form-data; boundary=AssetBoundary
+
+--AssetBoundary
+Content-Disposition: form-data; name="file"; filename="ruby.png"
+Content-Type: image/png
+
+< ./ruby-v2.png
+--AssetBoundary--
+
+### Delete an asset (also removes the textures extracted from it)
+DELETE {{server}}/project/{{projectId}}/asset/delete/{{bbId}}
