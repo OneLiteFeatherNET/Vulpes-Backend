@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.spotless)
 }
 
-version = "3.2.0" // x-release-please-version
+version = "3.3.0" // x-release-please-version
 
 // Code standards are limited to the asset packages for now; the rest of the code base is not formatted or
 // null-checked yet and can follow package by package. Asset sources and tests are listed explicitly.
