@@ -1,6 +1,5 @@
 package net.onelitefeather.vulpes.backend.controller;
 
-import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.restassured.RestAssured;
@@ -15,6 +14,7 @@ import net.onelitefeather.vulpes.backend.domain.expression.ExpressionResponseDTO
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidateDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidationResultDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableDTO;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelResponseDTO;
 import org.junit.jupiter.api.BeforeAll;
@@ -185,18 +185,6 @@ class ExpressionControllerIntegrationTest {
     }
 
     @Test
-    void testEvaluate_unknownProject_returnsNotFound() {
-        given()
-                .contentType(ContentType.JSON)
-                .body(new ExpressionEvaluateDTO("1 + 2", null, null))
-        .when()
-                .post("/project/" + UUID.randomUUID() + "/expression/evaluate")
-        .then()
-                .statusCode(404)
-                .body("code", is("PROJECT_NOT_FOUND"));
-    }
-
-    @Test
     void testCatalogListsFunctionsOperatorsAndConstants() {
         ExpressionCatalogDTO catalog = given()
         .when()
@@ -245,12 +233,34 @@ class ExpressionControllerIntegrationTest {
     }
 
     @Test
+    void testEvaluate_unknownProject_returnsNotFound() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(new ExpressionEvaluateDTO("1 + 2", null, null))
+        .when()
+                .post("/project/" + UUID.randomUUID() + "/expression/evaluate")
+        .then()
+                .statusCode(404)
+                .body("code", is("PROJECT_NOT_FOUND"));
+    }
+
+    @Test
     void testValidate_unknownProject_returnsNotFound() {
         given()
                 .contentType(ContentType.JSON)
                 .body(new ExpressionValidateDTO("1 + 2", null))
         .when()
                 .post("/project/" + UUID.randomUUID() + "/expression/validate")
+        .then()
+                .statusCode(404)
+                .body("code", is("PROJECT_NOT_FOUND"));
+    }
+
+    @Test
+    void testGetProjectCatalog_unknownProject_returnsNotFound() {
+        given()
+        .when()
+                .get("/project/" + UUID.randomUUID() + "/expression-catalog")
         .then()
                 .statusCode(404)
                 .body("code", is("PROJECT_NOT_FOUND"));
