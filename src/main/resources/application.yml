@@ -29,9 +29,10 @@ micronaut:
       io.micronaut.http.server.cors: TRACE
   object-storage:
     local:
-      # Store of project assets. The local implementation is the PoC default; an S3/MinIO store with the
-      # same name can replace it by dependency and configuration only.
+      # Store of project assets. Local is the default; set VULPES_ASSET_LOCAL_ENABLED=false and configure
+      # micronaut.object-storage.aws.assets (bucket, aws.region, endpoint) to store assets in S3 instead.
       assets:
+        enabled: ${VULPES_ASSET_LOCAL_ENABLED:true}
         path: ${VULPES_ASSET_PATH:./data/assets}
   router:
     static-resources:

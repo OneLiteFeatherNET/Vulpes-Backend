@@ -79,10 +79,11 @@ dependencies {
     // Kubernetes service discovery — beans only activate in the k8s environment,
     // so this is inert in local/dev. Needs RBAC (read services/endpoints) in-cluster.
     implementation(mn.micronaut.kubernetes.discovery.client)
-    // Object storage for project assets (textures, models). The local implementation is the
-    // PoC default; an S3/MinIO implementation can replace it by dependency and config only.
+    // Object storage for project assets (textures, models). The local implementation is the default;
+    // S3 (Ceph RGW, MinIO) is selected by configuration: disable the local store and configure the aws one.
     implementation(mn.micronaut.`object`.storage.core)
     implementation(mn.micronaut.`object`.storage.local)
+    implementation(mn.micronaut.`object`.storage.aws)
     // External Dependencies
     implementation(mn.postgresql)
     implementation(mn.snakeyaml)
