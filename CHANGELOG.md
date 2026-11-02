@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.3.0...v3.4.0) (2026-11-02)
+
+
+### Features
+
+* **asset:** store project assets in s3 when configured ([#265](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/265)) ([b7acf9c](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/b7acf9c7cfc95f1778b5b624ba2bb67a40795f6d))
+
 ## [3.3.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.2.0...v3.3.0) (2026-11-02)
 
 
