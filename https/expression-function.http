@@ -1,0 +1,112 @@
+### Base config
+@server = http://localhost:8085
+@projectId =
+@id =
+
+### Add a formula function
+POST {{server}}/project/{{projectId}}/expression-function
+Content-Type: application/json
+
+{
+  "uiName": "Area",
+  "name": "area",
+  "kind": "FORMULA",
+  "returnType": "NUMBER",
+  "parameters": [
+    { "name": "width", "type": "NUMBER", "testValue": "3" },
+    { "name": "height", "type": "NUMBER", "testValue": "4" }
+  ],
+  "body": "width * height",
+  "comment": "Area of a rectangle"
+}
+
+### Add an interface function (implemented by the game runtime, body is an optional test stub)
+POST {{server}}/project/{{projectId}}/expression-function
+Content-Type: application/json
+
+{
+  "uiName": "Damage bonus",
+  "name": "damage_bonus",
+  "kind": "INTERFACE",
+  "returnType": "NUMBER",
+  "parameters": [
+    { "name": "attack", "type": "NUMBER", "testValue": "10" },
+    { "name": "gear", "type": "BOOLEAN", "testValue": "true" }
+  ],
+  "body": "attack * 0.5",
+  "comment": "Bonus damage from attack, implemented by the runtime"
+}
+
+### Get a function by id
+GET {{server}}/project/{{projectId}}/expression-function/{{id}}
+
+### Get all functions of the project
+GET {{server}}/project/{{projectId}}/expression-function/?page=0&size=20
+
+### Update a function
+POST {{server}}/project/{{projectId}}/expression-function/update
+Content-Type: application/json
+
+{
+  "id": "{{id}}",
+  "uiName": "Area v2",
+  "name": "area",
+  "kind": "FORMULA",
+  "returnType": "NUMBER",
+  "parameters": [
+    { "name": "width", "type": "NUMBER", "testValue": "3" },
+    { "name": "height", "type": "NUMBER", "testValue": "4" }
+  ],
+  "body": "width * height + 1"
+}
+
+### Evaluate a function definition without storing it (arguments by parameter name)
+POST {{server}}/project/{{projectId}}/expression-function/evaluate
+Content-Type: application/json
+
+{
+  "function": {
+    "uiName": "Double",
+    "name": "double_it",
+    "kind": "FORMULA",
+    "returnType": "NUMBER",
+    "parameters": [ { "name": "value", "type": "NUMBER" } ],
+    "body": "value * 2"
+  },
+  "arguments": { "value": "21" }
+}
+
+### Evaluate an interface function, answered with its test stub
+POST {{server}}/project/{{projectId}}/expression-function/evaluate
+Content-Type: application/json
+
+{
+  "function": {
+    "uiName": "Damage bonus",
+    "name": "damage_bonus",
+    "kind": "INTERFACE",
+    "returnType": "NUMBER",
+    "parameters": [ { "name": "attack", "type": "NUMBER" }, { "name": "gear", "type": "BOOLEAN" } ],
+    "body": "attack * 0.5"
+  },
+  "arguments": { "attack": "10", "gear": "true" }
+}
+
+### Get the generated Java interface for the INTERFACE functions
+GET {{server}}/project/{{projectId}}/expression-function/interface
+
+### Get the expression catalog of the project (built-ins plus project functions)
+GET {{server}}/project/{{projectId}}/expression-catalog
+
+### Evaluate a project expression that calls a saved project function
+POST {{server}}/project/{{projectId}}/expression/evaluate
+Content-Type: application/json
+
+{
+  "expression": "area(3, 4) + 1",
+  "variables": {},
+  "types": {}
+}
+
+### Delete a function by id
+DELETE {{server}}/project/{{projectId}}/expression-function/delete/{{id}}
