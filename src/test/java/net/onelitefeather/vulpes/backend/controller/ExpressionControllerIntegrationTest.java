@@ -7,10 +7,13 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import net.datafaker.Faker;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionCatalogDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluateDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluationResultDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidateDTO;
+import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidationResultDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelResponseDTO;
@@ -29,6 +32,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @MicronautTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -187,6 +191,66 @@ class ExpressionControllerIntegrationTest {
                 .body(new ExpressionEvaluateDTO("1 + 2", null, null))
         .when()
                 .post("/project/" + UUID.randomUUID() + "/expression/evaluate")
+        .then()
+                .statusCode(404)
+                .body("code", is("PROJECT_NOT_FOUND"));
+    }
+
+    @Test
+    void testCatalogListsFunctionsOperatorsAndConstants() {
+        ExpressionCatalogDTO catalog = given()
+        .when()
+                .get("/expression/catalog")
+        .then()
+                .statusCode(200)
+                .extract().as(ExpressionCatalogDTO.class);
+
+        assertTrue(catalog.functions().stream().anyMatch(function -> function.name().equals("ROUND")),
+                "the catalog must list ROUND");
+        assertTrue(catalog.operators().stream().anyMatch(operator -> operator.symbol().equals("+")),
+                "the catalog must list the + operator");
+        assertTrue(catalog.constants().stream().anyMatch(constant -> constant.name().equals("PI")),
+                "the catalog must list the PI constant");
+    }
+
+    @Test
+    void testValidateReportsParseErrorWithPositionInBody() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(new ExpressionValidateDTO("a + * b", List.of("a", "b")))
+        .when()
+                .post(expressionPath("/validate"))
+        .then()
+                .statusCode(200)
+                .body("valid", is(false))
+                .body("errors[0].start", is(4))
+                .body("errors[0].end", is(5));
+    }
+
+    @Test
+    void testValidateReturnsUsedUndefinedAndUnusedVariables() {
+        ExpressionValidationResultDTO result = given()
+                .contentType(ContentType.JSON)
+                .body(new ExpressionValidateDTO("a * 2 + b", List.of("a", "c")))
+        .when()
+                .post(expressionPath("/validate"))
+        .then()
+                .statusCode(200)
+                .extract().as(ExpressionValidationResultDTO.class);
+
+        assertTrue(result.valid(), "a parsable expression must be valid");
+        assertEquals(List.of("a", "b"), result.usedVariables(), "the used variables must be listed sorted");
+        assertEquals(List.of("b"), result.undefinedVariables(), "b is used but not declared");
+        assertEquals(List.of("c"), result.unusedVariables(), "c is declared but not used");
+    }
+
+    @Test
+    void testValidate_unknownProject_returnsNotFound() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(new ExpressionValidateDTO("1 + 2", null))
+        .when()
+                .post("/project/" + UUID.randomUUID() + "/expression/validate")
         .then()
                 .statusCode(404)
                 .body("code", is("PROJECT_NOT_FOUND"));
