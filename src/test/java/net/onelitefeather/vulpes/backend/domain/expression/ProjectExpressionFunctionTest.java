@@ -166,4 +166,92 @@ class ProjectExpressionFunctionTest {
                 configuration.getFunctionDictionary().getAvailableFunctionNames(),
                 "a project without functions must have exactly the built-in functions");
     }
+
+    private static ExpressionFunctionDTO typed(
+            String name,
+            ExpressionVariableType returnType,
+            String body,
+            ExpressionVariableDTO... parameters
+    ) {
+        return new ExpressionFunctionDTO(null, "UI " + name, name, ExpressionFunctionKind.FORMULA, returnType,
+                List.of(parameters), body, null);
+    }
+
+    @Test
+    void testEvaluate_functionDoublingItsCallsPerLevel_failsWithCallLimit() {
+        ExpressionFunctionDTO tree = formula("tree", "IF(n <= 0, 1, tree(n - 1) + tree(n - 1))", "n");
+
+        List<Violation> violations = violationsOf(() -> evaluate("tree(30)", List.of(tree), Map.of()));
+
+        assertTrue(violations.getFirst().message().contains("Function call limit of %d calls per evaluation exceeded."
+                        .formatted(CallBudget.MAX_CALLS)),
+                "a call tree that doubles per level must stop at the call limit: " + violations.getFirst().message());
+    }
+
+    @Test
+    void testEvaluate_callLimitCountsAllCallsOfTheExpression() {
+        ExpressionFunctionDTO tree = formula("tree", "IF(n <= 0, 1, tree(n - 1) + tree(n - 1))", "n");
+
+        List<Violation> violations = violationsOf(
+                () -> evaluate("tree(12) + tree(12) + tree(12)", List.of(tree), Map.of()));
+
+        assertTrue(violations.getFirst().message().contains("Function call limit"),
+                "calls of separate top-level calls must share one budget: " + violations.getFirst().message());
+    }
+
+    @Test
+    void testEvaluate_callTreeWithinLimit_succeeds() {
+        ExpressionFunctionDTO tree = formula("tree", "IF(n <= 0, 1, tree(n - 1) + tree(n - 1))", "n");
+
+        assertEquals("1024", evaluate("tree(10)", List.of(tree), Map.of()),
+                "a call tree below the call limit must still be evaluated");
+    }
+
+    @Test
+    void testEvaluate_afterCallLimitFailure_nextEvaluationHasFullBudget() {
+        ExpressionFunctionDTO tree = formula("tree", "IF(n <= 0, 1, tree(n - 1) + tree(n - 1))", "n");
+        violationsOf(() -> evaluate("tree(30)", List.of(tree), Map.of()));
+
+        assertEquals("1024", evaluate("tree(10)", List.of(tree), Map.of()),
+                "the call budget must be released after a failed evaluation");
+    }
+
+    @Test
+    void testEvaluate_returnValueOfOtherType_isRejected() {
+        ExpressionFunctionDTO label = typed("label", ExpressionVariableType.NUMBER, "\"text\"");
+
+        List<Violation> violations = violationsOf(() -> evaluate("label()", List.of(label), Map.of()));
+
+        assertTrue(violations.getFirst().message().contains("Function 'label' must return NUMBER, but returned STRING."),
+                "a NUMBER function returning text must be rejected: " + violations.getFirst().message());
+    }
+
+    @Test
+    void testEvaluate_booleanReturnType_acceptsComparison() {
+        ExpressionFunctionDTO positive = typed("positive", ExpressionVariableType.BOOLEAN, "value > 0",
+                new ExpressionVariableDTO("value", ExpressionVariableType.NUMBER, null));
+
+        assertEquals("true", evaluate("positive(3)", List.of(positive), Map.of()),
+                "a comparison must satisfy a BOOLEAN return type");
+    }
+
+    @Test
+    void testEvaluate_argumentOfOtherType_isRejected() {
+        ExpressionFunctionDTO scale = formula("scale", "value * 2", "value");
+
+        List<Violation> violations = violationsOf(() -> evaluate("scale(\"text\")", List.of(scale), Map.of()));
+
+        assertTrue(violations.getFirst().message().contains(
+                        "Function 'scale' expects NUMBER for parameter 'value', but got STRING."),
+                "a text argument for a NUMBER parameter must be rejected: " + violations.getFirst().message());
+    }
+
+    @Test
+    void testEvaluate_stringParameter_acceptsText() {
+        ExpressionFunctionDTO shout = typed("shout", ExpressionVariableType.STRING, "text + \"!\"",
+                new ExpressionVariableDTO("text", ExpressionVariableType.STRING, null));
+
+        assertEquals("hey!", evaluate("shout(\"hey\")", List.of(shout), Map.of()),
+                "a STRING parameter must accept text");
+    }
 }

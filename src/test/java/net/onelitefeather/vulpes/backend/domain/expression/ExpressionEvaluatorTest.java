@@ -174,4 +174,25 @@ class ExpressionEvaluatorTest {
         assertEquals("variables", violations.getFirst().field(), "a name with a space must be reported on variables");
         assertEquals("VARIABLE_INVALID", violations.getFirst().code(), "an invalid name must carry VARIABLE_INVALID");
     }
+
+    @Test
+    void testEvaluate_valuesDifferingOnlyInCase_areRejected() {
+        List<Violation> violations = violationsOf(() -> ExpressionEvaluator.evaluate(
+                "x - X", Map.of("x", "5", "X", "2"), Map.of()));
+
+        assertEquals(1, violations.size(), "exactly the second spelling must be reported: " + violations);
+        assertTrue(violations.getFirst().message().contains("defined more than once"),
+                "x and X are the same variable in EvalEx: " + violations.getFirst().message());
+    }
+
+    @Test
+    void testRequireValidDefinition_variablesDifferingOnlyInCase_areRejected() {
+        List<Violation> violations = violationsOf(() -> ExpressionEvaluator.requireValidDefinition("x - X", List.of(
+                new ExpressionVariableDTO("x", ExpressionVariableType.NUMBER, null),
+                new ExpressionVariableDTO("X", ExpressionVariableType.NUMBER, null))));
+
+        assertEquals("variables", violations.getFirst().field(), "the duplicate must be reported on the variables");
+        assertTrue(violations.getFirst().message().contains("defined more than once"),
+                "x and X are the same variable in EvalEx: " + violations.getFirst().message());
+    }
 }

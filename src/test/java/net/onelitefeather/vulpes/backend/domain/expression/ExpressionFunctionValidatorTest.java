@@ -185,4 +185,37 @@ class ExpressionFunctionValidatorTest {
 
         assertEquals("EXPRESSION_INVALID", violation.code(), "a stub that does not parse must be EXPRESSION_INVALID");
     }
+
+    @Test
+    void testRequireValid_parameterNamesDifferingOnlyInCase_isRejectedOnParameters() {
+        ExpressionFunctionDTO function = function("diff", ExpressionFunctionKind.FORMULA, "x - X", "x", "X");
+
+        Violation violation = single(
+                violationsOf(() -> ExpressionFunctionValidator.requireValid(function, List.of())), "parameters");
+
+        assertTrue(violation.message().contains("defined more than once"),
+                "EvalEx resolves x and X to the same variable, so both must not be declared: " + violation.message());
+    }
+
+    @Test
+    void testRequireValid_interfaceFunctionWithSameJavaMethod_isRejectedOnName() {
+        ExpressionFunctionDTO stored = function("foo_bar", ExpressionFunctionKind.INTERFACE, null);
+        ExpressionFunctionDTO function = function("foo__bar", ExpressionFunctionKind.INTERFACE, null);
+
+        Violation violation = single(
+                violationsOf(() -> ExpressionFunctionValidator.requireValid(function, List.of(stored))), "name");
+
+        assertEquals("FUNCTION_NAME_TAKEN", violation.code(), "a clashing Java method must be reported as a taken name");
+        assertTrue(violation.message().contains("'fooBar'"),
+                "the message must name the clashing Java method: " + violation.message());
+    }
+
+    @Test
+    void testRequireValid_formulaWithSameJavaMethodAsInterface_isAccepted() {
+        ExpressionFunctionDTO stored = function("foo_bar", ExpressionFunctionKind.INTERFACE, null);
+        ExpressionFunctionDTO function = function("foo__bar", ExpressionFunctionKind.FORMULA, "1");
+
+        assertDoesNotThrow(() -> ExpressionFunctionValidator.requireValid(function, List.of(stored)),
+                "a FORMULA function is not part of the generated interface");
+    }
 }

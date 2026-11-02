@@ -231,4 +231,38 @@ class ExpressionControllerIntegrationTest {
         assertEquals(List.of("b"), result.undefinedVariables(), "b is used but not declared");
         assertEquals(List.of("c"), result.unusedVariables(), "c is declared but not used");
     }
+
+    @Test
+    void testEvaluate_unknownProject_returnsNotFound() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(new ExpressionEvaluateDTO("1 + 2", null, null))
+        .when()
+                .post("/project/" + UUID.randomUUID() + "/expression/evaluate")
+        .then()
+                .statusCode(404)
+                .body("code", is("PROJECT_NOT_FOUND"));
+    }
+
+    @Test
+    void testValidate_unknownProject_returnsNotFound() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(new ExpressionValidateDTO("1 + 2", null))
+        .when()
+                .post("/project/" + UUID.randomUUID() + "/expression/validate")
+        .then()
+                .statusCode(404)
+                .body("code", is("PROJECT_NOT_FOUND"));
+    }
+
+    @Test
+    void testGetProjectCatalog_unknownProject_returnsNotFound() {
+        given()
+        .when()
+                .get("/project/" + UUID.randomUUID() + "/expression-catalog")
+        .then()
+                .statusCode(404)
+                .body("code", is("PROJECT_NOT_FOUND"));
+    }
 }

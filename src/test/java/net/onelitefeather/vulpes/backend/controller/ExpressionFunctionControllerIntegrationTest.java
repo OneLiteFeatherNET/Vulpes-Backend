@@ -348,4 +348,110 @@ class ExpressionFunctionControllerIntegrationTest {
                 .body("errors[0].field", is("expression"))
                 .body("errors[0].code", is("EXPRESSION_INVALID"));
     }
+
+    private void storeExpression(String uiName, String expression) {
+        given()
+                .contentType(ContentType.JSON)
+                .body(new ExpressionDTO(null, uiName, expression, null, null, null, null, null))
+        .when()
+                .post(expressionPath(""))
+        .then()
+                .statusCode(200);
+    }
+
+    @Test
+    void testDeleteFunction_calledByExpression_returnsConflictNamingTheCaller() {
+        ExpressionFunctionResponseDTO.ExpressionFunctionModelDTO scale =
+                store(formula(null, "scale", "value * 2", "value"));
+        storeExpression("Doubled damage", "SCALE(4)");
+
+        given()
+        .when()
+                .delete(functionPath("/delete/" + scale.id()))
+        .then()
+                .statusCode(409)
+                .body("code", is("RESOURCE_CONFLICT"))
+                .body("detail", org.hamcrest.Matchers.containsString("expression 'Doubled damage'"));
+    }
+
+    @Test
+    void testDeleteFunction_calledByAnotherFunction_returnsConflict() {
+        ExpressionFunctionResponseDTO.ExpressionFunctionModelDTO scale =
+                store(formula(null, "scale", "value * 2", "value"));
+        store(formula(null, "quadruple", "scale(scale(x))", "x"));
+
+        given()
+        .when()
+                .delete(functionPath("/delete/" + scale.id()))
+        .then()
+                .statusCode(409)
+                .body("detail", org.hamcrest.Matchers.containsString("function 'quadruple'"));
+    }
+
+    @Test
+    void testDeleteFunction_notCalled_returnsOk() {
+        ExpressionFunctionResponseDTO.ExpressionFunctionModelDTO scale =
+                store(formula(null, "scale", "value * 2", "value"));
+        storeExpression("Unrelated", "1 + 2");
+
+        given()
+        .when()
+                .delete(functionPath("/delete/" + scale.id()))
+        .then()
+                .statusCode(200);
+    }
+
+    @Test
+    void testUpdateFunction_renameWhileCalled_returnsConflict() {
+        ExpressionFunctionResponseDTO.ExpressionFunctionModelDTO scale =
+                store(formula(null, "scale", "value * 2", "value"));
+        storeExpression("Doubled damage", "scale(4)");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(formula(scale.id(), "resize", "value * 2", "value"))
+        .when()
+                .post(functionPath("/update"))
+        .then()
+                .statusCode(409)
+                .body("code", is("RESOURCE_CONFLICT"));
+    }
+
+    @Test
+    void testUpdateFunction_bodyChangeWhileCalled_returnsOk() {
+        ExpressionFunctionResponseDTO.ExpressionFunctionModelDTO scale =
+                store(formula(null, "scale", "value * 2", "value"));
+        storeExpression("Doubled damage", "scale(4)");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(formula(scale.id(), "Scale", "value * 3", "value"))
+        .when()
+                .post(functionPath("/update"))
+        .then()
+                .statusCode(200)
+                .body("body", is("value * 3"));
+    }
+
+    @Test
+    void testEvaluateFunction_unknownProject_returnsNotFound() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(new ExpressionFunctionEvaluateDTO(formula(null, "scale", "value * 2", "value"), Map.of("value", "2")))
+        .when()
+                .post("/project/" + UUID.randomUUID() + "/expression-function/evaluate")
+        .then()
+                .statusCode(404)
+                .body("code", is("PROJECT_NOT_FOUND"));
+    }
+
+    @Test
+    void testGetInterface_unknownProject_returnsNotFound() {
+        given()
+        .when()
+                .get("/project/" + UUID.randomUUID() + "/expression-function/interface")
+        .then()
+                .statusCode(404)
+                .body("code", is("PROJECT_NOT_FOUND"));
+    }
 }
