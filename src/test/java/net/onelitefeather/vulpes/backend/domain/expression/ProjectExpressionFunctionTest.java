@@ -1,5 +1,7 @@
 package net.onelitefeather.vulpes.backend.domain.expression;
 
+import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionKind;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail.Violation;

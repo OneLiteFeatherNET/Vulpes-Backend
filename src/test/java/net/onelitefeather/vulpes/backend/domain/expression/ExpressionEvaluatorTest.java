@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.domain.expression;
 
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail.Violation;
 import net.onelitefeather.vulpes.backend.exception.ApiException;

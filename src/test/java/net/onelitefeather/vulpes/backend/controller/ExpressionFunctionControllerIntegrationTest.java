@@ -13,10 +13,10 @@ import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluationR
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionEvaluateDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionInterfaceDTO;
-import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionKind;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionKind;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableDTO;
-import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableType;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelResponseDTO;
 import org.junit.jupiter.api.BeforeEach;

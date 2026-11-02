@@ -16,8 +16,8 @@ import net.onelitefeather.vulpes.backend.domain.expression.ExpressionResponseDTO
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidateDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidationResultDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableDTO;
-import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableType;
-import net.onelitefeather.vulpes.backend.entity.expression.ExpressionEntity;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionEntity;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ExpressionService;
 import org.junit.jupiter.api.DisplayName;

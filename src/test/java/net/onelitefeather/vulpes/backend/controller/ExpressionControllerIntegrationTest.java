@@ -14,7 +14,7 @@ import net.onelitefeather.vulpes.backend.domain.expression.ExpressionResponseDTO
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidateDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidationResultDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableDTO;
-import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableType;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelResponseDTO;
 import org.junit.jupiter.api.BeforeAll;

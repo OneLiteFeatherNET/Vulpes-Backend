@@ -1,5 +1,7 @@
 package net.onelitefeather.vulpes.backend.domain.expression;
 
+import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionKind;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionCatalogDTO.ConstantDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionCatalogDTO.FunctionCategory;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionCatalogDTO.FunctionDTO;
