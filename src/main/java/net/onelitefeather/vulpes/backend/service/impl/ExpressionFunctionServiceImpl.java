@@ -15,16 +15,21 @@ import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionRes
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionValidator;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionInterfaceGenerator;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableDTO;
+import net.onelitefeather.vulpes.backend.domain.expression.FunctionReferences;
 import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.backend.domain.expression.ProjectExpressionConfiguration;
 import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionEntity;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionEntity;
 import net.onelitefeather.vulpes.api.repository.expression.ExpressionFunctionRepository;
+import net.onelitefeather.vulpes.api.repository.expression.ExpressionRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ExpressionFunctionService;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -41,15 +46,21 @@ public class ExpressionFunctionServiceImpl
     private static final String CODE_FUNCTION_REQUIRED = "FUNCTION_REQUIRED";
 
     private final ExpressionFunctionRepository functionRepository;
+    private final ExpressionRepository expressionRepository;
 
     /**
      * Constructs a new ExpressionFunctionServiceImpl.
      *
-     * @param functionRepository the repository to manage expression functions
-     * @param projectRepository  the repository to resolve the owning project
+     * @param functionRepository   the repository to manage expression functions
+     * @param projectRepository    the repository to resolve the owning project
+     * @param expressionRepository the repository of the expressions that may call the functions
      */
     @Inject
-    public ExpressionFunctionServiceImpl(ExpressionFunctionRepository functionRepository, ProjectRepository projectRepository) {
+    public ExpressionFunctionServiceImpl(
+            ExpressionFunctionRepository functionRepository,
+            ProjectRepository projectRepository,
+            ExpressionRepository expressionRepository
+    ) {
         super(
                 functionRepository,
                 projectRepository,
@@ -61,6 +72,7 @@ public class ExpressionFunctionServiceImpl
                 EXPRESSION_FUNCTION
         );
         this.functionRepository = functionRepository;
+        this.expressionRepository = expressionRepository;
     }
 
     @Override
@@ -72,7 +84,20 @@ public class ExpressionFunctionServiceImpl
     @Override
     public ExpressionFunctionResponseDTO.ExpressionFunctionModelDTO update(UUID projectId, ExpressionFunctionDTO dto) {
         ExpressionFunctionValidator.requireValid(dto, othersThan(projectId, dto.id()));
+        Optional<ExpressionFunctionDTO> stored = dto.id() == null
+                ? Optional.empty()
+                : findById(projectId, dto.id()).map(ExpressionFunctionDTO::fromEntity);
+        stored.filter(previous -> breaksCallers(previous, dto))
+                .ifPresent(previous -> requireUnused(projectId, previous, "changed"));
         return super.update(projectId, dto);
+    }
+
+    @Override
+    public ExpressionFunctionResponseDTO.ExpressionFunctionModelDTO delete(UUID projectId, UUID id) {
+        findById(projectId, id)
+                .map(ExpressionFunctionDTO::fromEntity)
+                .ifPresent(stored -> requireUnused(projectId, stored, "deleted"));
+        return super.delete(projectId, id);
     }
 
     @Override
@@ -84,6 +109,7 @@ public class ExpressionFunctionServiceImpl
 
     @Override
     public ExpressionEvaluationResultDTO evaluate(UUID projectId, ExpressionFunctionEvaluateDTO request) {
+        requireProjectExists(projectId);
         ExpressionFunctionDTO function = request.function();
         if (function == null) {
             throw ApiException.validationFailed(List.of(new Violation(
@@ -108,7 +134,61 @@ public class ExpressionFunctionServiceImpl
 
     @Override
     public ExpressionFunctionInterfaceDTO interfaceSource(UUID projectId) {
+        requireProjectExists(projectId);
         return ExpressionInterfaceGenerator.generate(definitions(projectId));
+    }
+
+    /**
+     * Rejects removing or changing a function that expressions or other functions of the project still call.
+     *
+     * @param projectId the owning project
+     * @param function  the stored function
+     * @param action    what is done to the function, used in the message
+     * @throws ApiException {@code RESOURCE_CONFLICT} naming the callers
+     */
+    private void requireUnused(UUID projectId, ExpressionFunctionDTO function, String action) {
+        List<ExpressionFunctionDTO> functions = definitions(projectId);
+        ExpressionConfiguration configuration = ProjectExpressionConfiguration.of(functions);
+        List<String> callers = new ArrayList<>();
+        for (ExpressionEntity expression : expressionsOf(projectId)) {
+            if (FunctionReferences.calls(expression.getExpression(), function.name(), configuration)) {
+                callers.add("expression '%s'".formatted(expression.getUiName()));
+            }
+        }
+        for (ExpressionFunctionDTO other : functions) {
+            if (!other.id().equals(function.id())
+                    && FunctionReferences.calls(other.body(), function.name(), configuration)) {
+                callers.add("function '%s'".formatted(other.name()));
+            }
+        }
+        if (!callers.isEmpty()) {
+            throw ApiException.conflict("Function '%s' cannot be %s, it is still used by %s."
+                    .formatted(function.name(), action, String.join(", ", callers)));
+        }
+    }
+
+    /**
+     * A rename or a different number of parameters makes every existing call of the function fail.
+     *
+     * @param previous the stored function
+     * @param next     the requested change
+     * @return {@code true} if callers of the stored function would break
+     */
+    private static boolean breaksCallers(ExpressionFunctionDTO previous, ExpressionFunctionDTO next) {
+        boolean renamed = next.name() == null || !previous.name().equalsIgnoreCase(next.name());
+        int previousCount = previous.parameters() == null ? 0 : previous.parameters().size();
+        int nextCount = next.parameters() == null ? 0 : next.parameters().size();
+        return renamed || previousCount != nextCount;
+    }
+
+    private List<ExpressionEntity> expressionsOf(UUID projectId) {
+        return expressionRepository.findByProjectId(projectId, Pageable.unpaged()).getContent();
+    }
+
+    private void requireProjectExists(UUID projectId) {
+        if (!projectRepository.existsById(projectId)) {
+            throw ApiException.projectNotFound();
+        }
     }
 
     /**

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -117,10 +118,15 @@ public final class ExpressionEvaluator {
     ) {
         List<Violation> violations = new ArrayList<>();
         Map<String, Object> converted = new LinkedHashMap<>();
+        Set<String> seen = new HashSet<>();
         for (Map.Entry<String, String> entry : values.entrySet()) {
             String name = entry.getKey();
             if (!isValidName(name)) {
                 violations.add(new Violation(FIELD_VARIABLES, CODE_VARIABLE_INVALID, invalidNameMessage(name)));
+                continue;
+            }
+            if (!seen.add(fold(name))) {
+                violations.add(new Violation(FIELD_VARIABLES, CODE_VARIABLE_INVALID, duplicateNameMessage(name)));
                 continue;
             }
             ExpressionVariableType type = types.getOrDefault(name, ExpressionVariableType.NUMBER);
@@ -135,7 +141,7 @@ public final class ExpressionEvaluator {
             throw ApiException.validationFailed(violations);
         }
 
-        try {
+        try (CallBudget.Scope ignored = CallBudget.open()) {
             Expression evalExpression = new Expression(expression == null ? "" : expression, configuration);
             converted.forEach(evalExpression::with);
             return toResult(evalExpression.evaluate());
@@ -145,7 +151,8 @@ public final class ExpressionEvaluator {
     }
 
     /**
-     * Lists a violation for every variable whose name is invalid or used more than once.
+     * Lists a violation for every variable whose name is invalid or used more than once. Names are compared ignoring
+     * case, the way EvalEx resolves them, so {@code x} and {@code X} are the same variable.
      *
      * @param field     the field the violations are reported on, {@code variables} or {@code parameters}
      * @param variables the variables to check, may be {@code null}
@@ -161,12 +168,8 @@ public final class ExpressionEvaluator {
             String name = variable.name();
             if (!isValidName(name)) {
                 violations.add(new Violation(field, CODE_VARIABLE_INVALID, invalidNameMessage(name)));
-            } else if (!seen.add(name)) {
-                violations.add(new Violation(
-                        field,
-                        CODE_VARIABLE_INVALID,
-                        "Variable '%s' is defined more than once.".formatted(name)
-                ));
+            } else if (!seen.add(fold(name))) {
+                violations.add(new Violation(field, CODE_VARIABLE_INVALID, duplicateNameMessage(name)));
             }
         }
         return violations;
@@ -266,6 +269,14 @@ public final class ExpressionEvaluator {
      */
     static boolean isValidName(@Nullable String name) {
         return name != null && VARIABLE_NAME.matcher(name).matches();
+    }
+
+    private static String duplicateNameMessage(String name) {
+        return "Variable '%s' is defined more than once, names are compared ignoring case.".formatted(name);
+    }
+
+    private static String fold(String name) {
+        return name.toLowerCase(Locale.ROOT);
     }
 
     private static String invalidNameMessage(@Nullable String name) {

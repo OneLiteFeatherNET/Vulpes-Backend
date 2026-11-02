@@ -141,6 +141,14 @@ public class ExpressionFunctionController {
                     schema = @Schema(implementation = ProblemDetail.class)
             )
     )
+    @ApiResponse(
+            responseCode = "409",
+            description = "The function is still called by an expression or another function of the project.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ExpressionFunctionResponseDTO.ExpressionFunctionModelDTO> remove(
@@ -206,6 +214,14 @@ public class ExpressionFunctionController {
                     schema = @Schema(implementation = ProblemDetail.class)
             )
     )
+    @ApiResponse(
+            responseCode = "409",
+            description = "The function is renamed or its parameter count changes while an expression or another function of the project still calls it.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
     @Post("/update")
     @Produces(MediaType.APPLICATION_JSON)
     @Validated(groups = ValidationGroup.Update.class)
@@ -238,6 +254,14 @@ public class ExpressionFunctionController {
                     schema = @Schema(implementation = ProblemDetail.class)
             )
     )
+    @ApiResponse(
+            responseCode = "404",
+            description = "The project was not found.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
     @Post("/evaluate")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ExpressionEvaluationResultDTO> evaluate(
@@ -259,6 +283,14 @@ public class ExpressionFunctionController {
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ExpressionFunctionInterfaceDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "The project was not found.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Get("/interface")

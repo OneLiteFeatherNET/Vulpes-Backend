@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionCatalogDTO;
 import net.onelitefeather.vulpes.backend.service.ExpressionService;
 
@@ -42,6 +43,14 @@ public class ProjectExpressionCatalogController {
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ExpressionCatalogDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "The project was not found.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Get("/expression-catalog")

@@ -17,19 +17,13 @@ import java.util.List;
  *
  * <p>A FORMULA function evaluates its body with the parameters bound to the argument values. An INTERFACE function
  * evaluates its body only when a test stub is present, otherwise the call fails, because the game runtime implements it.
- * Calls may nest, and a call chain deeper than {@link #MAX_CALL_DEPTH} is rejected as recursion.
+ * Arguments and the returned value must have the declared types. Calls may nest, and every evaluation is limited by
+ * a {@link CallBudget}, so a call chain that is too deep or makes too many calls is rejected.
  *
  * <p>The body is parsed with the configuration of the calling expression, so project functions can call built-in
  * functions and other project functions.
  */
 public final class ProjectExpressionFunction implements FunctionIfc {
-
-    /**
-     * The number of nested project function calls a single evaluation may make.
-     */
-    static final int MAX_CALL_DEPTH = 32;
-
-    private static final ThreadLocal<Integer> CALL_DEPTH = ThreadLocal.withInitial(() -> 0);
 
     private final ExpressionFunctionDTO definition;
     private final List<ExpressionVariableDTO> parameters;
@@ -126,8 +120,9 @@ public final class ProjectExpressionFunction implements FunctionIfc {
      * @param functionToken   the token of the call, used to report errors
      * @param parameterValues the argument values in call order
      * @return the value of the body
-     * @throws EvaluationException if the argument count is wrong, the function has no body or the body fails,
-     *                             or the call chain is deeper than {@link #MAX_CALL_DEPTH}
+     * @throws EvaluationException if the argument count or an argument type is wrong, the function has no body,
+     *                             the body fails or returns another type than the declared one, or the evaluation
+     *                             exceeds its {@link CallBudget}
      */
     @Override
     public EvaluationValue evaluate(Expression expression, Token functionToken, EvaluationValue... parameterValues)
@@ -142,20 +137,23 @@ public final class ProjectExpressionFunction implements FunctionIfc {
             throw new EvaluationException(functionToken, "Function '%s' has no body.".formatted(name()));
         }
 
-        int depth = CALL_DEPTH.get();
-        if (depth >= MAX_CALL_DEPTH) {
-            throw new EvaluationException(functionToken, "Function call depth exceeded (recursive function?)");
-        }
-        CALL_DEPTH.set(depth + 1);
-        try {
-            return evaluateBody(expression, functionToken, body, parameterValues);
-        } finally {
-            if (depth == 0) {
-                CALL_DEPTH.remove();
-            } else {
-                CALL_DEPTH.set(depth);
+        requireParameterTypes(functionToken, parameterValues);
+
+        EvaluationValue result;
+        try (CallBudget.Scope ignored = CallBudget.open()) {
+            CallBudget budget = CallBudget.current();
+            budget.enter(functionToken);
+            try {
+                result = evaluateBody(expression, functionToken, body, parameterValues);
+            } finally {
+                budget.leave();
             }
         }
+        if (!hasType(result, returnType)) {
+            throw new EvaluationException(functionToken, "Function '%s' must return %s, but returned %s."
+                    .formatted(name(), returnType, result.getDataType()));
+        }
+        return result;
     }
 
     private EvaluationValue evaluateBody(
@@ -174,6 +172,26 @@ public final class ProjectExpressionFunction implements FunctionIfc {
             throw new EvaluationException(functionToken,
                     "Function '%s' has an invalid body: %s".formatted(name(), failure.getMessage()));
         }
+    }
+
+    private void requireParameterTypes(Token functionToken, EvaluationValue... parameterValues)
+            throws EvaluationException {
+        for (int index = 0; index < parameters.size(); index++) {
+            ExpressionVariableDTO parameter = parameters.get(index);
+            ExpressionVariableType type = parameter.type() == null ? ExpressionVariableType.NUMBER : parameter.type();
+            if (!hasType(parameterValues[index], type)) {
+                throw new EvaluationException(functionToken, "Function '%s' expects %s for parameter '%s', but got %s."
+                        .formatted(name(), type, parameter.name(), parameterValues[index].getDataType()));
+            }
+        }
+    }
+
+    private static boolean hasType(EvaluationValue value, ExpressionVariableType type) {
+        return switch (type) {
+            case NUMBER -> value.isNumberValue();
+            case BOOLEAN -> value.isBooleanValue();
+            case STRING -> value.isStringValue();
+        };
     }
 
     private void requireParameterCount(Token functionToken, EvaluationValue... parameterValues)

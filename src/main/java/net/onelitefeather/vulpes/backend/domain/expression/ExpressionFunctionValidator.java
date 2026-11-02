@@ -16,7 +16,8 @@ import java.util.Set;
  * Checks a project function before it is stored or evaluated.
  *
  * <p>The name must be a valid identifier, must not be a built-in function (compared ignoring case, the way EvalEx
- * resolves names), and must not be used by another function of the project. Parameters are checked like expression
+ * resolves names), and must not be used by another function of the project. An INTERFACE function must also not
+ * generate the same Java method name as another INTERFACE function. Parameters are checked like expression
  * variables. A FORMULA function needs a body, and any body must parse with the project's functions in place.
  */
 public final class ExpressionFunctionValidator {
@@ -44,6 +45,9 @@ public final class ExpressionFunctionValidator {
      */
     public static void requireValid(ExpressionFunctionDTO function, List<ExpressionFunctionDTO> others) {
         List<Violation> violations = new ArrayList<>(nameViolations(function.name(), others));
+        if (violations.isEmpty()) {
+            violations.addAll(methodNameViolations(function, others));
+        }
         if (function.kind() == null) {
             violations.add(new Violation(FIELD_KIND, CODE_KIND_REQUIRED, "A function needs a kind, FORMULA or INTERFACE."));
         }
@@ -81,6 +85,33 @@ public final class ExpressionFunctionValidator {
             ));
         }
         return List.of();
+    }
+
+    /**
+     * Two INTERFACE functions must not map to the same method of the generated Java interface, which would not
+     * compile, as {@code foo_bar} and {@code foo__bar} would.
+     *
+     * @param function the function to check, its name is valid
+     * @param others   the other functions of the project
+     * @return the violation, or an empty list when the method name is free
+     */
+    private static List<Violation> methodNameViolations(ExpressionFunctionDTO function, List<ExpressionFunctionDTO> others) {
+        if (function.kind() != ExpressionFunctionKind.INTERFACE) {
+            return List.of();
+        }
+        String methodName = ExpressionInterfaceGenerator.methodName(function.name());
+        return others.stream()
+                .filter(other -> other.kind() == ExpressionFunctionKind.INTERFACE)
+                .filter(other -> ExpressionEvaluator.isValidName(other.name()))
+                .filter(other -> ExpressionInterfaceGenerator.methodName(other.name()).equals(methodName))
+                .findFirst()
+                .map(other -> List.of(new Violation(
+                        FIELD_NAME,
+                        CODE_NAME_TAKEN,
+                        "Function name '%s' generates the same Java method '%s' as the function '%s'."
+                                .formatted(function.name(), methodName, other.name())
+                )))
+                .orElse(List.of());
     }
 
     /**

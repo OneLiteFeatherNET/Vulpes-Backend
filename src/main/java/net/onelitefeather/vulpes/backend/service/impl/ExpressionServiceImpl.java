@@ -20,6 +20,7 @@ import net.onelitefeather.vulpes.api.model.expression.ExpressionEntity;
 import net.onelitefeather.vulpes.api.repository.expression.ExpressionRepository;
 import net.onelitefeather.vulpes.backend.service.ExpressionFunctionService;
 import net.onelitefeather.vulpes.backend.service.ExpressionService;
+import net.onelitefeather.vulpes.backend.exception.ApiException;
 
 import java.util.Map;
 import java.util.UUID;
@@ -101,8 +102,12 @@ public class ExpressionServiceImpl
      *
      * @param projectId the owning project
      * @return the built-in functions together with the project's functions
+     * @throws ApiException {@code PROJECT_NOT_FOUND} if the project does not exist
      */
     private ExpressionConfiguration configurationOf(UUID projectId) {
+        if (!projectRepository.existsById(projectId)) {
+            throw ApiException.projectNotFound();
+        }
         return ProjectExpressionConfiguration.of(functionService.definitions(projectId));
     }
 }

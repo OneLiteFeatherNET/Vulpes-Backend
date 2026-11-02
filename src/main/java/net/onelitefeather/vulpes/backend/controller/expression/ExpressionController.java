@@ -241,6 +241,14 @@ public class ExpressionController {
                     schema = @Schema(implementation = ProblemDetail.class)
             )
     )
+    @ApiResponse(
+            responseCode = "404",
+            description = "The project was not found.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
+            )
+    )
     @Post("/evaluate")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<ExpressionEvaluationResultDTO> evaluate(@PathVariable UUID projectId, @Valid @Body ExpressionEvaluateDTO request) {
@@ -259,6 +267,14 @@ public class ExpressionController {
             content = @Content(
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = ExpressionValidationResultDTO.class)
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "The project was not found.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                    schema = @Schema(implementation = ProblemDetail.class)
             )
     )
     @Post("/validate")
