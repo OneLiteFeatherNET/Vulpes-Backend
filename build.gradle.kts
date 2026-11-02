@@ -107,6 +107,8 @@ dependencies {
     implementation(libs.jspecify)
     errorprone(libs.error.prone.core)
     errorprone(libs.nullaway)
+    // Expression evaluation for the expression model (EvalEx)
+    implementation(libs.evalex)
 
     testImplementation(libs.archunit.junit5)
     testImplementation(mn.junit.jupiter.api)
