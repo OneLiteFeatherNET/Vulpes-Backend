@@ -1,6 +1,5 @@
 package net.onelitefeather.vulpes.backend.controller;
 
-import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;
 import io.micronaut.http.HttpResponse;
@@ -17,6 +16,7 @@ import net.onelitefeather.vulpes.backend.domain.expression.ExpressionResponseDTO
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidateDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidationResultDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableDTO;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.api.model.expression.ExpressionEntity;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ExpressionService;
@@ -112,6 +112,11 @@ class ExpressionControllerTest {
 
         @Override
         public ExpressionCatalogDTO catalog() {
+            return catalogResponse;
+        }
+
+        @Override
+        public ExpressionCatalogDTO catalog(UUID projectId) {
             return catalogResponse;
         }
     }

@@ -2,6 +2,7 @@ package net.onelitefeather.vulpes.backend.domain.expression;
 
 import com.ezylang.evalex.BaseException;
 import com.ezylang.evalex.Expression;
+import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.parser.ParseException;
 import io.micronaut.core.annotation.Nullable;
 
@@ -25,17 +26,33 @@ public final class ExpressionValidator {
     }
 
     /**
-     * Checks an expression and compares the variables it uses with the declared ones.
+     * Checks an expression with the default configuration and compares the variables it uses with the declared ones.
      *
      * @param expression the EvalEx formula, {@code null} or empty is valid and reports nothing
      * @param variables  the declared variable names, {@code null} means none
      * @return the result, always answered, also when the expression does not parse
      */
     public static ExpressionValidationResultDTO validate(@Nullable String expression, @Nullable List<String> variables) {
+        return validate(expression, variables, ExpressionEvaluator.CONFIGURATION);
+    }
+
+    /**
+     * Checks an expression with the given configuration and compares the variables it uses with the declared ones.
+     *
+     * @param expression    the EvalEx formula, {@code null} or empty is valid and reports nothing
+     * @param variables     the declared variable names, {@code null} means none
+     * @param configuration the EvalEx configuration the expression is parsed with
+     * @return the result, always answered, also when the expression does not parse
+     */
+    public static ExpressionValidationResultDTO validate(
+            @Nullable String expression,
+            @Nullable List<String> variables,
+            ExpressionConfiguration configuration
+    ) {
         if (expression == null || expression.isEmpty()) {
             return new ExpressionValidationResultDTO(true, List.of(), List.of(), List.of(), List.of());
         }
-        Expression parsed = new Expression(expression, ExpressionEvaluator.CONFIGURATION);
+        Expression parsed = new Expression(expression, configuration);
         TreeSet<String> used;
         try {
             parsed.validate();
@@ -53,7 +70,7 @@ public final class ExpressionValidator {
         TreeSet<String> declared = declaredNames(variables);
         Set<String> foldedDeclared = fold(declared);
         Set<String> foldedUsed = fold(used);
-        Set<String> foldedConstants = fold(ExpressionEvaluator.CONFIGURATION.getDefaultConstants().keySet());
+        Set<String> foldedConstants = fold(configuration.getDefaultConstants().keySet());
 
         List<String> undefined = used.stream()
                 .filter(name -> !foldedDeclared.contains(fold(name)) && !foldedConstants.contains(fold(name)))
