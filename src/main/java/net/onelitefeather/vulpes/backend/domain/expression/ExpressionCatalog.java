@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.domain.expression;
 
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.config.ExpressionConfiguration;
 import com.ezylang.evalex.config.FunctionDictionaryIfc;

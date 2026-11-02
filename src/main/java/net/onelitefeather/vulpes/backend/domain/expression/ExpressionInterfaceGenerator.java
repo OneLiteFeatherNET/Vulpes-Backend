@@ -1,5 +1,7 @@
 package net.onelitefeather.vulpes.backend.domain.expression;
 
+import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionKind;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import javax.lang.model.SourceVersion;
 import java.util.Comparator;
 import java.util.List;

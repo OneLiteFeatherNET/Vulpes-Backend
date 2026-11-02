@@ -9,8 +9,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
-import net.onelitefeather.vulpes.backend.entity.expression.ExpressionEntity;
-import net.onelitefeather.vulpes.backend.entity.expression.ExpressionVariable;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionEntity;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariable;
 
 import java.time.Instant;
 import java.util.List;

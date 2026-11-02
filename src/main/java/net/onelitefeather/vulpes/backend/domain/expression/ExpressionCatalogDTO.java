@@ -1,5 +1,7 @@
 package net.onelitefeather.vulpes.backend.domain.expression;
 
+import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionKind;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 

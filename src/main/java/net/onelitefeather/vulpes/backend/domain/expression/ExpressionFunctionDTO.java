@@ -1,5 +1,7 @@
 package net.onelitefeather.vulpes.backend.domain.expression;
 
+import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionKind;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,8 +11,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
-import net.onelitefeather.vulpes.backend.entity.expression.ExpressionFunctionEntity;
-import net.onelitefeather.vulpes.backend.entity.expression.ExpressionVariable;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionEntity;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariable;
 
 import java.util.List;
 import java.util.UUID;

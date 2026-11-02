@@ -7,7 +7,7 @@ import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluationR
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidateDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionValidationResultDTO;
-import net.onelitefeather.vulpes.backend.entity.expression.ExpressionEntity;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionEntity;
 
 import java.util.UUID;
 

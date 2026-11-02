@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.domain.expression;
 
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import com.ezylang.evalex.BaseException;
 import com.ezylang.evalex.EvaluationException;
 import com.ezylang.evalex.Expression;

@@ -15,9 +15,9 @@ import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionRes
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionValidator;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionInterfaceGenerator;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableDTO;
-import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableType;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.backend.domain.expression.ProjectExpressionConfiguration;
-import net.onelitefeather.vulpes.backend.entity.expression.ExpressionFunctionEntity;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionEntity;
 import net.onelitefeather.vulpes.backend.entity.expression.ExpressionFunctionRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.ExpressionFunctionService;

@@ -2,7 +2,7 @@ package net.onelitefeather.vulpes.backend.domain.expression;
 
 import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
-import net.onelitefeather.vulpes.backend.entity.expression.ExpressionEntity;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionEntity;
 
 import java.time.Instant;
 import java.util.List;

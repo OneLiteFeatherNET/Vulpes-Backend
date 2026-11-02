@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.entity.expression;
 
+import net.onelitefeather.vulpes.api.model.expression.ExpressionEntity;
 import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.model.Page;
 import io.micronaut.data.model.Pageable;

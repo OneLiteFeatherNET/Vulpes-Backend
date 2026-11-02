@@ -5,7 +5,7 @@ import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionDTO
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionEvaluateDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionInterfaceDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionFunctionResponseDTO;
-import net.onelitefeather.vulpes.backend.entity.expression.ExpressionFunctionEntity;
+import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionEntity;
 
 import java.util.List;
 import java.util.UUID;
