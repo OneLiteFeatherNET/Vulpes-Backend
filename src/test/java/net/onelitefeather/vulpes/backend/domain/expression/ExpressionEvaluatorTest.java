@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.domain.expression;
 
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail.Violation;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
@@ -172,5 +173,89 @@ class ExpressionEvaluatorTest {
 
         assertEquals("variables", violations.getFirst().field(), "a name with a space must be reported on variables");
         assertEquals("VARIABLE_INVALID", violations.getFirst().code(), "an invalid name must carry VARIABLE_INVALID");
+    }
+
+    @Test
+    void testEvaluate_valuesDifferingOnlyInCase_areRejected() {
+        List<Violation> violations = violationsOf(() -> ExpressionEvaluator.evaluate(
+                "x - X", Map.of("x", "5", "X", "2"), Map.of()));
+
+        assertEquals(1, violations.size(), "exactly the second spelling must be reported: " + violations);
+        assertTrue(violations.getFirst().message().contains("defined more than once"),
+                "x and X are the same variable in EvalEx: " + violations.getFirst().message());
+    }
+
+    @Test
+    void testRequireValidDefinition_variablesDifferingOnlyInCase_areRejected() {
+        List<Violation> violations = violationsOf(() -> ExpressionEvaluator.requireValidDefinition("x - X", List.of(
+                new ExpressionVariableDTO("x", ExpressionVariableType.NUMBER, null),
+                new ExpressionVariableDTO("X", ExpressionVariableType.NUMBER, null))));
+
+        assertEquals("variables", violations.getFirst().field(), "the duplicate must be reported on the variables");
+        assertTrue(violations.getFirst().message().contains("defined more than once"),
+                "x and X are the same variable in EvalEx: " + violations.getFirst().message());
+    }
+
+    @Test
+    void testEvaluate_hugeNumber_isRenderedInScientificNotation() {
+        ExpressionEvaluationResultDTO result = ExpressionEvaluator.evaluate("a", Map.of("a", "1E999999999"), Map.of());
+
+        assertEquals("1E+999999999", result.value(), "a huge number must not be written out digit by digit");
+    }
+
+    @Test
+    void testEvaluate_tinyNumber_isRenderedInScientificNotation() {
+        ExpressionEvaluationResultDTO result = ExpressionEvaluator.evaluate("a", Map.of("a", "1E-999999999"), Map.of());
+
+        assertEquals("1E-999999999", result.value(), "a tiny number must not be written out digit by digit");
+    }
+
+    @Test
+    void testRenderNumber_exponentAtLimit_isWrittenOut() {
+        String rendered = ExpressionEvaluator.renderNumber(java.math.BigDecimal.TEN.pow(ExpressionEvaluator.MAX_PLAIN_EXPONENT));
+
+        assertEquals("1" + "0".repeat(ExpressionEvaluator.MAX_PLAIN_EXPONENT), rendered,
+                "a number up to the exponent limit must be written out in full");
+    }
+
+    @Test
+    void testRenderNumber_decimalFraction_dropsTrailingZeros() {
+        assertEquals("2.5", ExpressionEvaluator.renderNumber(new java.math.BigDecimal("2.500")),
+                "trailing zeros of a fraction must be dropped");
+    }
+
+    @Test
+    void testEvaluate_formatWithHugeWidth_isRejected() {
+        List<Violation> violations = violationsOf(
+                () -> ExpressionEvaluator.evaluate("STR_FORMAT(\"%999999999s\", 1)", Map.of(), Map.of()));
+
+        assertTrue(violations.getFirst().message().contains("Format widths and precisions above 1000 are not allowed."),
+                "a huge format width must be rejected: " + violations.getFirst().message());
+    }
+
+    @Test
+    void testEvaluate_formatWithHugePrecision_isRejected() {
+        List<Violation> violations = violationsOf(
+                () -> ExpressionEvaluator.evaluate("STR_FORMAT(\"%.5000f\", 1)", Map.of(), Map.of()));
+
+        assertTrue(violations.getFirst().message().contains("Format widths and precisions above 1000 are not allowed."),
+                "a huge format precision must be rejected: " + violations.getFirst().message());
+    }
+
+    @Test
+    void testEvaluate_formatWithBoundedWidth_formats() {
+        ExpressionEvaluationResultDTO result = ExpressionEvaluator.evaluate(
+                "STR_FORMAT(\"%5s|%.2s\", \"ab\", \"xyz\")", Map.of(), Map.of());
+
+        assertEquals("   ab|xy", result.value(), "a bounded width and precision must still format");
+    }
+
+    @Test
+    void testEvaluate_formatNotMatchingArgument_isValidationError() {
+        List<Violation> violations = violationsOf(
+                () -> ExpressionEvaluator.evaluate("STR_FORMAT(\"%d\", 1)", Map.of(), Map.of()));
+
+        assertTrue(violations.getFirst().message().contains("Invalid format"),
+                "a format that does not fit its argument must be a validation error: " + violations.getFirst().message());
     }
 }

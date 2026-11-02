@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.controller;
 
+import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.restassured.RestAssured;
@@ -11,7 +12,6 @@ import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluateDTO
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionEvaluationResultDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableDTO;
-import net.onelitefeather.vulpes.backend.domain.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelResponseDTO;
 import org.junit.jupiter.api.BeforeAll;
@@ -178,5 +178,17 @@ class ExpressionControllerIntegrationTest {
                 .statusCode(400)
                 .body("code", is("VALIDATION_FAILED"))
                 .body("errors[0].field", is("variables.a"));
+    }
+
+    @Test
+    void testEvaluate_unknownProject_returnsNotFound() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(new ExpressionEvaluateDTO("1 + 2", null, null))
+        .when()
+                .post("/project/" + UUID.randomUUID() + "/expression/evaluate")
+        .then()
+                .statusCode(404)
+                .body("code", is("PROJECT_NOT_FOUND"));
     }
 }
