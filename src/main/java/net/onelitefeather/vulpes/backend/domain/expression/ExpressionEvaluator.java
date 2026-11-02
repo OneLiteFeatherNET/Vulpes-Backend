@@ -31,7 +31,8 @@ import java.util.regex.Pattern;
 public final class ExpressionEvaluator {
 
     /**
-     * The EvalEx configuration every expression is parsed and evaluated with.
+     * The EvalEx configuration every expression is parsed and evaluated with. The catalog is built from the
+     * same configuration, so the functions, operators and constants offered to the UI are the ones evaluated.
      */
     public static final ExpressionConfiguration CONFIGURATION = BaseExpressionConfiguration.create();
 
@@ -236,7 +237,13 @@ public final class ExpressionEvaluator {
         );
     }
 
-    private static boolean isValidName(@Nullable String name) {
+    /**
+     * Checks a variable name against {@code [A-Za-z_][A-Za-z0-9_]*}.
+     *
+     * @param name the name to check, {@code null} is invalid
+     * @return {@code true} if the name may be used in an expression
+     */
+    static boolean isValidName(@Nullable String name) {
         return name != null && VARIABLE_NAME.matcher(name).matches();
     }
 
