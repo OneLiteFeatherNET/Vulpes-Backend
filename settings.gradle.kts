@@ -43,7 +43,7 @@ dependencyResolutionManagement {
             version("logstash.logback.encoder", "9.0")
             version("janino", "3.1.12")
             version("opentelemetry.instrumentation.alpha", "2.20.1-alpha")
-            version("spotless", "8.10.4")
+            version("spotless", "8.11.0")
             version("palantir.java.format", "2.102.0")
             version("errorprone.plugin", "5.2.0")
             version("error.prone.core", "2.51.0")
