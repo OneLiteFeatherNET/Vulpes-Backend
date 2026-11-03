@@ -27,13 +27,9 @@ micronaut:
       io.micronaut.data: DEBUG
       io.micronaut.sql: DEBUG
       io.micronaut.http.server.cors: TRACE
-  object-storage:
-    local:
-      # Store of project assets. Local is the default; set VULPES_ASSET_LOCAL_ENABLED=false and configure
-      # micronaut.object-storage.aws.assets (bucket, aws.region, endpoint) to store assets in S3 instead.
-      assets:
-        enabled: ${VULPES_ASSET_LOCAL_ENABLED:true}
-        path: ${VULPES_ASSET_PATH:./data/assets}
+  # The asset store is configured per environment, not here: local in application-local.yml
+  # (micronaut.object-storage.local.assets.path), S3 in the cluster (micronaut.object-storage.aws.assets
+  # plus the aws.* settings). Exactly one store named assets must exist.
   router:
     static-resources:
       swagger:
