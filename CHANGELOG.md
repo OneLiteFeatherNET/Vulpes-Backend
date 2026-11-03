@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.5.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.4.0...v3.5.0) (2026-11-03)
+
+
+### Features
+
+* **pack:** manage the pack.mcmeta content of a project per pack type ([#270](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/270)) ([462ec2f](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/462ec2f27a1cb3a3108fbaab02472259c3925662))
+
+
+### Bug Fixes
+
+* **asset:** configure a single asset store per environment ([#271](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/271)) ([da18acf](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/da18acf6ce95341c02bf3fb0c80c20a700018df6))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v3.8.0 ([#268](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/268)) ([33ca19d](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/33ca19dda95959d8b1dec310ffa6ff79bd00064a))
+
 ## [3.4.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.3.0...v3.4.0) (2026-11-02)
 
 
