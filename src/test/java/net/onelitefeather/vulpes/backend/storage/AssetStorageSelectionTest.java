@@ -7,10 +7,12 @@ import io.micronaut.inject.qualifiers.Qualifiers;
 import io.micronaut.objectstorage.ObjectStorageOperations;
 import io.micronaut.objectstorage.aws.AwsS3Operations;
 import io.micronaut.objectstorage.local.LocalStorageOperations;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * The implementation behind the {@code assets} store is chosen by configuration only. The context is
@@ -22,7 +24,6 @@ class AssetStorageSelectionTest {
     private static final Map<String, Object> NO_DATABASE = Map.of("datasources.default.enabled", false);
 
     private static final Map<String, Object> S3_ASSETS = Map.of(
-            "micronaut.object-storage.local.assets.enabled", false,
             "micronaut.object-storage.aws.assets.bucket", "test-bucket",
             "aws.region", "us-east-1",
             "aws.services.s3.endpoint-override", "http://localhost:1",
@@ -30,22 +31,19 @@ class AssetStorageSelectionTest {
             "aws.access-key-id", "test-access-key",
             "aws.secret-key", "test-secret-key");
 
+    @TempDir
+    Path assetDirectory;
+
     @Test
-    void assetStoreIsTheLocalImplementationByDefault() {
-        assertAssetStore(Map.of(), LocalStorageOperations.class);
+    void assetStoreIsTheLocalImplementationWhenOnlyTheLocalPathIsConfigured() {
+        assertAssetStore(
+                Map.of("micronaut.object-storage.local.assets.path", assetDirectory.toString()),
+                LocalStorageOperations.class);
     }
 
     @Test
-    void assetStoreIsTheS3ImplementationWhenTheLocalStoreIsDisabled() {
+    void assetStoreIsTheS3ImplementationWhenOnlyTheS3BucketIsConfigured() {
         assertAssetStore(S3_ASSETS, AwsS3Operations.class);
-    }
-
-    @Test
-    void localAssetStoreIsSwitchedOffByTheVulpesAssetLocalEnabledVariable() {
-        Map<String, Object> properties = new HashMap<>(S3_ASSETS);
-        properties.remove("micronaut.object-storage.local.assets.enabled");
-        properties.put("VULPES_ASSET_LOCAL_ENABLED", false);
-        assertAssetStore(properties, AwsS3Operations.class);
     }
 
     private static void assertAssetStore(Map<String, Object> properties, Class<?> expected) {
