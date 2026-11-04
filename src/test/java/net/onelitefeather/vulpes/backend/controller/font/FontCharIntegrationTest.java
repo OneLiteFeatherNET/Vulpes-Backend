@@ -50,7 +50,7 @@ class FontCharIntegrationTest {
     private UUID createFont(UUID projectId, String key) {
         return given()
                 .contentType(ContentType.JSON)
-                .body(new FontModelDTO(null, "Font", key, "bitmap", "mapper", "texture.png", null, 7, 8))
+                .body(new FontModelDTO(null, "Font", key, "bitmap", "mapper", "texture.png", null, 7, 8, null))
                 .post("/project/" + projectId + "/font")
                 .then().statusCode(200)
                 .extract().as(FontModelResponseDTO.FontModelDTO.class)

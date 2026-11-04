@@ -65,7 +65,7 @@ class CopyTimestampIntegrationTest {
     private static Stream<Arguments> models() {
         return Stream.of(
                 model("attribute", key -> new AttributeModelDTO(null, "Speed", key, 1.0, 0.0, 10.0, false, null, null)),
-                model("font", key -> new FontModelDTO(null, "Font", key, "bitmap", "mapper", "texture.png", null, 7, 8)),
+                model("font", key -> new FontModelDTO(null, "Font", key, "bitmap", "mapper", "texture.png", null, 7, 8, null)),
                 model("item", key -> new ItemModelDTO(null, "Item", key, null, "group")),
                 model("sound", key -> new SoundEventDTO(null, "Sound", key, "block.stone.step", null, null)),
                 model("advancement", key -> new AdvancementModelDTO(null, "Advancement", key, null, "STONE",

@@ -62,7 +62,7 @@ class ModelKeyUniquenessIntegrationTest {
     private static Stream<Arguments> models() {
         return Stream.of(
                 model("attribute", (id, key) -> new AttributeModelDTO(id, "Speed", key, 1.0, 0.0, 10.0, false, null, null)),
-                model("font", (id, key) -> new FontModelDTO(id, "Font", key, "bitmap", "mapper", "texture.png", null, 1, 1)),
+                model("font", (id, key) -> new FontModelDTO(id, "Font", key, "bitmap", "mapper", "texture.png", null, 1, 1, null)),
                 model("item", (id, key) -> new ItemModelDTO(id, "Item", key, null, "group")),
                 model("sound", (id, key) -> new SoundEventDTO(id, "Sound", key, "block.stone.step", null, null)),
                 model("advancement", (id, key) -> new AdvancementModelDTO(id, "Advancement", key, null, "STONE",

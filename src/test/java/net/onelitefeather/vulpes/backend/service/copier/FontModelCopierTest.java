@@ -5,6 +5,8 @@ import io.micronaut.data.model.Pageable;
 import io.micronaut.data.model.Sort;
 import io.micronaut.data.repository.PageableRepository;
 import net.onelitefeather.vulpes.api.model.FontEntity;
+import net.onelitefeather.vulpes.api.model.asset.AssetKind;
+import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.api.model.font.FontStringEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.repository.FontRepository;
@@ -136,8 +138,14 @@ class FontModelCopierTest {
     }
 
     private static class FakeFontRepository extends FakePageableRepository<FontEntity, UUID> implements FontRepository {
+
         FakeFontRepository() {
             super(FontEntity::getId);
+        }
+
+        @Override
+        public List<FontEntity> findWithTextureAssetByProjectId(UUID projectId) {
+            return findAll().stream().filter(font -> projectId.equals(font.getProject().getId())).toList();
         }
 
         @Override
@@ -407,5 +415,38 @@ class FontModelCopierTest {
         FontEntity result = copier.copy(projectA.getId(), source.getId(), null, "blank-name-copy", "  ", Set.of());
 
         assertEquals("UI", result.getUiName());
+    }
+
+    private ProjectAssetEntity texture(ProjectEntity project) {
+        ProjectAssetEntity texture = new ProjectAssetEntity();
+        texture.setId(UUID.randomUUID());
+        texture.setProject(project);
+        texture.setKey("project-a:font/ghost");
+        texture.setKind(AssetKind.TEXTURE);
+        return texture;
+    }
+
+    @Test
+    @DisplayName("copy() within the project keeps the texture asset")
+    void copy_sameProject_keepsTextureAsset() {
+        FontEntity source = sampleFont("with-texture", projectA);
+        ProjectAssetEntity texture = texture(projectA);
+        source.setTextureAsset(texture);
+
+        FontEntity result = copier.copy(projectA.getId(), source.getId(), null, "copied-key", null, Set.of());
+
+        assertSame(texture, result.getTextureAsset());
+    }
+
+    @Test
+    @DisplayName("copy() into another project drops the texture asset of the source project")
+    void copy_otherProject_dropsTextureAsset() {
+        FontEntity source = sampleFont("with-texture", projectA);
+        source.setTextureAsset(texture(projectA));
+
+        FontEntity result = copier.copy(projectA.getId(), source.getId(), projectB.getId(), null, null, Set.of());
+
+        assertNull(result.getTextureAsset());
+        assertNotNull(source.getTextureAsset(), "the source must keep its texture asset");
     }
 }

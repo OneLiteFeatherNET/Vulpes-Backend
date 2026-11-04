@@ -114,11 +114,11 @@ class FontControllerTest {
     }
 
     private static FontModelDTO sampleDTO(UUID id) {
-        return new FontModelDTO(id, "UI", "var", "provider", "mapper", "texture", "comment", 1, 1);
+        return new FontModelDTO(id, "UI", "var", "provider", "mapper", "texture", "comment", 1, 1, null);
     }
 
     private static FontModelResponseDTO.FontModelDTO sampleResponse(UUID id, UUID projectId) {
-        return new FontModelResponseDTO.FontModelDTO(id, "UI", "var", "provider", "mapper", "texture", "comment", 1, 1, projectId, Instant.now(), Instant.now());
+        return new FontModelResponseDTO.FontModelDTO(id, "UI", "var", "provider", "mapper", "texture", "comment", 1, 1, projectId, null, Instant.now(), Instant.now());
     }
 
     @Test
