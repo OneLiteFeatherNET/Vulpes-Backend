@@ -22,7 +22,8 @@ import java.util.UUID;
 
 /**
  * Copies a {@link FontEntity} within the same project or into another one, optionally
- * including its characters.
+ * including its characters. A copy within the project keeps the texture asset, a copy into
+ * another project has none, since the asset belongs to the source project.
  *
  * <p>Qualified {@code @Named("font")} — see {@link AttributeModelCopier}'s Javadoc for why.
  */
@@ -80,6 +81,10 @@ public class FontModelCopier extends AbstractRelationalModelCopier<FontEntity, F
         // so it must be copied explicitly or a font whose mapper was changed from the default
         // would silently lose that on copy.
         copy.setMapper(source.getMapper());
+        // The texture asset belongs to the source project, so only a copy within it keeps it.
+        if (source.getTextureAsset() != null && source.getProject().getId().equals(targetProject.getId())) {
+            copy.setTextureAsset(source.getTextureAsset());
+        }
         return copy;
     }
 

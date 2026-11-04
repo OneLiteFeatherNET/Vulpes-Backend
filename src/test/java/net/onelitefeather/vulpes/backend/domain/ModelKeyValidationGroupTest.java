@@ -53,7 +53,7 @@ class ModelKeyValidationGroupTest {
     private static Stream<Arguments> dtos() {
         return Stream.of(
                 dto("attribute", (id, key) -> new AttributeModelDTO(id, "Speed", key, 1.0, 0.0, 10.0, false, null, null)),
-                dto("font", (id, key) -> new FontModelDTO(id, "Font", key, "bitmap", "mapper", "texture.png", null, 1, 1)),
+                dto("font", (id, key) -> new FontModelDTO(id, "Font", key, "bitmap", "mapper", "texture.png", null, 1, 1, null)),
                 dto("item", (id, key) -> new ItemModelDTO(id, "Item", key, null, "group")),
                 dto("sound", (id, key) -> new SoundEventDTO(id, "Sound", key, "block.stone.step", null, null)),
                 dto("advancement", (id, key) -> new AdvancementModelDTO(id, "Advancement", key, null, "STONE",

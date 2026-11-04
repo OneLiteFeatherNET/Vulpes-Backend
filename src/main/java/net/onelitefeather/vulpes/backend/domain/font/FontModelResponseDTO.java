@@ -13,16 +13,19 @@ public sealed interface FontModelResponseDTO {
     /**
      * Represents a response DTO for font models without characters.
      *
-     * @param id           the ID of the font model
-     * @param uiName       the name to display in the UI
-     * @param key          the key used for variable generation
-     * @param provider     the provider of the font
-     * @param mapper       the mapper for the font
-     * @param texturePath  the path to the texture of the font
-     * @param comment      an example comment for the font model
-     * @param ascent       the ascent value of the font model
-     * @param height       the height of the font model
-     * @param projectId    the ID of the project this font belongs to
+     * @param id               the ID of the font model
+     * @param uiName           the name to display in the UI
+     * @param key              the key used for variable generation
+     * @param provider         the provider of the font
+     * @param mapper           the mapper for the font
+     * @param texturePath      the path to the texture of the font
+     * @param comment          an example comment for the font model
+     * @param ascent           the ascent value of the font model
+     * @param height           the height of the font model
+     * @param projectId        the ID of the project this font belongs to
+     * @param textureAssetId   the ID of the texture asset of the font, or {@code null} for none
+     * @param creationDate     the point in time at which the font was created
+     * @param modificationDate the point in time at which the font was last modified
      */
     @Schema(name = "ResponseFontModelDTO", description = "Font model data")
     @Serdeable
@@ -37,6 +40,7 @@ public sealed interface FontModelResponseDTO {
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) int ascent,
             @Schema(description = "Example comment", requiredMode = Schema.RequiredMode.REQUIRED) int height,
             @Schema(description = "ID of the project this font belongs to", requiredMode = Schema.RequiredMode.REQUIRED) UUID projectId,
+            @Schema(description = "ID of the texture asset of the font, null for none") UUID textureAssetId,
             @Schema(description = "The point in time at which the attribute was created") Instant creationDate,
             @Schema(description = "The point in time at which the attribute was last modified") Instant modificationDate
     ) implements FontModelResponseDTO {
@@ -59,6 +63,7 @@ public sealed interface FontModelResponseDTO {
                     fontModel.getAscent(),
                     fontModel.getHeight(),
                     fontModel.getProject().getId(),
+                    fontModel.getTextureAsset() == null ? null : fontModel.getTextureAsset().getId(),
                     fontModel.getCreationDate(),
                     fontModel.getModificationDate()
             );

@@ -109,7 +109,7 @@ class ModelValueValidationIntegrationTest {
     @DisplayName("create() of a font without a provider answers 400")
     void createFontWithoutProviderReturns400() {
         given().contentType(ContentType.JSON)
-                .body(new FontModelDTO(null, "Font", uniqueKey("font"), null, "mapper", "texture.png", null, 7, 8))
+                .body(new FontModelDTO(null, "Font", uniqueKey("font"), null, "mapper", "texture.png", null, 7, 8, null))
                 .post(modelPath("font"))
                 .then().statusCode(400);
     }
@@ -118,7 +118,7 @@ class ModelValueValidationIntegrationTest {
     @DisplayName("update() of a font with a blank provider answers 400 before looking the model up")
     void updateFontWithBlankProviderReturns400() {
         given().contentType(ContentType.JSON)
-                .body(new FontModelDTO(UUID.randomUUID(), "Font", uniqueKey("font"), " ", "mapper", "texture.png", null, 7, 8))
+                .body(new FontModelDTO(UUID.randomUUID(), "Font", uniqueKey("font"), " ", "mapper", "texture.png", null, 7, 8, null))
                 .post(modelPath("font") + "/update")
                 .then().statusCode(400);
     }

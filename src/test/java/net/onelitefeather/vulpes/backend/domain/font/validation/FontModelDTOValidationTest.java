@@ -21,7 +21,8 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 "texturePath",
                 "Some comment",
                 10,
-                20
+                20,
+                null
         );
 
         assertNoViolation(dto, "uiName");
@@ -38,7 +39,8 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 "texturePath",
                 "Some comment",
                 10,
-                20
+                20,
+                null
         );
 
         assertNoViolation(dto, "key");
@@ -55,7 +57,8 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 "texturePath",
                 "Some comment",
                 10,
-                20
+                20,
+                null
         );
 
         assertViolation(dto, "provider", Create.class);
@@ -72,7 +75,8 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 "texturePath",
                 "Some comment",
                 10,
-                20
+                20,
+                null
         );
 
         assertViolation(dto, "provider", Update.class);
@@ -89,7 +93,8 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 "texturePath",
                 "Some comment",
                 10,
-                20
+                20,
+                null
         );
 
         assertNoViolation(dto, "mapper");
@@ -106,7 +111,8 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 "", // invalid
                 "Some comment",
                 10,
-                20
+                20,
+                null
         );
 
         assertNoViolation(dto, "texturePath");
@@ -123,7 +129,8 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 null,
                 "Some comment",
                 -8, // shifts the glyphs down
-                20
+                20,
+                null
         );
 
         assertNoViolation(dto, "ascent", Update.class);
@@ -140,7 +147,8 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 "texturePath",
                 "Some comment",
                 10,
-                -5
+                -5,
+                null
         );
 
         assertViolation(dto, "height", Create.class);
@@ -157,7 +165,8 @@ class FontModelDTOValidationTest extends ValidationTestBase<FontModelDTO> {
                 "texturePath",
                 "Some comment",
                 10,
-                0 // invalid
+                0, // invalid
+                null
         );
 
         assertViolation(dto, "height", Update.class);

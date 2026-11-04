@@ -6,14 +6,18 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
 import net.onelitefeather.vulpes.api.model.FontEntity;
+import net.onelitefeather.vulpes.api.model.asset.AssetKind;
+import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.api.model.font.FontStringEntity;
 import net.onelitefeather.vulpes.api.repository.FontRepository;
 import net.onelitefeather.vulpes.api.repository.ProjectRepository;
 import net.onelitefeather.vulpes.api.repository.font.FontStringRepository;
+import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringDTO;
 import net.onelitefeather.vulpes.backend.domain.font.FontStringResponseDTO;
+import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.FontService;
 
@@ -22,6 +26,10 @@ import java.util.UUID;
 
 /**
  * Implementation of the {@link FontService} interface.
+ *
+ * <p>A font may name a texture asset by {@code textureAssetId}. It must be an uploaded texture of the
+ * font's project: an asset of another project answers like a missing one, and a texture extracted
+ * from a Blockbench model is refused, since replacing the model deletes it.
  */
 @Singleton
 public class FontServiceImpl
@@ -30,15 +38,25 @@ public class FontServiceImpl
 
     private static final String FONT = "Font";
     private static final String FONT_CHARACTER = "Font character";
+    static final String FIELD_TEXTURE_ASSET = "textureAssetId";
+    static final String CODE_TEXTURE_NOT_FOUND = "FONT_TEXTURE_NOT_FOUND";
+    static final String CODE_TEXTURE_NOT_A_TEXTURE = "FONT_TEXTURE_NOT_A_TEXTURE";
+    static final String CODE_TEXTURE_EXTRACTED = "FONT_TEXTURE_EXTRACTED";
 
     private final FontStringRepository fontStringRepository;
 
     @Inject
-    public FontServiceImpl(FontRepository fontRepository, FontStringRepository fontStringRepository, ProjectRepository projectRepository) {
+    public FontServiceImpl(
+            FontRepository fontRepository,
+            FontStringRepository fontStringRepository,
+            ProjectRepository projectRepository,
+            ProjectAssetRepository assetRepository
+    ) {
         super(
                 fontRepository,
                 projectRepository,
-                FontModelDTO::toFontModel,
+                (dto, project) -> dto.toFontModel(
+                        project, requireTexture(assetRepository, project.getId(), dto.textureAssetId())),
                 FontModelResponseDTO.FontModelDTO::createDTOWithChars,
                 FontModelResponseDTO.FontModelDTO::createDTO,
                 entity -> entity.getProject().getId(),
@@ -47,6 +65,36 @@ public class FontServiceImpl
                 FONT
         );
         this.fontStringRepository = fontStringRepository;
+    }
+
+    /**
+     * Loads the texture asset a font request names and checks that the font may use it.
+     *
+     * @param assetRepository to load the asset
+     * @param projectId       the project of the font
+     * @param assetId         the requested asset, or {@code null} for none
+     * @return the asset, or {@code null} if none was requested
+     * @throws ApiException {@code VALIDATION_FAILED} on {@code textureAssetId} if the asset does not
+     *                      exist in the project, is no texture or was extracted from a Blockbench model
+     */
+    static ProjectAssetEntity requireTexture(ProjectAssetRepository assetRepository, UUID projectId, UUID assetId) {
+        if (assetId == null) {
+            return null;
+        }
+        ProjectAssetEntity asset = assetRepository.findById(assetId)
+                .filter(found -> projectId.equals(found.getProject().getId()))
+                .orElseThrow(() -> textureViolation(CODE_TEXTURE_NOT_FOUND, "must name an asset of the project"));
+        if (asset.getKind() != AssetKind.TEXTURE) {
+            throw textureViolation(CODE_TEXTURE_NOT_A_TEXTURE, "must name a texture asset");
+        }
+        if (asset.getSourceAsset() != null) {
+            throw textureViolation(CODE_TEXTURE_EXTRACTED, "must not name a texture extracted from a Blockbench model");
+        }
+        return asset;
+    }
+
+    private static ApiException textureViolation(String code, String message) {
+        return ApiException.validationFailed(List.of(new ProblemDetail.Violation(FIELD_TEXTURE_ASSET, code, message)));
     }
 
     /**

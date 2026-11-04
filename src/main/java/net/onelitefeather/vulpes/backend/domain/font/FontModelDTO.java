@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
 import net.onelitefeather.vulpes.api.model.FontEntity;
+import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Create;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Update;
@@ -41,17 +42,35 @@ public record FontModelDTO(
         int ascent,
         @Schema(description = "The height property", requiredMode = Schema.RequiredMode.REQUIRED)
         @Positive(groups = {Create.class, Update.class})
-        int height
+        int height,
+        @Schema(
+                description = "ID of the texture asset of the project the font uses, null for none",
+                requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        )
+        @Nullable
+        UUID textureAssetId
 ) {
 
     /**
-     * Converts a {@link FontModelDTO} to a {@link FontEntity}.
+     * Converts a {@link FontModelDTO} to a {@link FontEntity} without texture asset.
      *
      * @param project the project this font belongs to
      * @return the converted entity
      */
     public @NotNull FontEntity toFontModel(ProjectEntity project) {
-        return new FontEntity(
+        return toFontModel(project, null);
+    }
+
+    /**
+     * Converts a {@link FontModelDTO} to a {@link FontEntity}.
+     *
+     * @param project      the project this font belongs to
+     * @param textureAsset the texture asset {@link #textureAssetId} names, already checked, or
+     *                     {@code null} for none
+     * @return the converted entity
+     */
+    public @NotNull FontEntity toFontModel(ProjectEntity project, @Nullable ProjectAssetEntity textureAsset) {
+        FontEntity font = new FontEntity(
                 id,
                 uiName,
                 key,
@@ -63,5 +82,7 @@ public record FontModelDTO(
                 List.of(),
                 project
         );
+        font.setTextureAsset(textureAsset);
+        return font;
     }
 }
