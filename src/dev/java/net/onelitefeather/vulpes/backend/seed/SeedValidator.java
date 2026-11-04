@@ -87,7 +87,8 @@ public class SeedValidator {
         List<String> problems = new ArrayList<>();
         String where = where("font", font);
         check(problems, where, new FontModelDTO(font.getId(), font.getUiName(), font.getKey(), font.getProvider(),
-                font.getMapper(), font.getTexturePath(), font.getComment(), font.getAscent(), font.getHeight()));
+                font.getMapper(), font.getTexturePath(), font.getComment(), font.getAscent(), font.getHeight(),
+                font.getTextureAsset() == null ? null : font.getTextureAsset().getId()));
         font.getChars().forEach(c -> check(problems, where + " char #" + c.getOrderIndex(),
                 new FontStringDTO(c.getId(), c.getLine(), c.getOrderIndex())));
         fail(problems);
