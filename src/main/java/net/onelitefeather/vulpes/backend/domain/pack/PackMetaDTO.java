@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.api.model.pack.PackMetaEntity;
 import net.onelitefeather.vulpes.api.model.pack.PackType;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * The content of the {@code pack.mcmeta} file of a project for one {@link PackType}.
@@ -23,6 +25,7 @@ import java.util.Set;
  * @param maxFormatMajor  the maximum supported major format
  * @param maxFormatMinor  the maximum supported minor format, {@code null} for any minor version
  * @param enabledFeatures the identifiers of the enabled experimental feature flags, {@code null} for none
+ * @param iconAssetId     the ID of the texture asset written as the {@code pack.png}, {@code null} for none
  */
 @Schema(description = "Content of the pack.mcmeta of a project for one pack type")
 @Introspected
@@ -46,7 +49,13 @@ public record PackMetaDTO(
         Integer maxFormatMinor,
         @Schema(description = "The identifiers of the enabled experimental feature flags", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable
-        Set<String> enabledFeatures
+        Set<String> enabledFeatures,
+        @Schema(
+                description = "ID of the texture asset of the project written as the pack.png, null for none",
+                requiredMode = Schema.RequiredMode.NOT_REQUIRED
+        )
+        @Nullable
+        UUID iconAssetId
 ) {
 
     /**
@@ -73,12 +82,13 @@ public record PackMetaDTO(
     /**
      * Converts this DTO to a new {@link PackMetaEntity}.
      *
-     * @param project  the owning project
-     * @param packType the type of pack described
+     * @param project   the owning project
+     * @param packType  the type of pack described
+     * @param iconAsset the icon asset {@link #iconAssetId} names, already checked, or {@code null} for none
      * @return the new entity
      */
-    public PackMetaEntity toEntity(ProjectEntity project, PackType packType) {
-        return new PackMetaEntity(
+    public PackMetaEntity toEntity(ProjectEntity project, PackType packType, @Nullable ProjectAssetEntity iconAsset) {
+        PackMetaEntity entity = new PackMetaEntity(
                 null,
                 project,
                 packType,
@@ -89,16 +99,20 @@ public record PackMetaDTO(
                 maxFormatMinor,
                 features()
         );
+        entity.setIconAsset(iconAsset);
+        return entity;
     }
 
     /**
      * Writes the values of this DTO onto an existing entity.
      *
-     * @param entity the entity to update
+     * @param entity    the entity to update
+     * @param iconAsset the icon asset {@link #iconAssetId} names, already checked, or {@code null} for none
      */
-    public void applyTo(PackMetaEntity entity) {
+    public void applyTo(PackMetaEntity entity, @Nullable ProjectAssetEntity iconAsset) {
         entity.setDescription(description);
         entity.setFormatRange(minFormatMajor, minFormatMinor, maxFormatMajor, maxFormatMinor);
         entity.setEnabledFeatures(features());
+        entity.setIconAsset(iconAsset);
     }
 }

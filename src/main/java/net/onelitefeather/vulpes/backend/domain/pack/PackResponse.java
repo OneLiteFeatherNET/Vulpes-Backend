@@ -26,6 +26,7 @@ public sealed interface PackResponse {
      * @param maxFormatMajor   the maximum supported major format
      * @param maxFormatMinor   the maximum supported minor format, {@code null} for any minor version
      * @param enabledFeatures  the identifiers of the enabled experimental feature flags
+     * @param iconAssetId      the ID of the texture asset written as the {@code pack.png}, or {@code null} for none
      * @param creationDate     the point in time at which the pack meta was created
      * @param modificationDate the point in time at which the pack meta was last modified
      */
@@ -41,6 +42,7 @@ public sealed interface PackResponse {
             @Schema(description = "The maximum supported major format", requiredMode = Schema.RequiredMode.REQUIRED) int maxFormatMajor,
             @Schema(description = "The maximum supported minor format, null for any minor version") @Nullable Integer maxFormatMinor,
             @Schema(description = "The identifiers of the enabled experimental feature flags", requiredMode = Schema.RequiredMode.REQUIRED) Set<String> enabledFeatures,
+            @Schema(description = "ID of the texture asset written as the pack.png, null for none") @Nullable UUID iconAssetId,
             @Schema(description = "The point in time at which the pack meta was created") Instant creationDate,
             @Schema(description = "The point in time at which the pack meta was last modified") Instant modificationDate
     ) implements PackResponse {
@@ -62,6 +64,7 @@ public sealed interface PackResponse {
                     entity.getMaxFormatMajor(),
                     entity.getMaxFormatMinor(),
                     Set.copyOf(entity.getEnabledFeatures()),
+                    entity.getIconAsset() == null ? null : entity.getIconAsset().getId(),
                     entity.getCreationDate(),
                     entity.getModificationDate()
             );

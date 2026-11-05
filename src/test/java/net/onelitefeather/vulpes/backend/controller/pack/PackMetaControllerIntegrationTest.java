@@ -77,7 +77,7 @@ class PackMetaControllerIntegrationTest {
     }
 
     private static PackMetaDTO sampleDTO() {
-        return new PackMetaDTO(DESCRIPTION, 48, 0, 57, null, Set.of("minecraft:trade_rebalance"));
+        return new PackMetaDTO(DESCRIPTION, 48, 0, 57, null, Set.of("minecraft:trade_rebalance"), null);
     }
 
     private PackResponse.PackMetaDTO put(PackType type, PackMetaDTO dto) {
@@ -111,7 +111,7 @@ class PackMetaControllerIntegrationTest {
         PackResponse.PackMetaDTO created = put(PackType.RESOURCE, sampleDTO());
 
         PackResponse.PackMetaDTO replaced = put(PackType.RESOURCE,
-                new PackMetaDTO("{\"text\":\"Other\"}", 60, 1, 61, 2, null));
+                new PackMetaDTO("{\"text\":\"Other\"}", 60, 1, 61, 2, null, null));
 
         assertEquals(created.id(), replaced.id());
         assertJsonEquals("{\"text\":\"Other\"}", replaced.description());
@@ -186,7 +186,7 @@ class PackMetaControllerIntegrationTest {
     void putRejectsInvertedFormatRange() {
         given()
                 .contentType(ContentType.JSON)
-                .body(new PackMetaDTO(DESCRIPTION, 57, 3, 57, 2, null))
+                .body(new PackMetaDTO(DESCRIPTION, 57, 3, 57, 2, null, null))
         .when()
                 .put(path("/DATA"))
         .then()
@@ -198,7 +198,7 @@ class PackMetaControllerIntegrationTest {
     void putRejectsDescriptionThatIsNoJson() {
         given()
                 .contentType(ContentType.JSON)
-                .body(new PackMetaDTO("{not json", 48, 0, 57, null, null))
+                .body(new PackMetaDTO("{not json", 48, 0, 57, null, null, null))
         .when()
                 .put(path("/DATA"))
         .then()
@@ -210,7 +210,7 @@ class PackMetaControllerIntegrationTest {
     void putRejectsInvalidBody() {
         given()
                 .contentType(ContentType.JSON)
-                .body(new PackMetaDTO(" ", 0, 0, 57, null, null))
+                .body(new PackMetaDTO(" ", 0, 0, 57, null, null, null))
         .when()
                 .put(path("/DATA"))
         .then()
