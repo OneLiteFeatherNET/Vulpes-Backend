@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.6.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.5.0...v3.6.0) (2026-11-05)
+
+
+### Features
+
+* **font:** add the texture asset of a font ([#274](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/274)) ([e626ce9](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/e626ce92c8910a9271196e98d331ecbad1cc76fd))
+* **pack:** add icon upload logic ([#276](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/276)) ([561a6b4](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/561a6b4d37db8c9b1dcd9e1745114b192837d1ed))
+
+
+### Bug Fixes
+
+* **deps:** update dependency net.onelitefeather:vulpes-model to v3.9.0 ([#272](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/272)) ([921eb77](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/921eb779d12397a01d3db386752d8ad620dde1a3))
+* **deps:** update dependency net.onelitefeather:vulpes-model to v3.9.1 ([#275](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/275)) ([7a9b2fa](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/7a9b2fa2b61d3b4f8160f5b8748c70247e31e838))
+
 ## [3.5.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.4.0...v3.5.0) (2026-11-03)
 
 
