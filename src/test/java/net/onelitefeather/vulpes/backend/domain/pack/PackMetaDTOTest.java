@@ -19,17 +19,17 @@ class PackMetaDTOTest extends ValidationTestBase<PackMetaDTO> {
     private static final String DESCRIPTION = "{\"text\":\"My pack\"}";
 
     private static PackMetaDTO range(int minMajor, int minMinor, int maxMajor, Integer maxMinor) {
-        return new PackMetaDTO(DESCRIPTION, minMajor, minMinor, maxMajor, maxMinor, null);
+        return new PackMetaDTO(DESCRIPTION, minMajor, minMinor, maxMajor, maxMinor, null, null);
     }
 
     @Test
     void acceptsValidDto() {
-        assertNoViolation(new PackMetaDTO(DESCRIPTION, 48, 0, 57, null, Set.of("minecraft:trade_rebalance")), "description");
+        assertNoViolation(new PackMetaDTO(DESCRIPTION, 48, 0, 57, null, Set.of("minecraft:trade_rebalance"), null), "description");
     }
 
     @Test
     void rejectsBlankDescription() {
-        assertViolation(new PackMetaDTO(" ", 48, 0, 57, null, null), "description");
+        assertViolation(new PackMetaDTO(" ", 48, 0, 57, null, null, null), "description");
     }
 
     @Test
@@ -84,9 +84,9 @@ class PackMetaDTOTest extends ValidationTestBase<PackMetaDTO> {
 
     @Test
     void toEntityCopiesAllValues() {
-        PackMetaDTO dto = new PackMetaDTO(DESCRIPTION, 48, 1, 57, 2, Set.of("minecraft:bundle"));
+        PackMetaDTO dto = new PackMetaDTO(DESCRIPTION, 48, 1, 57, 2, Set.of("minecraft:bundle"), null);
 
-        PackMetaEntity entity = dto.toEntity(null, PackType.DATA);
+        PackMetaEntity entity = dto.toEntity(null, PackType.DATA, null);
 
         assertNull(entity.getId());
         assertEquals(PackType.DATA, entity.getPackType());
@@ -100,10 +100,10 @@ class PackMetaDTOTest extends ValidationTestBase<PackMetaDTO> {
 
     @Test
     void applyToOverwritesExistingValues() {
-        PackMetaEntity entity = new PackMetaDTO("{\"text\":\"old\"}", 1, 0, 2, 0, Set.of("old"))
-                .toEntity(null, PackType.RESOURCE);
+        PackMetaEntity entity = new PackMetaDTO("{\"text\":\"old\"}", 1, 0, 2, 0, Set.of("old"), null)
+                .toEntity(null, PackType.RESOURCE, null);
 
-        new PackMetaDTO(DESCRIPTION, 48, 1, 57, null, null).applyTo(entity);
+        new PackMetaDTO(DESCRIPTION, 48, 1, 57, null, null, null).applyTo(entity, null);
 
         assertEquals(PackType.RESOURCE, entity.getPackType());
         assertEquals(DESCRIPTION, entity.getDescription());
