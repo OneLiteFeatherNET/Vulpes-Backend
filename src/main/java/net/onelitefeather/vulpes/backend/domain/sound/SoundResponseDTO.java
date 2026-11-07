@@ -37,7 +37,7 @@ public interface SoundResponseDTO {
                     source.getWeight(),
                     source.isStreamable(),
                     source.getAttenuationDistance(),
-                    source.isStreamable(),
+                    source.isPreloadable(),
                     source.getType()
             );
         }
