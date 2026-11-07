@@ -82,6 +82,10 @@ public record FontModelDTO(
                 List.of(),
                 project
         );
+        // The entity constructor takes no mapper, so it would keep its default without this.
+        if (mapper != null && !mapper.isBlank()) {
+            font.setMapper(mapper);
+        }
         font.setTextureAsset(textureAsset);
         return font;
     }
