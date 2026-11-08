@@ -19,6 +19,7 @@ import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.item.ItemRelation;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import net.onelitefeather.vulpes.backend.service.copier.ItemModelCopier;
+import net.onelitefeather.vulpes.backend.service.item.CustomModelDataRule;
 import net.onelitefeather.vulpes.backend.service.item.ItemComponentConfiguration;
 import net.onelitefeather.vulpes.backend.service.item.ItemComponentRules;
 import net.onelitefeather.vulpes.backend.service.item.RequiredComponentConfiguration;
@@ -259,6 +260,16 @@ class ItemModelCopierTest {
             JsonMapper.createDefault()
     );
 
+    /**
+     * The uniqueness of the custom model data needs the database, it is covered by the integration tests.
+     */
+    private static final CustomModelDataRule NO_MODEL_DATA_CONFLICTS = new CustomModelDataRule(null, JsonMapper.createDefault()) {
+        @Override
+        public Optional<ItemEntity> findConflict(UUID projectId, UUID itemId, Map<String, String> components) {
+            return Optional.empty();
+        }
+    };
+
     private static class FakeProjectRepository extends FakePageableRepository<ProjectEntity, UUID> implements ProjectRepository {
         FakeProjectRepository() {
             super(ProjectEntity::getId);
@@ -287,7 +298,7 @@ class ItemModelCopierTest {
         itemComponentRepository = new FakeItemComponentRepository();
         projectRepository = new FakeProjectRepository();
         copier = new ItemModelCopier(itemRepository, itemLoreRepository, itemEnchantmentRepository,
-                itemComponentRepository, RULES, projectRepository);
+                itemComponentRepository, RULES, NO_MODEL_DATA_CONFLICTS, projectRepository);
 
         projectA = new ProjectEntity(UUID.randomUUID(), "Project A", "project-a", null, null, null, false);
         projectB = new ProjectEntity(UUID.randomUUID(), "Project B", "project-b", null, null, null, false);

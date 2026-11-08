@@ -14,6 +14,7 @@ import net.onelitefeather.vulpes.api.repository.item.ItemLoreRepository;
 import net.onelitefeather.vulpes.backend.domain.item.ItemRelation;
 import net.onelitefeather.vulpes.backend.service.copier.AbstractRelationalModelCopier;
 import net.onelitefeather.vulpes.backend.service.copier.ItemModelCopier;
+import net.onelitefeather.vulpes.backend.service.item.CustomModelDataRule;
 import net.onelitefeather.vulpes.backend.service.item.ItemComponentRules;
 
 /**
@@ -43,10 +44,11 @@ public class FailingItemModelCopier extends ItemModelCopier {
             ItemEnchantmentRepository itemEnchantmentRepository,
             ItemComponentRepository itemComponentRepository,
             ItemComponentRules componentRules,
+            CustomModelDataRule modelDataRule,
             ProjectRepository projectRepository
     ) {
         super(itemRepository, itemLoreRepository, itemEnchantmentRepository, itemComponentRepository, componentRules,
-                projectRepository);
+                modelDataRule, projectRepository);
     }
 
     @Override
