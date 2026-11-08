@@ -142,11 +142,20 @@ class ModelKeyValidationIntegrationTest {
                 .body("errors.code", hasItem("Pattern"));
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("models")
+    @DisplayName("create() with a key with a sub path answers 200")
+    void subPathKey(String path, BiFunction<UUID, String, Object> body) {
+        given().contentType(ContentType.JSON).body(body.apply(null, "group/" + path + "-" + UUID.randomUUID()))
+                .post(modelPath(path))
+                .then().statusCode(200);
+    }
+
     @Test
-    @DisplayName("creating a project with a malformed key answers 400")
+    @DisplayName("creating a project with a key with a sub path answers 400")
     void malformedProjectKey() {
         given().contentType(ContentType.JSON)
-                .body(new ProjectModelDTO(null, "Bad key", "Bad/Key", null, null, null, false))
+                .body(new ProjectModelDTO(null, "Bad key", "my/project", null, null, null, false))
                 .post("/project")
                 .then().statusCode(400)
                 .body("errors.code", hasItem("Pattern"));

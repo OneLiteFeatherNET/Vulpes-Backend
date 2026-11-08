@@ -17,6 +17,7 @@ import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -66,6 +67,13 @@ class ModelKeyValidationGroupTest {
         );
     }
 
+    /**
+     * The DTOs of {@link #dtos()} except the project, whose key is a namespace and not a path.
+     */
+    private static Stream<Arguments> models() {
+        return dtos().filter(arguments -> !"project".equals(arguments.get()[0]));
+    }
+
     private static Arguments dto(String name, BiFunction<UUID, String, Object> factory) {
         return Arguments.of(name, factory);
     }
@@ -91,7 +99,7 @@ class ModelKeyValidationGroupTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("dtos")
     void createGroupRejectsMalformedKey(String name, BiFunction<UUID, String, Object> factory) {
-        for (String key : List.of("Key", "my key", "ns:key", "item/key", "schlüssel")) {
+        for (String key : List.of("Key", "my key", "ns:key", "schlüssel")) {
             assertTrue(hasKeyViolation(factory.apply(null, key), ValidationGroup.Create.class), key);
         }
     }
@@ -102,6 +110,18 @@ class ModelKeyValidationGroupTest {
         for (String key : List.of("starter_sword", "v1.2", "speed-" + UUID.randomUUID())) {
             assertFalse(hasKeyViolation(factory.apply(null, key), ValidationGroup.Create.class), key);
         }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("models")
+    void modelAcceptsSubPath(String name, BiFunction<UUID, String, Object> factory) {
+        assertFalse(hasKeyViolation(factory.apply(null, "weapons/sword"), ValidationGroup.Create.class));
+    }
+
+    @Test
+    void projectRejectsSubPath() {
+        ProjectModelDTO dto = new ProjectModelDTO(null, "Project", "my/project", null, null, null, false);
+        assertTrue(hasKeyViolation(dto, ValidationGroup.Create.class));
     }
 
     @ParameterizedTest(name = "{0}")
