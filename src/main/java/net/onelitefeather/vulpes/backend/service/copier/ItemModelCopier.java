@@ -18,10 +18,13 @@ import net.onelitefeather.vulpes.api.repository.item.ItemEnchantmentRepository;
 import net.onelitefeather.vulpes.api.repository.item.ItemLoreRepository;
 import net.onelitefeather.vulpes.backend.copier.EntityCopier;
 import net.onelitefeather.vulpes.backend.domain.item.ItemRelation;
+import net.onelitefeather.vulpes.backend.service.item.CustomModelDataRule;
 import net.onelitefeather.vulpes.backend.service.item.ItemComponentRules;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -40,6 +43,7 @@ public class ItemModelCopier extends AbstractRelationalModelCopier<ItemEntity, I
     private final ItemEnchantmentRepository itemEnchantmentRepository;
     private final ItemComponentRepository itemComponentRepository;
     private final ItemComponentRules componentRules;
+    private final CustomModelDataRule modelDataRule;
 
     @Inject
     public ItemModelCopier(
@@ -48,6 +52,7 @@ public class ItemModelCopier extends AbstractRelationalModelCopier<ItemEntity, I
             ItemEnchantmentRepository itemEnchantmentRepository,
             ItemComponentRepository itemComponentRepository,
             ItemComponentRules componentRules,
+            CustomModelDataRule modelDataRule,
             ProjectRepository projectRepository
     ) {
         super(itemRepository, projectRepository, itemRepository::existsByProjectIdAndKey, "Item");
@@ -55,6 +60,7 @@ public class ItemModelCopier extends AbstractRelationalModelCopier<ItemEntity, I
         this.itemEnchantmentRepository = itemEnchantmentRepository;
         this.itemComponentRepository = itemComponentRepository;
         this.componentRules = componentRules;
+        this.modelDataRule = modelDataRule;
     }
 
     /**
@@ -134,7 +140,22 @@ public class ItemModelCopier extends AbstractRelationalModelCopier<ItemEntity, I
             copy.setItem(target);
             copies.add(copy);
         }
+        dropCollidingModelData(target, copies);
         itemComponentRepository.saveAll(copies);
+    }
+
+    /**
+     * Leaves out the custom model data if another item of the target project has it with the same item model,
+     * e.g. on a copy within the same project. Both items would show the same model otherwise.
+     */
+    private void dropCollidingModelData(ItemEntity target, List<ItemComponentEntity> copies) {
+        Map<String, String> components = new HashMap<>();
+        for (ItemComponentEntity copy : copies) {
+            components.put(copy.getComponentKey(), copy.getComponentValue());
+        }
+        if (modelDataRule.findConflict(target.getProject().getId(), target.getId(), components).isPresent()) {
+            copies.removeIf(copy -> CustomModelDataRule.CUSTOM_MODEL_DATA.equals(copy.getComponentKey()));
+        }
     }
 
     private void copyLore(ItemEntity source, ItemEntity target) {

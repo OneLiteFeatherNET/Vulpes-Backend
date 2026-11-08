@@ -41,7 +41,7 @@ public class ItemCopyController {
     @Operation(
             summary = "Copy an item",
             operationId = "copyItem",
-            description = "Copies an item owned by the given project into the same project or another one, under a new or the same key, optionally including its lore, enchantments and data components. The required components, like the material, are always copied.",
+            description = "Copies an item owned by the given project into the same project or another one, under a new or the same key, optionally including its lore, enchantments and data components. The required components, like the material, are always copied. The custom model data is left out if another item of the target project has it with the same item model.",
             tags = {"Item"}
     )
     @ApiResponse(
