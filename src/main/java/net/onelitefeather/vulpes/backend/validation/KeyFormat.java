@@ -11,24 +11,26 @@ public final class KeyFormat {
 
     /**
      * The characters Minecraft allows in the namespace of an id: lowercase letters, digits, {@code _},
-     * {@code .} and {@code -}.
+     * {@code .} and {@code -}. Two dots in a row are rejected, the generator writes the key into a file path
+     * and {@code ..} would leave its folder.
      */
-    public static final String NAMESPACE_PATTERN = "^[a-z0-9_.-]*$";
+    public static final String NAMESPACE_PATTERN = "^(?!.*\\.\\.)[a-z0-9_.-]*$";
 
     /**
      * The message of a violation of {@link #NAMESPACE_PATTERN}.
      */
-    public static final String NAMESPACE_MESSAGE = "must only contain lowercase letters, digits, '_', '.' and '-'";
+    public static final String NAMESPACE_MESSAGE = "must only contain lowercase letters, digits, '_', '.' and '-' and no '..'";
 
     /**
      * The characters Minecraft allows in the path of an id: those of {@link #NAMESPACE_PATTERN} and {@code /}.
+     * Two dots in a row are rejected as in {@link #NAMESPACE_PATTERN}.
      */
-    public static final String PATH_PATTERN = "^[a-z0-9_./-]*$";
+    public static final String PATH_PATTERN = "^(?!.*\\.\\.)[a-z0-9_./-]*$";
 
     /**
      * The message of a violation of {@link #PATH_PATTERN}.
      */
-    public static final String PATH_MESSAGE = "must only contain lowercase letters, digits, '_', '.', '-' and '/'";
+    public static final String PATH_MESSAGE = "must only contain lowercase letters, digits, '_', '.', '-' and '/' and no '..'";
 
     private KeyFormat() {
     }
