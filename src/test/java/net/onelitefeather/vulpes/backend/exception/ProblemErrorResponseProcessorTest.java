@@ -129,6 +129,33 @@ class ProblemErrorResponseProcessorTest {
     }
 
     @Test
+    @DisplayName("a value longer than its column becomes 400, not 500")
+    void stringTruncationIsBadRequest() {
+        SQLException driverError = new SQLException("value too long for type character varying(255)", "22001");
+        Throwable wrapped = new RuntimeException("could not execute statement", driverError);
+
+        MutableHttpResponse<ProblemDetail> response =
+                processor.processResponse(contextOf(wrapped), responseOf(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        assertEquals(400, response.getStatus().getCode());
+        assertEquals(ErrorCode.INVALID_REQUEST, response.body().code());
+        assertFalse(response.body().detail().contains("character varying"), "the schema must not reach the client");
+    }
+
+    @Test
+    @DisplayName("another data exception from the driver stays 500")
+    void otherDataExceptionIsInternalError() {
+        SQLException driverError = new SQLException("numeric value out of range", "22003");
+        Throwable wrapped = new RuntimeException("could not execute statement", driverError);
+
+        MutableHttpResponse<ProblemDetail> response =
+                processor.processResponse(contextOf(wrapped), responseOf(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        assertEquals(500, response.getStatus().getCode());
+        assertEquals(ErrorCode.INTERNAL_ERROR, response.body().code());
+    }
+
+    @Test
     @DisplayName("a cause chain that loops back on itself does not hang the processor")
     void selfReferencingCause_terminates() {
         RuntimeException looping = new RuntimeException("loop") {

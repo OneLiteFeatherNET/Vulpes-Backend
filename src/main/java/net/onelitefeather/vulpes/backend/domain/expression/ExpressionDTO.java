@@ -5,12 +5,15 @@ import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.model.expression.ExpressionEntity;
 import net.onelitefeather.vulpes.api.model.expression.ExpressionVariable;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.time.Instant;
 import java.util.List;
@@ -49,15 +52,18 @@ public record ExpressionDTO(
         UUID id,
         @Schema(description = "Name to display it in the ui", requiredMode = RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String uiName,
         @Schema(description = "The EvalEx formula, may be empty", requiredMode = RequiredMode.REQUIRED)
         @Nullable
         String expression,
         @Schema(description = "Internal description of the expression", requiredMode = RequiredMode.NOT_REQUIRED)
         @Nullable
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String comment,
         @Schema(description = "Variables the expression references", requiredMode = RequiredMode.NOT_REQUIRED)
         @Nullable
+        @Valid
         List<ExpressionVariableDTO> variables,
         @Schema(description = "Ignored on requests, the project is taken from the path", requiredMode = RequiredMode.NOT_REQUIRED)
         @Nullable

@@ -7,9 +7,11 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.advancement.AdvancementEntity;
 import net.onelitefeather.vulpes.api.model.advancement.AdvancementFrameType;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.UUID;
 
@@ -34,15 +36,19 @@ public record AdvancementModelDTO(
         UUID id,
         @Schema(description = "Model name for the UI", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String uiName,
         @Schema(description = "Key of the advancement", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Comment of the advancement", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String comment,
         @Schema(description = "Material of the icon", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String material,
         @Schema(description = "Frame type of the advancement", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull(groups = {Create.class, Update.class})
@@ -55,6 +61,7 @@ public record AdvancementModelDTO(
         String description,
         @Schema(description = "Background texture of the tab, only used by root advancements", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String background,
         @Schema(description = "ID of the parent advancement, null for a root advancement", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable

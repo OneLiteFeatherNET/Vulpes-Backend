@@ -7,12 +7,15 @@ import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionEntity;
 import net.onelitefeather.vulpes.api.model.expression.ExpressionVariable;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.List;
 import java.util.UUID;
@@ -41,8 +44,10 @@ public record ExpressionFunctionDTO(
         UUID id,
         @Schema(description = "Name to display it in the ui", requiredMode = RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String uiName,
         @Schema(description = "Identifier used in formulas, matching [A-Za-z_][A-Za-z0-9_]*, compared ignoring case", requiredMode = RequiredMode.REQUIRED)
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String name,
         @Schema(description = "FORMULA or INTERFACE", requiredMode = RequiredMode.REQUIRED)
         ExpressionFunctionKind kind,
@@ -51,12 +56,14 @@ public record ExpressionFunctionDTO(
         ExpressionVariableType returnType,
         @Schema(description = "Parameters in call order", requiredMode = RequiredMode.NOT_REQUIRED)
         @Nullable
+        @Valid
         List<ExpressionVariableDTO> parameters,
         @Schema(description = "The EvalEx formula, required for FORMULA; an optional test stub for INTERFACE", requiredMode = RequiredMode.NOT_REQUIRED)
         @Nullable
         String body,
         @Schema(description = "Internal description of the function", requiredMode = RequiredMode.NOT_REQUIRED)
         @Nullable
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String comment
 ) {
 
