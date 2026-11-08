@@ -130,7 +130,7 @@ class ProblemErrorResponseProcessorTest {
 
     @Test
     @DisplayName("a value longer than its column becomes 400, not 500")
-    void stringTruncation_becomesBadRequest() {
+    void stringTruncationIsBadRequest() {
         SQLException driverError = new SQLException("value too long for type character varying(255)", "22001");
         Throwable wrapped = new RuntimeException("could not execute statement", driverError);
 
@@ -144,7 +144,7 @@ class ProblemErrorResponseProcessorTest {
 
     @Test
     @DisplayName("another data exception from the driver stays 500")
-    void otherDataException_staysInternalError() {
+    void otherDataExceptionIsInternalError() {
         SQLException driverError = new SQLException("numeric value out of range", "22003");
         Throwable wrapped = new RuntimeException("could not execute statement", driverError);
 

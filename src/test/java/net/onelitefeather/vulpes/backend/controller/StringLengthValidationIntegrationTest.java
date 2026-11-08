@@ -69,7 +69,7 @@ class StringLengthValidationIntegrationTest {
 
     @Test
     @DisplayName("create() of a project with a too long description answers 400")
-    void createProjectWithTooLongDescriptionReturns400() {
+    void tooLongProjectDescription() {
         given().contentType(ContentType.JSON)
                 .body(new ProjectModelDTO(null, "Project", uniqueKey("project"), null, null, TOO_LONG, false))
                 .post("/project")
@@ -79,7 +79,7 @@ class StringLengthValidationIntegrationTest {
 
     @Test
     @DisplayName("create() of a project with a description as long as its column answers 200")
-    void createProjectWithLongestDescriptionReturns200() {
+    void longestProjectDescription() {
         given().contentType(ContentType.JSON)
                 .body(new ProjectModelDTO(null, "Project", uniqueKey("project"), null, null, LONGEST, false))
                 .post("/project")
@@ -88,7 +88,7 @@ class StringLengthValidationIntegrationTest {
 
     @Test
     @DisplayName("create() of an item with a too long comment answers 400")
-    void createItemWithTooLongCommentReturns400() {
+    void tooLongItemComment() {
         given().contentType(ContentType.JSON)
                 .body(new ItemModelDTO(null, "Item", uniqueKey("item"), TOO_LONG, "group"))
                 .post(modelPath("item"))
@@ -98,7 +98,7 @@ class StringLengthValidationIntegrationTest {
 
     @Test
     @DisplayName("update() of an item with a too long ui name answers 400 before looking the model up")
-    void updateItemWithTooLongUiNameReturns400() {
+    void tooLongItemUiName() {
         given().contentType(ContentType.JSON)
                 .body(new ItemModelDTO(UUID.randomUUID(), TOO_LONG, uniqueKey("item"), null, "group"))
                 .post(modelPath("item") + "/update")
@@ -108,7 +108,7 @@ class StringLengthValidationIntegrationTest {
 
     @Test
     @DisplayName("create() of a sound source with a too long name answers 400")
-    void createSoundSourceWithTooLongNameReturns400() {
+    void tooLongSoundSourceName() {
         String soundId = given().contentType(ContentType.JSON)
                 .body(new SoundEventDTO(null, "Sound", uniqueKey("sound"), "block.stone.step", null, null))
                 .post(modelPath("sound"))
@@ -124,7 +124,7 @@ class StringLengthValidationIntegrationTest {
 
     @Test
     @DisplayName("create() of an expression with a too long variable test value answers 400")
-    void createExpressionWithTooLongVariableReturns400() {
+    void tooLongExpressionVariable() {
         given().contentType(ContentType.JSON)
                 .body(new ExpressionDTO(null, "Expression", "a * 2", null,
                         List.of(new ExpressionVariableDTO("a", ExpressionVariableType.NUMBER, TOO_LONG)),
@@ -136,7 +136,7 @@ class StringLengthValidationIntegrationTest {
 
     @Test
     @DisplayName("put() of a pack meta with a too long feature answers 400")
-    void putPackMetaWithTooLongFeatureReturns400() {
+    void tooLongPackFeature() {
         given().contentType(ContentType.JSON)
                 .body(new PackMetaDTO("{\"text\":\"My pack\"}", 48, 0, 57, null, Set.of(TOO_LONG), null))
                 .put(modelPath("pack-meta/" + PackType.RESOURCE))
