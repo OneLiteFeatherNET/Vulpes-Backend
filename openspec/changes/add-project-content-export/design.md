@@ -29,7 +29,9 @@ JSON stored as text (item component values, advancement title and description, p
 Reusing the existing DTOs was rejected: they are shaped for the editor, carry timestamps, and fixing their empty lists would change existing responses.
 
 ### One read-only transaction with a repeatable-read snapshot
-The export service method runs in one transaction with `readOnly = true` and isolation `REPEATABLE_READ` (`io.micronaut.transaction.annotation.Transactional`; the services otherwise use `jakarta.transaction.Transactional`, which has neither attribute). On PostgreSQL the default `READ COMMITTED` gives every statement its own snapshot, so a transaction alone would not make the export atomic. Under `REPEATABLE READ` all statements see the state at the first read. A read-only transaction never fails with a serialization error.
+The export service method runs in one transaction with `readOnly = true` (`io.micronaut.transaction.annotation.Transactional`; the services otherwise use `jakarta.transaction.Transactional`, which has no such attribute). On PostgreSQL the default `READ COMMITTED` gives every statement its own snapshot, so a transaction alone would not make the export atomic. Under `REPEATABLE READ` all statements see the state at the first read. A read-only transaction never fails with a serialization error.
+
+The isolation is set with `SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY` as the first statement of the export transaction, before any query. The `isolation` attribute of the annotation is not used: Micronaut's Hibernate transaction manager refuses a custom isolation unless Hibernate releases connections only on close, and switching that mode would change connection handling for every transaction of the backend.
 
 ### Fixed set of project-wide queries
 Each kind is loaded by one query per table, filtered by project id through the parent (`c.item.project.id = :projectId`, as `ItemModelComponentRepository` already does), and grouped in memory by parent id. That is about fifteen queries per export, whatever the project size. Fetch joins over two bags of the same parent are avoided (`MultipleBagFetchException` on items and dimensions). The new queries live in backend repositories; `vulpes-model` is not changed. Element collections (expression variables, function parameters, pack features) are loaded with their owner.
@@ -67,7 +69,8 @@ The response carries `ETag: "<revision>"` (strong). `If-None-Match` with `*`, th
 ## Risks / Trade-offs
 
 - [Large projects make large responses] → No pagination by decision. Content projects are in the low thousands of rows; the response is built in memory once per request. If this grows, a streaming writer can replace the in-memory body without changing the contract.
-- [`REPEATABLE_READ` must reach the JDBC connection] → An integration test checks the isolation level inside the export transaction.
+- [`SET TRANSACTION` only works before the first query of the transaction] → It is the first statement of the export method; an integration test reads `transaction_isolation` and `transaction_read_only` after it.
+- [Micronaut Serde leaves out `null` and empty values by default] → The export records always include their fields, so empty lists are `[]` and absent values `null`, as the spec requires.
 - [New fields change the revision] → Accepted, see revision decision. Field additions are additive for the generator.
 - [Overlap with the unmerged snapshot drafts] → The paths are distinct. If the runtime snapshot is revived, it can derive its view from this export later.
 

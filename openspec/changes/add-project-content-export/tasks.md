@@ -10,7 +10,7 @@
 
 - [ ] 2.1 Add the response records under `domain/content`
 - [ ] 2.2 Add the project-wide read queries for item components, lore and enchantments, font chars, sound sources, dimension attributes and timelines, asset revisions, and an asset link repository
-- [ ] 2.3 Add `ProjectContentService` with a `@Transactional(readOnly = true, isolation = REPEATABLE_READ)` export method, the assembler that groups and orders, and the canonical revision
+- [ ] 2.3 Add `ProjectContentService` with a `@Transactional(readOnly = true)` export method that starts with `SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY`, the assembler that groups and orders, and the canonical revision
 - [ ] 2.4 Add `ProjectContentController` with `GET /project/{projectId}/content`, `ETag` and `304` handling, and its OpenAPI annotations
 
 ## 3. Verification
