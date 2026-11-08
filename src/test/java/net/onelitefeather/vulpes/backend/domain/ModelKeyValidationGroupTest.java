@@ -118,6 +118,22 @@ class ModelKeyValidationGroupTest {
         assertFalse(hasKeyViolation(factory.apply(null, "weapons/sword"), ValidationGroup.Create.class));
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("dtos")
+    void rejectsDoubleDot(String name, BiFunction<UUID, String, Object> factory) {
+        for (String key : List.of("..", "a..b")) {
+            assertTrue(hasKeyViolation(factory.apply(null, key), ValidationGroup.Create.class), key);
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("models")
+    void modelRejectsParentSegment(String name, BiFunction<UUID, String, Object> factory) {
+        for (String key : List.of("../evil", "weapons/../sword", "weapons/..")) {
+            assertTrue(hasKeyViolation(factory.apply(null, key), ValidationGroup.Create.class), key);
+        }
+    }
+
     @Test
     void projectRejectsSubPath() {
         ProjectModelDTO dto = new ProjectModelDTO(null, "Project", "my/project", null, null, null, false);

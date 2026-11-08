@@ -151,6 +151,26 @@ class ModelKeyValidationIntegrationTest {
                 .then().statusCode(200);
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("models")
+    @DisplayName("create() with a key leaving its folder answers 400")
+    void parentSegmentKey(String path, BiFunction<UUID, String, Object> body) {
+        given().contentType(ContentType.JSON).body(body.apply(null, "../" + path))
+                .post(modelPath(path))
+                .then().statusCode(400)
+                .body("errors.code", hasItem("Pattern"));
+    }
+
+    @Test
+    @DisplayName("creating a project with a key of two dots answers 400")
+    void doubleDotProjectKey() {
+        given().contentType(ContentType.JSON)
+                .body(new ProjectModelDTO(null, "Bad key", "..", null, null, null, false))
+                .post("/project")
+                .then().statusCode(400)
+                .body("errors.code", hasItem("Pattern"));
+    }
+
     @Test
     @DisplayName("creating a project with a key with a sub path answers 400")
     void malformedProjectKey() {
