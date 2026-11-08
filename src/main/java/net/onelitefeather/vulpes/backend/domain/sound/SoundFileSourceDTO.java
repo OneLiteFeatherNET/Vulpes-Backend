@@ -10,8 +10,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.sound.SoundFileSource;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.UUID;
 
@@ -36,6 +38,7 @@ public record SoundFileSourceDTO(
         @NotNull(groups = {Update.class})
         UUID id,
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String name,
         @PositiveOrZero(groups = {Create.class, Update.class})
         float volume,
@@ -49,6 +52,7 @@ public record SoundFileSourceDTO(
         int attenuationDistance,
         boolean preload,
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String type
 ) {
 

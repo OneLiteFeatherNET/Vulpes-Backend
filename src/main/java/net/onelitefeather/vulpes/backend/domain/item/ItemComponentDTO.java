@@ -8,8 +8,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Create;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Update;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.UUID;
 
@@ -38,6 +40,7 @@ public record ItemComponentDTO(
         @Schema(description = "Key of the data component, e.g. minecraft:food", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
         @Pattern(regexp = KEY_PATTERN, groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String componentKey,
         @Schema(
                 description = "Value in the vanilla JSON format, e.g. {\"nutrition\":4,\"saturation\":2.4}",

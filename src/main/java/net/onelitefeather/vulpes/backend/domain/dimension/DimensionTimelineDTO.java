@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.dimension.DimensionTimelineEntity;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.UUID;
 
@@ -22,6 +24,7 @@ public record DimensionTimelineDTO(
         UUID id,
         @Schema(description = "Registry key of the referenced timeline", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String timelineKey
 ) {
 

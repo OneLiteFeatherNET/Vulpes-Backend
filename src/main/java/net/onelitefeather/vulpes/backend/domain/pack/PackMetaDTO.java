@@ -6,10 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.api.model.pack.PackMetaEntity;
 import net.onelitefeather.vulpes.api.model.pack.PackType;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.Set;
 import java.util.UUID;
@@ -49,7 +51,7 @@ public record PackMetaDTO(
         Integer maxFormatMinor,
         @Schema(description = "The identifiers of the enabled experimental feature flags", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable
-        Set<String> enabledFeatures,
+        Set<@Size(max = ColumnLength.VARCHAR) String> enabledFeatures,
         @Schema(
                 description = "ID of the texture asset of the project written as the pack.png, null for none",
                 requiredMode = Schema.RequiredMode.NOT_REQUIRED

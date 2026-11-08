@@ -11,10 +11,12 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.dimension.CardinalLight;
 import net.onelitefeather.vulpes.api.model.dimension.DimensionTypeEntity;
 import net.onelitefeather.vulpes.api.model.dimension.Skybox;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,9 +33,11 @@ public record DimensionModelDTO(
         UUID id,
         @Schema(description = "User interface name of the dimension type", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String uiName,
         @Schema(description = "Key of the dimension type", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Whether the dimension type has a fixed time", requiredMode = Schema.RequiredMode.REQUIRED)
         boolean hasFixedTime,
@@ -59,11 +63,13 @@ public record DimensionModelDTO(
         int logicalHeight,
         @Schema(description = "Infiniburn block tag of the dimension type", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String infiniburn,
         @Schema(description = "Ambient light of the dimension type", requiredMode = Schema.RequiredMode.REQUIRED)
         float ambientLight,
         @Schema(description = "Serialized monster spawn light level provider", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String monsterSpawnLightLevel,
         @Schema(description = "Monster spawn block light limit of the dimension type", requiredMode = Schema.RequiredMode.REQUIRED)
         @Min(0)
@@ -77,6 +83,7 @@ public record DimensionModelDTO(
         CardinalLight cardinalLight,
         @Schema(description = "Registry key of the default clock", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String defaultClock
 ) {
 

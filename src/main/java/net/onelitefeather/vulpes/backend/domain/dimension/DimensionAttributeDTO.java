@@ -6,9 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.dimension.AttributeOperator;
 import net.onelitefeather.vulpes.api.model.dimension.DimensionAttributeEntity;
 import net.onelitefeather.vulpes.api.model.dimension.EnvironmentAttributeKey;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.UUID;
 
@@ -30,6 +32,7 @@ public record DimensionAttributeDTO(
         AttributeOperator operator,
         @Schema(description = "Serialized argument of the attribute", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String attributeValue
 ) {
 

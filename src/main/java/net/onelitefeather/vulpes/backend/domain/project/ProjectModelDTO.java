@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.UUID;
 
@@ -22,15 +24,20 @@ public record ProjectModelDTO(
         UUID id,
         @Schema(description = "Display name of the project", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String displayName,
         @Schema(description = "Unique key of the project", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Project URL", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String projectUrl,
         @Schema(description = "Documentation URL", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String docuUrl,
         @Schema(description = "Description of the project", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String description,
         @Schema(description = "Labor status of the project", requiredMode = Schema.RequiredMode.REQUIRED)
         boolean labor

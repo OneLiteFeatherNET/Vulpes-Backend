@@ -7,8 +7,10 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,15 +34,19 @@ public record ItemModelDTO(
         UUID id,
         @Schema(description = "Name in the UI", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String uiName,
         @Schema(description = "Key for the entity", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Internal description of the item", requiredMode = Schema.RequiredMode.REQUIRED)
         @Nullable
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String comment,
         @Schema(description = "The group to identify their basic usage", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String groupName
 ) {
 

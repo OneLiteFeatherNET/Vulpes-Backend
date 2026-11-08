@@ -7,8 +7,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.UUID;
 
@@ -29,6 +31,7 @@ public record ItemEnchantmentDTO(
         UUID id,
         @Schema(description = "Name of the enchantment", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String name,
         @Schema(description = "Level of the enchantment", requiredMode = Schema.RequiredMode.REQUIRED)
         @Positive(groups = {Create.class, Update.class})

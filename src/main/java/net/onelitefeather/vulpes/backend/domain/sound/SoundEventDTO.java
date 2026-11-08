@@ -8,9 +8,11 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
+import net.onelitefeather.vulpes.backend.validation.ColumnLength;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,16 +52,21 @@ public record SoundEventDTO(
         UUID id,
         @Schema(description = "Name to display it in the ui", requiredMode = RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String uiName,
         @Schema(description = "The key which is used for the variable generation", requiredMode = RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String key,
         @Schema(description = "They key of the sound", requiredMode = RequiredMode.REQUIRED)
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String keyName,
         @Schema(description = "The subtitle which is display when the sound is played", requiredMode = RequiredMode.REQUIRED)
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String subTitle,
         @Schema(description = "Internal description of the sound event", requiredMode = RequiredMode.NOT_REQUIRED)
         @Nullable
+        @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
         String comment
 ) {
     /**
