@@ -3,11 +3,10 @@ package net.onelitefeather.vulpes.backend.entity.asset;
 import io.micronaut.data.annotation.Query;
 import io.micronaut.data.annotation.Repository;
 import io.micronaut.data.jpa.repository.JpaRepository;
-import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
-import net.onelitefeather.vulpes.api.model.asset.ProjectAssetRevisionEntity;
-
 import java.util.List;
 import java.util.UUID;
+import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
+import net.onelitefeather.vulpes.api.model.asset.ProjectAssetRevisionEntity;
 
 /**
  * Reads the assets of a project and their revision rows for the complete project export. Reads only:
