@@ -1,5 +1,6 @@
 package net.onelitefeather.vulpes.backend.domain.content;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.micronaut.json.tree.JsonNode;
 import io.micronaut.serde.annotation.Serdeable;
 import java.util.List;
@@ -42,6 +43,7 @@ import net.onelitefeather.vulpes.api.model.pack.PackType;
  * @param packs      the pack metadata of the project
  */
 @Serdeable
+@JsonInclude(JsonInclude.Include.ALWAYS)
 public record ProjectContentDTO(
         String revision,
         ProjectDTO project,
@@ -80,6 +82,7 @@ public record ProjectContentDTO(
      * @param labor       whether the project is a labor project
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record ProjectDTO(
             UUID id,
             String displayName,
@@ -104,6 +107,7 @@ public record ProjectContentDTO(
      * @param enchantments the enchantments of the item, ordered by name
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record ItemDTO(
             UUID id,
             String uiName,
@@ -124,6 +128,7 @@ public record ProjectContentDTO(
      * @param value        the value of the component as a JSON value
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record ComponentDTO(UUID id, String componentKey, JsonNode value) {
     }
 
@@ -135,6 +140,7 @@ public record ProjectContentDTO(
      * @param orderIndex the position of the line in the tooltip
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record LoreDTO(UUID id, String text, int orderIndex) {
     }
 
@@ -147,6 +153,7 @@ public record ProjectContentDTO(
      * @param unsafe whether the enchantment is applied unsafely
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record EnchantmentDTO(UUID id, String name, short level, boolean unsafe) {
     }
 
@@ -164,6 +171,7 @@ public record ProjectContentDTO(
      * @param comment         the comment on the attribute, or {@code null}
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record AttributeDTO(
             UUID id,
             String uiName,
@@ -193,6 +201,7 @@ public record ProjectContentDTO(
      * @param chars         the chars of the font, ordered by position
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record FontDTO(
             UUID id,
             String uiName,
@@ -216,6 +225,7 @@ public record ProjectContentDTO(
      * @param orderIndex the position of the line in the font
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record FontCharDTO(UUID id, String line, int orderIndex) {
     }
 
@@ -232,6 +242,7 @@ public record ProjectContentDTO(
      * @param sources  the sound sources, ordered by name
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record SoundDTO(
             UUID id,
             String uiName,
@@ -258,6 +269,7 @@ public record ProjectContentDTO(
      * @param type                the type of the sound source
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record SoundSourceDTO(
             UUID id,
             String name,
@@ -284,6 +296,7 @@ public record ProjectContentDTO(
      * @param parameters the parameters, in their declared order
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record ExpressionFunctionDTO(
             UUID id,
             String uiName,
@@ -306,6 +319,7 @@ public record ProjectContentDTO(
      * @param variables  the variables, in their declared order
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record ExpressionDTO(
             UUID id,
             String uiName,
@@ -323,6 +337,7 @@ public record ProjectContentDTO(
      * @param testValue the test value, or {@code null}
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record ExpressionVariableDTO(String name, ExpressionVariableType type, String testValue) {
     }
 
@@ -345,6 +360,7 @@ public record ProjectContentDTO(
      * @param links         the links of the asset, ordered by target type, target id and role
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record AssetDTO(
             UUID id,
             String key,
@@ -373,6 +389,7 @@ public record ProjectContentDTO(
      * @param comment the comment on the revision, or {@code null}
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record AssetRevisionDTO(UUID id, int number, String sha1, long size, String comment) {
     }
 
@@ -385,6 +402,7 @@ public record ProjectContentDTO(
      * @param role       the role the asset plays for the element
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record AssetLinkDTO(UUID id, AssetTargetType targetType, UUID targetId, AssetLinkRole role) {
     }
 
@@ -408,6 +426,7 @@ public record ProjectContentDTO(
      * @param hidden        whether the advancement is hidden
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record AdvancementDTO(
             UUID id,
             String uiName,
@@ -452,6 +471,7 @@ public record ProjectContentDTO(
      * @param timelines                  the timelines, ordered by timeline key
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record DimensionDTO(
             UUID id,
             String uiName,
@@ -485,6 +505,7 @@ public record ProjectContentDTO(
      * @param attributeValue the value
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record DimensionAttributeDTO(
             UUID id,
             EnvironmentAttributeKey attributeKey,
@@ -500,6 +521,7 @@ public record ProjectContentDTO(
      * @param timelineKey the key of the timeline
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record DimensionTimelineDTO(UUID id, String timelineKey) {
     }
 
@@ -517,6 +539,7 @@ public record ProjectContentDTO(
      * @param iconAssetId     the id of the icon asset, or {@code null}
      */
     @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
     public record PackDTO(
             UUID id,
             PackType packType,

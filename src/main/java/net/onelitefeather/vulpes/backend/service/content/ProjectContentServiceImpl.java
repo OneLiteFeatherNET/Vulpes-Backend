@@ -1,7 +1,6 @@
 package net.onelitefeather.vulpes.backend.service.content;
 
 import io.micronaut.json.JsonMapper;
-import io.micronaut.transaction.TransactionDefinition;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.UUID;
@@ -41,6 +40,7 @@ public class ProjectContentServiceImpl implements ProjectContentService {
     private final DimensionContentRepository dimensionRepository;
     private final PackMetaContentRepository packRepository;
     private final ProjectContentAssembler assembler;
+    private final SnapshotTransaction snapshotTransaction;
 
     @Inject
     public ProjectContentServiceImpl(
@@ -55,7 +55,8 @@ public class ProjectContentServiceImpl implements ProjectContentService {
             AdvancementContentRepository advancementRepository,
             DimensionContentRepository dimensionRepository,
             PackMetaContentRepository packRepository,
-            JsonMapper jsonMapper
+            JsonMapper jsonMapper,
+            SnapshotTransaction snapshotTransaction
     ) {
         this.projectRepository = projectRepository;
         this.itemRepository = itemRepository;
@@ -69,19 +70,18 @@ public class ProjectContentServiceImpl implements ProjectContentService {
         this.dimensionRepository = dimensionRepository;
         this.packRepository = packRepository;
         this.assembler = new ProjectContentAssembler(jsonMapper);
+        this.snapshotTransaction = snapshotTransaction;
     }
 
     /**
-     * Runs all reads of the export in one read-only transaction with repeatable-read isolation, so every
-     * table reflects the same committed state. The annotation sits on this concrete method, because the
-     * AOP proxy intercepts only there.
+     * Runs all reads of the export in one read-only transaction. The snapshot is taken first, before any query,
+     * so every table reflects the same committed state; see {@link SnapshotTransaction}. The annotation sits on
+     * this concrete method, because the AOP proxy intercepts only there.
      */
     @Override
-    @io.micronaut.transaction.annotation.Transactional(
-            readOnly = true,
-            isolation = TransactionDefinition.Isolation.REPEATABLE_READ
-    )
+    @io.micronaut.transaction.annotation.Transactional(readOnly = true)
     public ProjectContentDTO export(UUID projectId) {
+        snapshotTransaction.begin();
         ProjectEntity project = projectRepository.findById(projectId).orElseThrow(ApiException::projectNotFound);
         return assembler.assemble(loadRows(project));
     }
