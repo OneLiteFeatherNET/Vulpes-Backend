@@ -33,7 +33,7 @@ class AttributeModelDTOValidationTest extends ValidationTestBase<AttributeModelD
     @Test
     void testMaxValueValidationFail() {
         // must be strictly positive
-        AttributeModelDTO dto = attribute(UUID.randomUUID(), "Speed", "playerSpeed", 0.0, 0.0, 0.0);
+        AttributeModelDTO dto = attribute(UUID.randomUUID(), "Speed", "player_speed", 0.0, 0.0, 0.0);
 
         assertViolation(dto, "maximumValue", Update.class);
     }
@@ -41,7 +41,7 @@ class AttributeModelDTOValidationTest extends ValidationTestBase<AttributeModelD
     @Test
     void testNegativeMaxValueValidationFail() {
         // must be strictly positive
-        AttributeModelDTO dto = attribute(null, "Speed", "playerSpeed", -10.0, -10.0, -5.0);
+        AttributeModelDTO dto = attribute(null, "Speed", "player_speed", -10.0, -10.0, -5.0);
 
         assertViolation(dto, "maximumValue", Create.class);
     }
@@ -65,15 +65,15 @@ class AttributeModelDTOValidationTest extends ValidationTestBase<AttributeModelD
 
     @Test
     void testDefaultAboveMaximumValidationFail() {
-        AttributeModelDTO dto = attribute(UUID.randomUUID(), "Speed", "playerSpeed", 6.0, 0.0, 5.0);
+        AttributeModelDTO dto = attribute(UUID.randomUUID(), "Speed", "player_speed", 6.0, 0.0, 5.0);
 
         assertViolation(dto, VALUE_RANGE, Update.class);
     }
 
     @Test
     void testDefaultOnBoundsNoValidation() {
-        assertNoViolation(attribute(null, "Speed", "playerSpeed", 0.0, 0.0, 5.0), VALUE_RANGE, Create.class);
-        assertNoViolation(attribute(null, "Speed", "playerSpeed", 5.0, 0.0, 5.0), VALUE_RANGE, Create.class);
+        assertNoViolation(attribute(null, "Speed", "player_speed", 0.0, 0.0, 5.0), VALUE_RANGE, Create.class);
+        assertNoViolation(attribute(null, "Speed", "player_speed", 5.0, 0.0, 5.0), VALUE_RANGE, Create.class);
     }
 
     @Test

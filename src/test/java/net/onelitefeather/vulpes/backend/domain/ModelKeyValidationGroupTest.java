@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -85,6 +86,28 @@ class ModelKeyValidationGroupTest {
     @MethodSource("dtos")
     void createGroupAcceptsKey(String name, BiFunction<UUID, String, Object> factory) {
         assertTrue(validator.validate(factory.apply(null, "my-key"), ValidationGroup.Create.class).isEmpty());
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("dtos")
+    void createGroupRejectsMalformedKey(String name, BiFunction<UUID, String, Object> factory) {
+        for (String key : List.of("Key", "my key", "ns:key", "item/key", "schlüssel")) {
+            assertTrue(hasKeyViolation(factory.apply(null, key), ValidationGroup.Create.class), key);
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("dtos")
+    void createGroupAcceptsWellFormedKey(String name, BiFunction<UUID, String, Object> factory) {
+        for (String key : List.of("starter_sword", "v1.2", "speed-" + UUID.randomUUID())) {
+            assertFalse(hasKeyViolation(factory.apply(null, key), ValidationGroup.Create.class), key);
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("dtos")
+    void updateGroupRejectsMalformedKey(String name, BiFunction<UUID, String, Object> factory) {
+        assertTrue(hasKeyViolation(factory.apply(UUID.randomUUID(), "My-Key"), ValidationGroup.Update.class));
     }
 
     @ParameterizedTest(name = "{0}")

@@ -132,7 +132,7 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
     }
 
     private String createItem(UUID project) {
-        String body = "{\"uiName\":\"Ruby\",\"key\":\"vulpes:item-"
+        String body = "{\"uiName\":\"Ruby\",\"key\":\"item-"
                 + UUID.randomUUID().toString().substring(0, 8) + "\",\"groupName\":\"gems\"}";
         return given().contentType(ContentType.JSON)
                 .body(body)
