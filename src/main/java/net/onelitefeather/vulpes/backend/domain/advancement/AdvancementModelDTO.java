@@ -43,7 +43,7 @@ public record AdvancementModelDTO(
         @Schema(description = "Key of the advancement", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
         @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
-        @Pattern(regexp = KeyFormat.PATTERN, message = KeyFormat.MESSAGE, groups = {Create.class, Update.class})
+        @Pattern(regexp = KeyFormat.PATH_PATTERN, message = KeyFormat.PATH_MESSAGE, groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Comment of the advancement", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         @Nullable

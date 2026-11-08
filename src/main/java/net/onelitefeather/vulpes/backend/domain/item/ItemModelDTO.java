@@ -41,7 +41,7 @@ public record ItemModelDTO(
         @Schema(description = "Key for the entity", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
         @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
-        @Pattern(regexp = KeyFormat.PATTERN, message = KeyFormat.MESSAGE, groups = {Create.class, Update.class})
+        @Pattern(regexp = KeyFormat.PATH_PATTERN, message = KeyFormat.PATH_MESSAGE, groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Internal description of the item", requiredMode = Schema.RequiredMode.REQUIRED)
         @Nullable
