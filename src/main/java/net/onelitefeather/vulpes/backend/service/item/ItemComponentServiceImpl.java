@@ -17,6 +17,7 @@ import net.onelitefeather.vulpes.backend.exception.ApiException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,6 +31,7 @@ public class ItemComponentServiceImpl implements ItemComponentService {
     private final ItemRepository itemRepository;
     private final ItemComponentRepository componentRepository;
     private final ItemComponentRules rules;
+    private final CustomModelDataRule modelDataRule;
     private final JsonMapper jsonMapper;
 
     @Inject
@@ -37,11 +39,13 @@ public class ItemComponentServiceImpl implements ItemComponentService {
             ItemRepository itemRepository,
             ItemComponentRepository componentRepository,
             ItemComponentRules rules,
+            CustomModelDataRule modelDataRule,
             JsonMapper jsonMapper
     ) {
         this.itemRepository = itemRepository;
         this.componentRepository = componentRepository;
         this.rules = rules;
+        this.modelDataRule = modelDataRule;
         this.jsonMapper = jsonMapper;
     }
 
@@ -59,7 +63,13 @@ public class ItemComponentServiceImpl implements ItemComponentService {
         if (this.componentRepository.findByItemIdAndComponentKey(item.getId(), component.componentKey()).isPresent()) {
             throw duplicate(component.componentKey(), itemId);
         }
-        var entity = new ItemComponentEntity(null, component.componentKey(), writeValue(component.value()));
+        var value = writeValue(component.value());
+        if (this.modelDataRule.concerns(component.componentKey())) {
+            var components = componentsOf(item);
+            components.put(component.componentKey(), value);
+            requireUniqueModelData(item, components);
+        }
+        var entity = new ItemComponentEntity(null, component.componentKey(), value);
         entity.setItem(item);
         return toDTO(this.componentRepository.save(entity));
     }
@@ -80,8 +90,15 @@ public class ItemComponentServiceImpl implements ItemComponentService {
         if (keyChanged && this.componentRepository.findByItemIdAndComponentKey(item.getId(), component.componentKey()).isPresent()) {
             throw duplicate(component.componentKey(), itemId);
         }
+        var value = writeValue(component.value());
+        if (this.modelDataRule.concerns(entity.getComponentKey()) || this.modelDataRule.concerns(component.componentKey())) {
+            var components = componentsOf(item);
+            components.remove(entity.getComponentKey());
+            components.put(component.componentKey(), value);
+            requireUniqueModelData(item, components);
+        }
         entity.setComponentKey(component.componentKey());
-        entity.setComponentValue(writeValue(component.value()));
+        entity.setComponentValue(value);
         return toDTO(this.componentRepository.update(entity));
     }
 
@@ -91,6 +108,12 @@ public class ItemComponentServiceImpl implements ItemComponentService {
         var entity = requireOwnedComponent(item, componentId);
         if (this.rules.isRequired(entity.getComponentKey())) {
             throw required(entity.getComponentKey(), "removed");
+        }
+        if (this.modelDataRule.concerns(entity.getComponentKey())) {
+            // Without its item model the item falls back to the definition of its material
+            var components = componentsOf(item);
+            components.remove(entity.getComponentKey());
+            requireUniqueModelData(item, components);
         }
         this.componentRepository.deleteById(entity.getId());
         return toDTO(entity);
@@ -119,6 +142,21 @@ public class ItemComponentServiceImpl implements ItemComponentService {
             throw ApiException.notOwnedBy(COMPONENT, componentId, "item", item.getId());
         }
         return entity;
+    }
+
+    private Map<String, String> componentsOf(ItemEntity item) {
+        Map<String, String> components = new HashMap<>();
+        for (ItemComponentEntity component : this.componentRepository.findComponentsById(item.getId(), Pageable.unpaged()).getContent()) {
+            components.put(component.getComponentKey(), component.getComponentValue());
+        }
+        return components;
+    }
+
+    private void requireUniqueModelData(ItemEntity item, Map<String, String> components) {
+        this.modelDataRule.findConflict(item.getProject().getId(), item.getId(), components).ifPresent(other -> {
+            throw ApiException.conflict("The item " + other.getKey()
+                    + " already has this custom model data with the same item model, both would show the same model.");
+        });
     }
 
     private void requireAllowedKey(String componentKey) {
