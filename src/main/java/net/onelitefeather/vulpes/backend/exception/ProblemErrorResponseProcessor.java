@@ -58,6 +58,12 @@ public class ProblemErrorResponseProcessor implements ErrorResponseProcessor<Pro
     private static final String SQLSTATE_INTEGRITY_CONSTRAINT_VIOLATION = "23";
 
     /**
+     * SQLSTATE 22001 is "string data, right truncation", which MariaDB and PostgreSQL report for a value
+     * longer than its column. The request DTOs limit their strings, this covers a value they miss.
+     */
+    private static final String SQLSTATE_STRING_DATA_RIGHT_TRUNCATION = "22001";
+
+    /**
      * Guards against a cause chain that links back to itself.
      */
     private static final int MAX_CAUSE_DEPTH = 16;
@@ -147,7 +153,20 @@ public class ProblemErrorResponseProcessor implements ErrorResponseProcessor<Pro
             );
         }
 
-        if (isIntegrityConstraintViolation(cause)) {
+        if (hasSqlState(cause, SQLSTATE_STRING_DATA_RIGHT_TRUNCATION)) {
+            LOG.warn(
+                    "{} {} sent a value longer than its column traceId={}",
+                    errorContext.getRequest().getMethod(), errorContext.getRequest().getPath(), traceId, cause
+            );
+            return problemDetailFactory.create(
+                    ErrorCode.INVALID_REQUEST,
+                    "A value of the request is longer than the server can store.",
+                    errorContext.getRequest(),
+                    traceId
+            );
+        }
+
+        if (hasSqlState(cause, SQLSTATE_INTEGRITY_CONSTRAINT_VIOLATION)) {
             LOG.warn(
                     "{} {} violated a database constraint traceId={}",
                     errorContext.getRequest().getMethod(), errorContext.getRequest().getPath(), traceId, cause
@@ -254,17 +273,18 @@ public class ProblemErrorResponseProcessor implements ErrorResponseProcessor<Pro
     }
 
     /**
-     * Walks the cause chain looking for a uniqueness or foreign key violation reported by the driver.
+     * Walks the cause chain looking for a driver error whose SQLSTATE starts with the given prefix.
      *
-     * @param cause the throwable to inspect, may be {@code null}
-     * @return {@code true} when the failure is a database integrity constraint violation
+     * @param cause  the throwable to inspect, may be {@code null}
+     * @param prefix the SQLSTATE or SQLSTATE class to look for
+     * @return {@code true} when the driver reported a matching SQLSTATE
      */
-    private boolean isIntegrityConstraintViolation(@Nullable Throwable cause) {
+    private static boolean hasSqlState(@Nullable Throwable cause, String prefix) {
         Throwable current = cause;
         for (int depth = 0; current != null && depth < MAX_CAUSE_DEPTH; depth++) {
             if (current instanceof SQLException sqlException) {
                 String sqlState = sqlException.getSQLState();
-                if (sqlState != null && sqlState.startsWith(SQLSTATE_INTEGRITY_CONSTRAINT_VIOLATION)) {
+                if (sqlState != null && sqlState.startsWith(prefix)) {
                     return true;
                 }
             }
