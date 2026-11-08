@@ -6,6 +6,7 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.FontEntity;
@@ -14,6 +15,7 @@ import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Create;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup.Update;
 import net.onelitefeather.vulpes.backend.validation.ColumnLength;
+import net.onelitefeather.vulpes.backend.validation.KeyFormat;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +33,7 @@ public record FontModelDTO(
         @Schema(description = "Key for the generation", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
         @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
+        @Pattern(regexp = KeyFormat.PATH_PATTERN, message = KeyFormat.PATH_MESSAGE, groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Which provider should be used", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})

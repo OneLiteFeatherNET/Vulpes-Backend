@@ -154,7 +154,7 @@ class ProjectContentControllerIntegrationTest implements TestPropertyProvider {
     @Test
     void exportContainsEveryContentTypeWithItsChildren() {
         UUID projectId = createProject();
-        UUID itemId = createItem(projectId, "vulpes:gem-" + uniqueSuffix());
+        UUID itemId = createItem(projectId, "gem-" + uniqueSuffix());
         given().contentType(ContentType.JSON)
                 .body("{\"componentKey\":\"minecraft:food\",\"value\":{\"nutrition\":4,\"saturation\":2.4}}")
                 .when()
@@ -319,8 +319,8 @@ class ProjectContentControllerIntegrationTest implements TestPropertyProvider {
     void exportOmitsContentOfOtherProjects() {
         UUID ownProject = createProject();
         UUID otherProject = createProject();
-        UUID ownItem = createItem(ownProject, "vulpes:own-" + uniqueSuffix());
-        UUID otherItem = createItem(otherProject, "vulpes:other-" + uniqueSuffix());
+        UUID ownItem = createItem(ownProject, "own-" + uniqueSuffix());
+        UUID otherItem = createItem(otherProject, "other-" + uniqueSuffix());
 
         String body = exportResponse(ownProject).asString();
 
@@ -364,19 +364,19 @@ class ProjectContentControllerIntegrationTest implements TestPropertyProvider {
     @Test
     void itemsAreListedByKeyInsteadOfInsertionOrder() {
         UUID projectId = createProject();
-        createItem(projectId, "vulpes:b");
-        createItem(projectId, "vulpes:a");
-        createItem(projectId, "vulpes:c");
+        createItem(projectId, "b");
+        createItem(projectId, "a");
+        createItem(projectId, "c");
 
         List<String> keys = export(projectId).items().stream().map(ProjectContentDTO.ItemDTO::key).toList();
 
-        assertEquals(List.of("vulpes:a", "vulpes:b", "vulpes:c"), keys, "items are ordered by key");
+        assertEquals(List.of("a", "b", "c"), keys, "items are ordered by key");
     }
 
     @Test
     void repeatedExportOfUnchangedContentIsByteIdentical() {
         UUID projectId = createProject();
-        createItem(projectId, "vulpes:gem-" + uniqueSuffix());
+        createItem(projectId, "gem-" + uniqueSuffix());
 
         String first = exportResponse(projectId).asString();
         String second = exportResponse(projectId).asString();
@@ -397,7 +397,7 @@ class ProjectContentControllerIntegrationTest implements TestPropertyProvider {
     @Test
     void revisionEqualsCanonicalHashOfBodyWithoutRevision() throws IOException {
         UUID projectId = createProject();
-        createItem(projectId, "vulpes:gem-" + uniqueSuffix());
+        createItem(projectId, "gem-" + uniqueSuffix());
 
         Response response = exportResponse(projectId);
         String revision = response.path("revision");
@@ -409,7 +409,7 @@ class ProjectContentControllerIntegrationTest implements TestPropertyProvider {
     @Test
     void loreChangeChangesRevision() {
         UUID projectId = createProject();
-        UUID itemId = createItem(projectId, "vulpes:gem-" + uniqueSuffix());
+        UUID itemId = createItem(projectId, "gem-" + uniqueSuffix());
         addLore(itemId, "before");
         ProjectContentDTO before = export(projectId);
         UUID loreId = before.items().get(0).lore().get(0).id();
@@ -423,7 +423,7 @@ class ProjectContentControllerIntegrationTest implements TestPropertyProvider {
     @Test
     void matchingIfNoneMatchAnswersNotModifiedWithoutBody() {
         UUID projectId = createProject();
-        createItem(projectId, "vulpes:gem-" + uniqueSuffix());
+        createItem(projectId, "gem-" + uniqueSuffix());
         String etag = exportResponse(projectId).header(ETAG);
 
         Response response = given().header("If-None-Match", etag)
@@ -441,7 +441,7 @@ class ProjectContentControllerIntegrationTest implements TestPropertyProvider {
     @Test
     void staleIfNoneMatchAnswersWithNewBodyAndEtag() {
         UUID projectId = createProject();
-        UUID itemId = createItem(projectId, "vulpes:gem-" + uniqueSuffix());
+        UUID itemId = createItem(projectId, "gem-" + uniqueSuffix());
         addLore(itemId, "before");
         ProjectContentDTO before = export(projectId);
         String staleEtag = "\"" + before.revision() + "\"";
@@ -463,7 +463,7 @@ class ProjectContentControllerIntegrationTest implements TestPropertyProvider {
     @Test
     void exportBodyHasNoAuditTimestamps() {
         UUID projectId = createProject();
-        UUID itemId = createItem(projectId, "vulpes:gem-" + uniqueSuffix());
+        UUID itemId = createItem(projectId, "gem-" + uniqueSuffix());
         addLore(itemId, "line");
 
         String body = exportResponse(projectId).asString();

@@ -30,6 +30,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.hasItem;
 
 /**
  * Every model needs a key: the generator derives the variable from it and the database only keeps
@@ -119,6 +120,65 @@ class ModelKeyValidationIntegrationTest {
         given().contentType(ContentType.JSON).body(body.apply(UUID.randomUUID(), null))
                 .post(modelPath(path) + "/update")
                 .then().statusCode(400);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("models")
+    @DisplayName("create() with a malformed key answers 400")
+    void malformedKey(String path, BiFunction<UUID, String, Object> body) {
+        given().contentType(ContentType.JSON).body(body.apply(null, "My Key"))
+                .post(modelPath(path))
+                .then().statusCode(400)
+                .body("errors.code", hasItem("Pattern"));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("models")
+    @DisplayName("update() with a malformed key answers 400 before looking the model up")
+    void malformedKeyOnUpdate(String path, BiFunction<UUID, String, Object> body) {
+        given().contentType(ContentType.JSON).body(body.apply(UUID.randomUUID(), "ns:key"))
+                .post(modelPath(path) + "/update")
+                .then().statusCode(400)
+                .body("errors.code", hasItem("Pattern"));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("models")
+    @DisplayName("create() with a key with a sub path answers 200")
+    void subPathKey(String path, BiFunction<UUID, String, Object> body) {
+        given().contentType(ContentType.JSON).body(body.apply(null, "group/" + path + "-" + UUID.randomUUID()))
+                .post(modelPath(path))
+                .then().statusCode(200);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("models")
+    @DisplayName("create() with a key leaving its folder answers 400")
+    void parentSegmentKey(String path, BiFunction<UUID, String, Object> body) {
+        given().contentType(ContentType.JSON).body(body.apply(null, "../" + path))
+                .post(modelPath(path))
+                .then().statusCode(400)
+                .body("errors.code", hasItem("Pattern"));
+    }
+
+    @Test
+    @DisplayName("creating a project with a key of two dots answers 400")
+    void doubleDotProjectKey() {
+        given().contentType(ContentType.JSON)
+                .body(new ProjectModelDTO(null, "Bad key", "..", null, null, null, false))
+                .post("/project")
+                .then().statusCode(400)
+                .body("errors.code", hasItem("Pattern"));
+    }
+
+    @Test
+    @DisplayName("creating a project with a key with a sub path answers 400")
+    void malformedProjectKey() {
+        given().contentType(ContentType.JSON)
+                .body(new ProjectModelDTO(null, "Bad key", "my/project", null, null, null, false))
+                .post("/project")
+                .then().statusCode(400)
+                .body("errors.code", hasItem("Pattern"));
     }
 
     @Test

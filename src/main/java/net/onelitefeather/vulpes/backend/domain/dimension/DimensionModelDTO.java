@@ -11,12 +11,14 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.dimension.CardinalLight;
 import net.onelitefeather.vulpes.api.model.dimension.DimensionTypeEntity;
 import net.onelitefeather.vulpes.api.model.dimension.Skybox;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.validation.ColumnLength;
+import net.onelitefeather.vulpes.backend.validation.KeyFormat;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +40,7 @@ public record DimensionModelDTO(
         @Schema(description = "Key of the dimension type", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
         @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
+        @Pattern(regexp = KeyFormat.PATH_PATTERN, message = KeyFormat.PATH_MESSAGE, groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Whether the dimension type has a fixed time", requiredMode = Schema.RequiredMode.REQUIRED)
         boolean hasFixedTime,

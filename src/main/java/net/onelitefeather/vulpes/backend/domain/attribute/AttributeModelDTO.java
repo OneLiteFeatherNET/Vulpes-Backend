@@ -7,11 +7,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.AttributeEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.backend.validation.ColumnLength;
+import net.onelitefeather.vulpes.backend.validation.KeyFormat;
 
 import java.util.UUID;
 
@@ -33,6 +35,7 @@ public record AttributeModelDTO(
         @Schema(description = "The key which represents the variable after the generation", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank(groups = {Create.class, Update.class})
         @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
+        @Pattern(regexp = KeyFormat.PATH_PATTERN, message = KeyFormat.PATH_MESSAGE, groups = {Create.class, Update.class})
         String key,
         @Schema(description = "Default value of the attribute", requiredMode = Schema.RequiredMode.REQUIRED)
         double defaultValue,
