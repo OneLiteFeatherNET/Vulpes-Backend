@@ -11,6 +11,7 @@ import jakarta.validation.constraints.Size;
 import net.onelitefeather.vulpes.api.model.font.FontStringEntity;
 import net.onelitefeather.vulpes.backend.validation.ValidationGroup;
 import net.onelitefeather.vulpes.backend.validation.ColumnLength;
+import net.onelitefeather.vulpes.backend.validation.FontPart;
 
 import java.util.UUID;
 
@@ -30,8 +31,9 @@ public record FontStringDTO(
         @Null(groups = Create.class)
         @NotNull(groups = Update.class)
         UUID id,
-        @Schema(description = "Content of the line", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Content of the line, only characters of the Unicode Private Use Area", requiredMode = Schema.RequiredMode.REQUIRED)
         @Size(max = ColumnLength.VARCHAR, groups = {Create.class, Update.class})
+        @FontPart(groups = {Create.class, Update.class})
         @NotBlank(groups = {Create.class, Update.class}) String line,
         @Schema(description = "The internal order index", requiredMode = Schema.RequiredMode.REQUIRED)
         @PositiveOrZero(groups = {Create.class, Update.class}) int orderIndex
