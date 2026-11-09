@@ -116,7 +116,7 @@ class StringLengthValidationIntegrationTest {
                 .extract().path("id");
 
         given().contentType(ContentType.JSON)
-                .body(new SoundFileSourceDTO(null, TOO_LONG, 1.0f, 1.0f, 1, false, 16, false, "file"))
+                .body(new SoundFileSourceDTO(null, TOO_LONG, 1.0f, 1.0f, 1, false, 16, false, "file", null))
                 .post("/sound/" + soundId + "/sources")
                 .then().statusCode(400)
                 .body("errors.code", hasItem("Size"));
