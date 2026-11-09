@@ -189,7 +189,7 @@ class ProjectContentControllerIntegrationTest implements TestPropertyProvider {
                 .path("id"));
         for (int index = 0; index < 2; index++) {
             given().contentType(ContentType.JSON)
-                    .body("{\"line\":\"char" + index + "\",\"orderIndex\":" + index + "}")
+                    .body("{\"line\":\"" + (char) (0xE000 + index) + "\",\"orderIndex\":" + index + "}")
                     .when()
                     .put("/font/chars/" + fontId)
                     .then()

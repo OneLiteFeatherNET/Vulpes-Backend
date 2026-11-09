@@ -83,4 +83,16 @@ class RequestBodyValidationIntegrationTest {
         FontStringDTO line = new FontStringDTO(UUID.randomUUID(), "\uE000", -1);
         assertBadRequest("POST", "/font/chars/" + UUID.randomUUID(), line);
     }
+
+    @Test
+    @DisplayName("Creating a char with a line outside the Private Use Area returns 400")
+    void charOutsideFontPart() {
+        assertBadRequest("PUT", "/font/chars/" + UUID.randomUUID(), new FontStringDTO(null, "A", 0));
+    }
+
+    @Test
+    @DisplayName("Creating a char with U+0000, which PostgreSQL cannot store, returns 400 and not 500")
+    void charWithNullCharacter() {
+        assertBadRequest("PUT", "/font/chars/" + UUID.randomUUID(), new FontStringDTO(null, "\uE000\u0000", 0));
+    }
 }

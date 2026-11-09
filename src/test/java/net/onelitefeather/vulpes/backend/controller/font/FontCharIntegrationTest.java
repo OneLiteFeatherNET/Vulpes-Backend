@@ -67,39 +67,39 @@ class FontCharIntegrationTest {
     @Test
     @DisplayName("a character is updated in place")
     void updateCharChangesTheValues() {
-        String id = createChar(fontPath, "abc");
+        String id = createChar(fontPath, "\uE000\uE001\uE002");
 
         JsonPath updated = given().contentType(ContentType.JSON)
-                .body("{\"id\":\"" + id + "\",\"line\":\"xyz\",\"orderIndex\":2}")
+                .body("{\"id\":\"" + id + "\",\"line\":\"\uE010\uE011\",\"orderIndex\":2}")
                 .post(fontPath)
                 .then().statusCode(200)
                 .extract().jsonPath();
 
         assertEquals(id, updated.getString("id"));
-        assertEquals("xyz", updated.getString("line"));
+        assertEquals("\uE010\uE011", updated.getString("line"));
         assertEquals(2, updated.getInt("orderIndex"));
     }
 
     @Test
     @DisplayName("a character of another font can't be updated through this font")
     void updateCharRejectsCharsOfOtherFonts() {
-        String foreign = createChar(otherFontPath, "abc");
+        String foreign = createChar(otherFontPath, "\uE000\uE001\uE002");
 
         given().contentType(ContentType.JSON)
-                .body("{\"id\":\"" + foreign + "\",\"line\":\"xyz\",\"orderIndex\":0}")
+                .body("{\"id\":\"" + foreign + "\",\"line\":\"\uE010\uE011\",\"orderIndex\":0}")
                 .post(fontPath)
                 .then().statusCode(404);
 
         JsonPath other = given().get(otherFontPath).then().statusCode(200).extract().jsonPath();
         assertEquals(List.of(foreign), other.getList("content.id"));
-        assertEquals("abc", other.getString("content[0].line"));
+        assertEquals("\uE000\uE001\uE002", other.getString("content[0].line"));
     }
 
     @Test
     @DisplayName("updating a character that doesn't exist is answered with not found")
     void updateCharRejectsUnknownIds() {
         given().contentType(ContentType.JSON)
-                .body("{\"id\":\"" + UUID.randomUUID() + "\",\"line\":\"xyz\",\"orderIndex\":0}")
+                .body("{\"id\":\"" + UUID.randomUUID() + "\",\"line\":\"\uE010\uE011\",\"orderIndex\":0}")
                 .post(fontPath)
                 .then().statusCode(404);
     }
