@@ -46,7 +46,7 @@ class ServiceMethodValidationIntegrationTest {
     @Test
     @DisplayName("a missing id or body is rejected before the service runs")
     void nullArgumentsAreRejected() {
-        assertViolation("id", () -> fontService.updateCharByFontId(null, new FontStringDTO(UUID.randomUUID(), "x", 0)));
+        assertViolation("id", () -> fontService.updateCharByFontId(null, new FontStringDTO(UUID.randomUUID(), "\uE000", 0)));
         assertViolation("charModel", () -> fontService.updateCharByFontId(UUID.randomUUID(), null));
         assertViolation("pageable", () -> itemService.findLoreById(UUID.randomUUID(), null));
     }
