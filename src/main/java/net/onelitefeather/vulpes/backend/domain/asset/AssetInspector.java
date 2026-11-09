@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -22,8 +24,13 @@ import org.jspecify.annotations.Nullable;
  *   <li>{@code .png} is a {@link AssetKind#TEXTURE}. It must start with the PNG signature and decode.</li>
  *   <li>{@code .json} is a {@link AssetKind#MODEL} and {@code .bbmodel} a {@link AssetKind#BBMODEL}.
  *       Both must be JSON objects.</li>
+ *   <li>{@code .ogg} is a {@link AssetKind#SOUND}. It must be an Ogg Vorbis stream, because the client
+ *       plays no other codec, and it must have one channel, because the client does not attenuate a
+ *       sound with more channels by distance. Only the identification header and the last page are
+ *       read; the audio itself is not decoded.</li>
  *   <li>Any other extension is rejected with {@code ASSET_UNSUPPORTED_TYPE}, broken content with
- *       {@code ASSET_INVALID_CONTENT}. Both are reported on field {@code file}.</li>
+ *       {@code ASSET_INVALID_CONTENT} and a sound with more than one channel with
+ *       {@code ASSET_SOUND_NOT_MONO}. All are reported on field {@code file}.</li>
  * </ul>
  *
  * @author TheMeinerLP
@@ -34,6 +41,12 @@ public final class AssetInspector {
 
     private static final byte[] PNG_SIGNATURE = {(byte) 0x89, 'P', 'N', 'G', '\r', '\n', (byte) 0x1A, '\n'};
     private static final ObjectMapper JSON = new ObjectMapper();
+    private static final byte[] OGG_CAPTURE = {'O', 'g', 'g', 'S'};
+    private static final byte[] VORBIS_IDENTIFICATION = {1, 'v', 'o', 'r', 'b', 'i', 's'};
+    private static final int OGG_PAGE_HEADER_LENGTH = 27;
+    private static final int OGG_BEGINNING_OF_STREAM = 0x02;
+    private static final int VORBIS_IDENTIFICATION_LENGTH = 30;
+    private static final String NOT_VORBIS = "must be an Ogg Vorbis file";
 
     private AssetInspector() {}
 
@@ -43,11 +56,33 @@ public final class AssetInspector {
      * @param kind        the kind of the asset
      * @param width       the width in pixels, only for textures, otherwise {@code null}
      * @param height      the height in pixels, only for textures, otherwise {@code null}
+     * @param channels    the number of audio channels, only for sounds, otherwise {@code null}
+     * @param sampleRate  the sample rate in Hz, only for sounds, otherwise {@code null}
+     * @param durationMs  the duration in milliseconds, only for sounds whose last page carries a
+     *                    granule position, otherwise {@code null}
      */
     public record Inspection(
             AssetKind kind,
             @Nullable Integer width,
-            @Nullable Integer height) {}
+            @Nullable Integer height,
+            @Nullable Integer channels,
+            @Nullable Integer sampleRate,
+            @Nullable Long durationMs) {
+
+        static Inspection of(AssetKind kind) {
+            return new Inspection(kind, null, null, null, null, null);
+        }
+    }
+
+    /**
+     * The values read from an Ogg Vorbis stream.
+     *
+     * @param channels   the number of channels
+     * @param sampleRate the sample rate in Hz
+     * @param durationMs the duration in milliseconds, {@code null} if it cannot be read
+     */
+    public record VorbisInfo(
+            int channels, int sampleRate, @Nullable Long durationMs) {}
 
     /**
      * The dimensions of a decoded PNG.
@@ -70,18 +105,27 @@ public final class AssetInspector {
         return switch (extension) {
             case "png" -> {
                 PngDimensions dimensions = readPng(content, "file");
-                yield new Inspection(AssetKind.TEXTURE, dimensions.width(), dimensions.height());
+                yield new Inspection(AssetKind.TEXTURE, dimensions.width(), dimensions.height(), null, null, null);
             }
             case "json" -> {
                 readJsonObject(content, "file");
-                yield new Inspection(AssetKind.MODEL, null, null);
+                yield Inspection.of(AssetKind.MODEL);
             }
             case "bbmodel" -> {
                 readJsonObject(content, "file");
-                yield new Inspection(AssetKind.BBMODEL, null, null);
+                yield Inspection.of(AssetKind.BBMODEL);
+            }
+            case "ogg" -> {
+                VorbisInfo vorbis = readVorbis(content, "file");
+                if (vorbis.channels() != 1) {
+                    throw fileViolation(AssetViolationCode.SOUND_NOT_MONO, "must have exactly one channel");
+                }
+                yield new Inspection(
+                        AssetKind.SOUND, null, null, vorbis.channels(), vorbis.sampleRate(), vorbis.durationMs());
             }
             default ->
-                throw fileViolation(AssetViolationCode.UNSUPPORTED_TYPE, "must be a .png, .json or .bbmodel file");
+                throw fileViolation(
+                        AssetViolationCode.UNSUPPORTED_TYPE, "must be a .png, .json, .bbmodel or .ogg file");
         };
     }
 
@@ -129,6 +173,64 @@ public final class AssetInspector {
         } catch (IOException exception) {
             throw violation(field, AssetViolationCode.INVALID_CONTENT, "must be a JSON object");
         }
+    }
+
+    /**
+     * Reads the identification header of an Ogg Vorbis stream, and the duration from the granule
+     * position of its last page.
+     *
+     * <p>The first page must start the stream and carry the Vorbis identification header with version
+     * 0, at least one channel, a sample rate above 0 and the framing bit set. Page checksums are not
+     * verified.
+     *
+     * @param content the bytes to read
+     * @param field   the field to name in the violation
+     * @return the channels, the sample rate and, if it can be read, the duration
+     * @throws ApiException {@code VALIDATION_FAILED} with {@code ASSET_INVALID_CONTENT} on the field
+     */
+    public static VorbisInfo readVorbis(byte[] content, String field) {
+        if (content == null
+                || content.length < OGG_PAGE_HEADER_LENGTH
+                || !startsWith(content, 0, OGG_CAPTURE)
+                || content[4] != 0
+                || (content[5] & OGG_BEGINNING_OF_STREAM) == 0) {
+            throw violation(field, AssetViolationCode.INVALID_CONTENT, NOT_VORBIS);
+        }
+        int segments = content[26] & 0xFF;
+        int packet = OGG_PAGE_HEADER_LENGTH + segments;
+        if (segments == 0
+                || content.length < packet + VORBIS_IDENTIFICATION_LENGTH
+                || !startsWith(content, packet, VORBIS_IDENTIFICATION)) {
+            throw violation(field, AssetViolationCode.INVALID_CONTENT, NOT_VORBIS);
+        }
+        ByteBuffer header = ByteBuffer.wrap(content, packet, VORBIS_IDENTIFICATION_LENGTH)
+                .slice()
+                .order(ByteOrder.LITTLE_ENDIAN);
+        int version = header.getInt(7);
+        int channels = header.get(11) & 0xFF;
+        long sampleRate = header.getInt(12) & 0xFFFFFFFFL;
+        boolean framing = (header.get(29) & 0x01) != 0;
+        if (version != 0 || channels == 0 || sampleRate == 0 || sampleRate > Integer.MAX_VALUE || !framing) {
+            throw violation(field, AssetViolationCode.INVALID_CONTENT, NOT_VORBIS);
+        }
+        return new VorbisInfo(channels, (int) sampleRate, durationMs(content, sampleRate));
+    }
+
+    private static @Nullable Long durationMs(byte[] content, long sampleRate) {
+        for (int start = content.length - OGG_PAGE_HEADER_LENGTH; start > 0; start--) {
+            if (startsWith(content, start, OGG_CAPTURE) && content[start + 4] == 0) {
+                long granule = ByteBuffer.wrap(content, start + 6, Long.BYTES)
+                        .order(ByteOrder.LITTLE_ENDIAN)
+                        .getLong();
+                return granule < 0 ? null : granule * 1000 / sampleRate;
+            }
+        }
+        return null;
+    }
+
+    private static boolean startsWith(byte[] content, int offset, byte[] prefix) {
+        return content.length - offset >= prefix.length
+                && Arrays.equals(content, offset, offset + prefix.length, prefix, 0, prefix.length);
     }
 
     private static String extensionOf(String fileName) {
