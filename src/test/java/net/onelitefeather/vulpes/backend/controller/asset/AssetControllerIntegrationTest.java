@@ -515,4 +515,123 @@ class AssetControllerIntegrationTest implements TestPropertyProvider {
 
         given().when().get(assetPath(project, "/")).then().statusCode(200).body("content", empty());
     }
+
+    private static byte[] monoSound() {
+        return AssetFixtures.oggVorbis(1, 44_100, 110_250);
+    }
+
+    @Test
+    void uploadMonoSoundReturns201WithAudioMetadata() {
+        UUID project = newProjectId();
+        byte[] sound = monoSound();
+
+        String id = postAsset(project, "wind.ogg", "audio/ogg", sound, "vulpes:ambient/wind")
+                .statusCode(201)
+                .body("kind", is("SOUND"))
+                .body("contentType", is("audio/ogg"))
+                .body("size", is(sound.length))
+                .body("sha1", is(Sha1Hex.of(sound)))
+                .body("channels", is(1))
+                .body("sampleRate", is(44_100))
+                .body("durationMs", is(2_500))
+                .body("width", nullValue())
+                .body("height", nullValue())
+                .extract()
+                .path("id");
+
+        byte[] content = given().when()
+                .get(assetPath(project, "/" + id + "/content"))
+                .then()
+                .statusCode(200)
+                .contentType("audio/ogg")
+                .extract()
+                .asByteArray();
+        assertArrayEquals(sound, content);
+    }
+
+    @Test
+    void uploadStereoSoundReturns400AndStoresNothing() {
+        UUID project = newProjectId();
+
+        postAsset(project, "wind.ogg", "audio/ogg", AssetFixtures.oggVorbis(2, 44_100, 110_250), "vulpes:ambient/wind")
+                .statusCode(400)
+                .body("errors.field", hasItem("file"))
+                .body("errors.code", hasItem("ASSET_SOUND_NOT_MONO"));
+
+        given().when().get(assetPath(project, "/")).then().statusCode(200).body("content", empty());
+    }
+
+    @Test
+    void uploadOpusReturns400OnFileField() {
+        UUID project = newProjectId();
+
+        postAsset(project, "wind.ogg", "audio/ogg", AssetFixtures.oggOpus(), "vulpes:ambient/wind")
+                .statusCode(400)
+                .body("errors.field", hasItem("file"))
+                .body("errors.code", hasItem("ASSET_INVALID_CONTENT"));
+    }
+
+    @Test
+    void soundMayShareKeyWithTextureAndModel() {
+        UUID project = newProjectId();
+        postAsset(project, "wind.png", "image/png", AssetFixtures.png(16, 16), "vulpes:ambient/wind")
+                .statusCode(201);
+        postAsset(project, "wind.json", "application/json", AssetFixtures.utf8("{}"), "vulpes:ambient/wind")
+                .statusCode(201);
+
+        postAsset(project, "wind.ogg", "audio/ogg", monoSound(), "vulpes:ambient/wind")
+                .statusCode(201);
+    }
+
+    @Test
+    void duplicateSoundKeyReturns409() {
+        UUID project = newProjectId();
+        postAsset(project, "wind.ogg", "audio/ogg", monoSound(), "vulpes:ambient/wind")
+                .statusCode(201);
+
+        postAsset(project, "wind.ogg", "audio/ogg", monoSound(), "vulpes:ambient/wind")
+                .statusCode(409);
+    }
+
+    @Test
+    void replacingSoundWithStereoReturns400AndKeepsContent() {
+        UUID project = newProjectId();
+        byte[] sound = monoSound();
+        String id = postAsset(project, "wind.ogg", "audio/ogg", sound, "vulpes:ambient/wind")
+                .statusCode(201)
+                .extract()
+                .path("id");
+
+        given().multiPart("file", "wind.ogg", AssetFixtures.oggVorbis(2, 44_100, 110_250), "audio/ogg")
+                .when()
+                .post(assetPath(project, "/" + id + "/content"))
+                .then()
+                .statusCode(400)
+                .body("errors.code", hasItem("ASSET_SOUND_NOT_MONO"));
+
+        byte[] content = given().when()
+                .get(assetPath(project, "/" + id + "/content"))
+                .then()
+                .statusCode(200)
+                .extract()
+                .asByteArray();
+        assertArrayEquals(sound, content);
+    }
+
+    @Test
+    void replacingSoundUpdatesAudioMetadata() {
+        UUID project = newProjectId();
+        String id = postAsset(project, "wind.ogg", "audio/ogg", monoSound(), "vulpes:ambient/wind")
+                .statusCode(201)
+                .extract()
+                .path("id");
+
+        given().multiPart("file", "wind.ogg", AssetFixtures.oggVorbis(1, 48_000, 48_000), "audio/ogg")
+                .when()
+                .post(assetPath(project, "/" + id + "/content"))
+                .then()
+                .statusCode(200)
+                .body("sampleRate", is(48_000))
+                .body("durationMs", is(1_000));
+    }
 }
