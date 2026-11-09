@@ -31,8 +31,8 @@ An Opus stream (`OpusHead`) or anything else answers `ASSET_INVALID_CONTENT` wit
 ### D2. Key space
 `AssetKeySpace.SOUND` is the third key space. `existsByProjectIdAndKeySpaceAndKey` works unchanged. The key rules of `Asset keys are resource locations` apply as they are; the `sounds/` folder is not part of the key, as for textures.
 
-### D3. Size limit per kind
-Micronaut has one multipart limit per server. It rises to 32 MB (`33554432`) and the request limit to 33 MB. `AssetPersistence` checks the size after inspection: sounds up to 32 MB, all other kinds up to 8 MB. Too large answers `413` as a problem response, as today. Revisions keep every version, so large sounds grow the store faster; this is accepted (non-goal of `add-asset-revisions`).
+### D3. One size limit for every kind
+Sounds keep the multipart limit of 8 MB that every asset has. Minecraft sets no limit on sound files. Effects are a few KB, ambient loops up to about 1 MB, and a music track of several minutes in mono Vorbis at about 96 kbit/s stays well below 8 MB. Rejecting stereo halves the size again. A limit per kind was considered and dropped: it needs a larger server and multipart limit plus a check per kind in the service, for files nobody uploads.
 
 ### D4. Link from a source to its sound
 `SoundFileSourceDTO` gets an optional `assetId`. On create and update with `assetId`:
@@ -57,7 +57,7 @@ Alternative considered: resolve `name` against the `SOUND` key space on save, wi
 ## Risks / Trade-offs
 
 - [Stereo music is common] → Refused on purpose: positional sounds need mono. Music tracks have to be down-mixed before the upload. If streamed, non-positional music needs stereo later, a per-source exception can be added without changing the stored data.
-- [32 MB per file with unlimited revisions] → Accepted; pruning stays a non-goal.
+- [Long stereo music cannot be uploaded at all] → Accepted; it must be down-mixed to mono, which also brings it under 8 MB.
 - [Hand-written Ogg parser] → Small scope (identification header and last page), covered by fixtures for mono and stereo Vorbis, Opus, truncated files and a PNG renamed to `.ogg`.
 - [Links without a foreign key on the target] → Every path that deletes sources or sound events deletes the links first (D5); a test covers each path.
 
@@ -66,9 +66,8 @@ Alternative considered: resolve `name` against the `SOUND` key space on save, wi
 - `vulpes-model` release with the new enum values and columns first, then bump `vulpes.model` in `settings.gradle.kts`.
 - Hibernate 6 creates check constraints for `@Enumerated(EnumType.STRING)` columns, and `hbm2ddl update` does not change them. Existing databases need the constraints on `project_asset.kind`, `project_asset.key_space`, `asset_link.target_type` and `asset_link.role` dropped and recreated with the new values, plus the three new nullable columns. With Flyway (`add-flyway-migrations`) this is one `V<n>__sound_assets.sql`; without it the DDL goes into the rollout, also for development databases created before this change.
 - Existing sound sources have no `assetId`; nothing is backfilled. A source whose `name` happens to match an uploaded sound is not linked automatically.
-- Rollback: delete `SOUND` assets and `SOUND_SOURCE` links, restore the old constraints, lower the multipart limit.
+- Rollback: delete `SOUND` assets and `SOUND_SOURCE` links, restore the old constraints.
 
 ## Open Questions
 
-- Is 32 MB the right limit for sounds?
 - Does `add-flyway-migrations` land before this change?
