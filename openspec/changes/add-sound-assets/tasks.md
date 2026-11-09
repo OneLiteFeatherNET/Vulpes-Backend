@@ -9,20 +9,20 @@
 
 - [x] 1.1 Unit tests in `AssetInspectorTest` with fixtures: mono Vorbis accepted with channels, sample rate and duration; stereo Vorbis answers `ASSET_SOUND_NOT_MONO`; Opus, truncated Ogg and a PNG renamed to `.ogg` answer `ASSET_INVALID_CONTENT`
 - [x] 1.2 Integration tests for the asset endpoints: upload a sound (201, kind `SOUND`, `audio/ogg` on download); sound, texture and model share a key; replacing a sound with a stereo file keeps the content
-- [ ] 1.3 Integration tests for the sound source endpoints: link on create; mismatch, wrong kind and other project refused; vanilla name without `assetId` unchanged; update without `assetId` removes the link
-- [ ] 1.4 Integration tests for delete and copy: linked sound answers 409 `ASSET_IN_USE`; deleting the source, then the sound succeeds; deleting the sound event removes the links; delete-all of a project's assets succeeds with links; copy within the project keeps the link, into another project drops it
-- [ ] 1.5 Extend the project content export test with a sound link
+- [x] 1.3 Integration tests for the sound source endpoints: link on create; mismatch, wrong kind and other project refused; vanilla name without `assetId` unchanged; update without `assetId` removes the link
+- [x] 1.4 Integration tests for delete and copy: linked sound answers 409 `ASSET_IN_USE`; deleting the source, then the sound succeeds; deleting the sound event removes the links; delete-all of a project's assets succeeds with links; copy within the project keeps the link, into another project drops it
+- [x] 1.5 Extend the project content export test with a sound link
 
 ## 2. Implementation
 
 - [x] 2.1 Ogg Vorbis parsing and the `ogg` case in `AssetInspector`; `channels`, `sampleRate` and `durationMs` in `Inspection`; `ASSET_SOUND_NOT_MONO` in `AssetViolationCode`
 - [x] 2.2 Store the audio metadata on the asset; add it to `AssetResponseDTO` and the project content export
-- [ ] 2.3 Write and lookup methods on `AssetLinkRepository` (by target, by asset and role, delete by targets)
-- [ ] 2.4 `assetId` on `SoundFileSourceDTO` and `SoundResponseDTO.SoundFileSourceDTO`; link handling and the violation codes `SOUND_SOURCE_ASSET_MISMATCH` and `SOUND_SOURCE_ASSET_INVALID` in `SoundServiceImpl`; unlink on source and sound event delete
-- [ ] 2.5 `ASSET_IN_USE` in `ErrorCode` and the delete check in `AssetPersistence`; delete links first in delete-all
-- [ ] 2.6 Copy links in `SoundModelCopier` within the same project
-- [ ] 2.7 `assetId` on sources in the project content export
-- [ ] 2.8 OpenAPI annotations: kind `SOUND`, `assetId`, `409` on asset delete
+- [x] 2.3 Write and lookup methods on `AssetLinkRepository` (by target, by asset and role, delete by targets)
+- [x] 2.4 `assetId` on `SoundFileSourceDTO` and `SoundResponseDTO.SoundFileSourceDTO`; link handling and the violation codes `SOUND_SOURCE_ASSET_MISMATCH` and `SOUND_SOURCE_ASSET_INVALID` in `SoundServiceImpl`; unlink on source and sound event delete
+- [x] 2.5 `ASSET_IN_USE` in `ErrorCode` and the delete check in `AssetPersistence`; delete links first in delete-all
+- [x] 2.6 Copy links in `SoundModelCopier` within the same project
+- [x] 2.7 `assetId` on sources in the project content export
+- [x] 2.8 OpenAPI annotations: kind `SOUND`, `assetId`, `409` on asset delete
 
 ## 3. Verification
 
