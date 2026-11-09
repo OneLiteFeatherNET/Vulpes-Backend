@@ -2,7 +2,7 @@
 
 ## 0. Model release
 
-- [ ] 0.1 In `vulpes-model`: add `AssetKind.SOUND("audio/ogg")`, `AssetKeySpace.SOUND` (mapped in `AssetKeySpace.of`), `AssetTargetType.SOUND_SOURCE`, `AssetLinkRole.SOUND`, and nullable `channels`, `sampleRate`, `durationMs` on `ProjectAssetEntity` and `ProjectAssetRevisionEntity`; release it
+- [x] 0.1 In `vulpes-model`: add `AssetKind.SOUND("audio/ogg")`, `AssetKeySpace.SOUND` (mapped in `AssetKeySpace.of`), `AssetTargetType.SOUND_SOURCE`, `AssetLinkRole.SOUND`, and nullable `channels`, `sampleRate`, `durationMs` on `ProjectAssetEntity`; released as 3.10.0
 - [ ] 0.2 Bump `vulpes.model` in `settings.gradle.kts`
 
 ## 1. Failing tests first
@@ -16,7 +16,7 @@
 ## 2. Implementation
 
 - [ ] 2.1 Ogg Vorbis parsing and the `ogg` case in `AssetInspector`; `channels`, `sampleRate` and `durationMs` in `Inspection`; `ASSET_SOUND_NOT_MONO` in `AssetViolationCode`
-- [ ] 2.2 Size limit per kind in `AssetPersistence`; raise the multipart limits in `application.yml`; store the new fields on asset and revision; add them to `AssetResponseDTO` and `AssetRevisionResponseDTO`
+- [ ] 2.2 Size limit per kind in `AssetPersistence`; raise the multipart limits in `application.yml`; store the new fields on the asset; add them to `AssetResponseDTO`
 - [ ] 2.3 Write and lookup methods on `AssetLinkRepository` (by target, by asset and role, delete by targets)
 - [ ] 2.4 `assetId` on `SoundFileSourceDTO` and `SoundResponseDTO.SoundFileSourceDTO`; link handling and the violation codes `SOUND_SOURCE_ASSET_MISMATCH` and `SOUND_SOURCE_ASSET_INVALID` in `SoundServiceImpl`; unlink on source and sound event delete
 - [ ] 2.5 `ASSET_IN_USE` in `ErrorCode` and the delete check in `AssetPersistence`; delete links first in delete-all

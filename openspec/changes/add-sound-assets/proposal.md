@@ -38,7 +38,7 @@ None.
 
 ## Impact
 
-- **`vulpes-model`** (new release, today 3.9.1): `AssetKind.SOUND("audio/ogg")`, `AssetKeySpace.SOUND` with `AssetKeySpace.of(SOUND) == SOUND`, `AssetTargetType.SOUND_SOURCE`, `AssetLinkRole.SOUND`, and nullable `channels`, `sample_rate` and `duration_ms` columns on `ProjectAssetEntity` and `ProjectAssetRevisionEntity`.
+- **`vulpes-model`** (released as 3.10.0): `AssetKind.SOUND("audio/ogg")`, `AssetKeySpace.SOUND` with `AssetKeySpace.of(SOUND) == SOUND`, `AssetTargetType.SOUND_SOURCE`, `AssetLinkRole.SOUND`, and nullable `channels`, `sample_rate` and `duration_ms` columns on `ProjectAssetEntity`. Revisions keep only digest and size, as for textures; a restore reads the audio values from the bytes again.
 - **Code**: `AssetInspector` (Ogg Vorbis parser), `AssetViolationCode` (`ASSET_SOUND_NOT_MONO`), `AssetPersistence` (size limit per kind, delete check), `AssetLinkRepository` (write and lookup methods), `SoundFileSourceDTO` and `SoundResponseDTO` (`assetId`), `SoundServiceImpl` (link on create and update, unlink on delete), `SoundModelCopier`, `ProjectContentAssembler`, `ErrorCode` (`ASSET_IN_USE`).
 - **API**: new kind `SOUND` in asset responses; optional `assetId` on sound source requests and responses; asset delete may answer `409`. Existing requests keep working unchanged.
 - **Configuration**: `micronaut.server.multipart.max-file-size` rises to 32 MB, the request limit with it; the 8 MB limit for the other kinds moves into `AssetPersistence`.
