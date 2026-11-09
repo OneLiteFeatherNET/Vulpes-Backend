@@ -372,6 +372,13 @@ public class AssetController {
                     @Content(
                             mediaType = MediaType.APPLICATION_JSON_PROBLEM,
                             schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(
+            responseCode = "409",
+            description = "The asset is a sound that a sound source plays (ASSET_IN_USE).",
+            content =
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_PROBLEM,
+                            schema = @Schema(implementation = ProblemDetail.class)))
     @Delete("/delete/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<AssetResponseDTO> remove(@PathVariable UUID projectId, @PathVariable UUID id) {

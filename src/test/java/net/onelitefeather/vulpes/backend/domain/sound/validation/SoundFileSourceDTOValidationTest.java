@@ -22,7 +22,7 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 10,
                 true,
                 "typeA"
-        );
+        , null);
 
         assertNoViolation(dto, "name");
     }
@@ -39,7 +39,7 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 10,
                 true,
                 "typeA"
-        );
+        , null);
 
         assertViolation(dto, "volume", Update.class);
     }
@@ -56,7 +56,7 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 10,
                 true,
                 "typeA"
-        );
+        , null);
 
         assertViolation(dto, "pitch", Update.class);
     }
@@ -73,7 +73,7 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 10,
                 true,
                 "typeA"
-        );
+        , null);
 
         assertViolation(dto, "weight", Update.class);
     }
@@ -90,7 +90,7 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 0, // invalid
                 true,
                 "typeA"
-        );
+        , null);
 
         assertViolation(dto, "attenuationDistance", Update.class);
     }
@@ -107,7 +107,7 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 10,
                 true,
                 "" // invalid
-        );
+        , null);
         assertNoViolation(dto, "type");
     }
 
@@ -142,6 +142,6 @@ class SoundFileSourceDTOValidationTest extends ValidationTestBase<SoundFileSourc
                 10,
                 true,
                 "typeA"
-        );
+        , null);
     }
 }

@@ -25,17 +25,6 @@ The system SHALL accept a `.ogg` upload as an asset of kind `SOUND`, stored and 
 - **WHEN** the content of a sound asset is replaced with a stereo Ogg Vorbis file
 - **THEN** the system responds with 400 `VALIDATION_FAILED` with `ASSET_SOUND_NOT_MONO` on field `file`, keeps the old content and creates no revision
 
-### Requirement: Upload size depends on the kind
-The system SHALL accept sound files up to 32 MB and files of every other kind up to 8 MB. A larger file SHALL be refused with 413 as a problem response (`application/problem+json`), and nothing SHALL be stored.
-
-#### Scenario: Large sound
-- **WHEN** a valid mono Ogg Vorbis file of 20 MB is uploaded
-- **THEN** the system responds with 201
-
-#### Scenario: Large texture
-- **WHEN** a valid PNG of 20 MB is uploaded
-- **THEN** the system responds with 413 as a problem response and stores nothing
-
 ### Requirement: A sound source can play an uploaded sound
 A sound source SHALL accept an optional `assetId`. When it is set, the asset SHALL be a `SOUND` asset of the project of the sound event, the source SHALL be of type `file`, and its `name` SHALL equal the asset key. The system SHALL then keep exactly one link between the source and the asset, and SHALL return `assetId` with the source. Without `assetId` the source SHALL be saved as before and SHALL have no link.
 

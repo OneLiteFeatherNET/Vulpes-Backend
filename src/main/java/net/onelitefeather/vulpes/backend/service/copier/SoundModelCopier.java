@@ -6,6 +6,9 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
+import net.onelitefeather.vulpes.api.model.asset.AssetLinkEntity;
+import net.onelitefeather.vulpes.api.model.asset.AssetLinkRole;
+import net.onelitefeather.vulpes.api.model.asset.AssetTargetType;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
 import net.onelitefeather.vulpes.api.model.sound.SoundFileSource;
@@ -14,9 +17,12 @@ import net.onelitefeather.vulpes.api.repository.SoundFileSourceRepository;
 import net.onelitefeather.vulpes.api.repository.SoundRepository;
 import net.onelitefeather.vulpes.backend.copier.EntityCopier;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundRelation;
+import net.onelitefeather.vulpes.backend.entity.asset.AssetLinkRepository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,15 +37,18 @@ import java.util.UUID;
 public class SoundModelCopier extends AbstractRelationalModelCopier<SoundEventEntity, SoundRelation> implements EntityCopier<SoundEventEntity, SoundRelation> {
 
     private final SoundFileSourceRepository soundFileSourceRepository;
+    private final AssetLinkRepository assetLinkRepository;
 
     @Inject
     public SoundModelCopier(
             SoundRepository soundRepository,
             SoundFileSourceRepository soundFileSourceRepository,
+            AssetLinkRepository assetLinkRepository,
             ProjectRepository projectRepository
     ) {
         super(soundRepository, projectRepository, soundRepository::existsByProjectIdAndKey, "Sound event");
         this.soundFileSourceRepository = soundFileSourceRepository;
+        this.assetLinkRepository = assetLinkRepository;
     }
 
     /**
@@ -88,9 +97,19 @@ public class SoundModelCopier extends AbstractRelationalModelCopier<SoundEventEn
         }
     }
 
+    /**
+     * Copies the sources of a sound event. Within the same project a copied source plays the same sound asset
+     * as its original; in another project that asset does not exist, so the copy keeps only its name.
+     */
     private void copySources(SoundEventEntity source, SoundEventEntity target) {
+        List<SoundFileSource> originals = soundFileSourceRepository
+                .findSoundFileSourcesBySoundEvent(source.getId(), Pageable.unpaged())
+                .getContent();
+        boolean sameProject = source.getProject().getId().equals(target.getProject().getId());
+        Map<UUID, AssetLinkEntity> links = sameProject ? soundLinks(originals) : Map.of();
         List<SoundFileSource> copies = new ArrayList<>();
-        for (SoundFileSource fileSource : soundFileSourceRepository.findSoundFileSourcesBySoundEvent(source.getId(), Pageable.unpaged()).getContent()) {
+        List<AssetLinkEntity> copiedLinks = new ArrayList<>();
+        for (SoundFileSource fileSource : originals) {
             SoundFileSource copy = new SoundFileSource(
                     null,
                     fileSource.getName(),
@@ -105,6 +124,35 @@ public class SoundModelCopier extends AbstractRelationalModelCopier<SoundEventEn
             copy.setSoundEvent(target);
             copies.add(copy);
         }
-        soundFileSourceRepository.saveAll(copies);
+        List<SoundFileSource> saved = soundFileSourceRepository.saveAll(copies);
+        for (int index = 0; index < originals.size(); index++) {
+            AssetLinkEntity link = links.get(originals.get(index).getId());
+            if (link != null) {
+                copiedLinks.add(soundLink(link, saved.get(index).getId()));
+            }
+        }
+        assetLinkRepository.saveAll(copiedLinks);
+    }
+
+    private Map<UUID, AssetLinkEntity> soundLinks(List<SoundFileSource> sources) {
+        if (sources.isEmpty()) {
+            return Map.of();
+        }
+        List<UUID> ids = sources.stream().map(SoundFileSource::getId).toList();
+        Map<UUID, AssetLinkEntity> links = new HashMap<>();
+        for (AssetLinkEntity link :
+                assetLinkRepository.findTargetLinks(AssetTargetType.SOUND_SOURCE, ids, AssetLinkRole.SOUND)) {
+            links.put(link.getTargetId(), link);
+        }
+        return links;
+    }
+
+    private static AssetLinkEntity soundLink(AssetLinkEntity original, UUID sourceId) {
+        AssetLinkEntity link = new AssetLinkEntity();
+        link.setAsset(original.getAsset());
+        link.setTargetType(AssetTargetType.SOUND_SOURCE);
+        link.setTargetId(sourceId);
+        link.setRole(AssetLinkRole.SOUND);
+        return link;
     }
 }

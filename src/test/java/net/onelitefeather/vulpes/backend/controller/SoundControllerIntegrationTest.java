@@ -219,7 +219,7 @@ class SoundControllerIntegrationTest {
         UUID soundId = createdSound.id();
 
         String fileName = FAKER.internet().slug() + ".ogg";
-        SoundFileSourceDTO requestDTO = new SoundFileSourceDTO(null, fileName, 1.0f, 1.0f, 1, false, 16, false, "file");
+        SoundFileSourceDTO requestDTO = new SoundFileSourceDTO(null, fileName, 1.0f, 1.0f, 1, false, 16, false, "file", null);
         SoundResponseDTO.SoundFileSourceDTO created =
                 given()
                         .contentType(ContentType.JSON)
@@ -252,11 +252,11 @@ class SoundControllerIntegrationTest {
         // create first
         SoundResponseDTO.SoundFileSourceDTO created =
                 given().contentType(ContentType.JSON)
-                        .body(new SoundFileSourceDTO(null, "file2.ogg", 0.8f, 1.1f, 2, true, 32, true, "file"))
+                        .body(new SoundFileSourceDTO(null, "file2.ogg", 0.8f, 1.1f, 2, true, 32, true, "file", null))
                         .when().post(soundPath("/" + soundId + "/sources")).then().statusCode(200)
                         .extract().as(SoundResponseDTO.SoundFileSourceDTO.class);
         // now update
-        SoundFileSourceDTO update = new SoundFileSourceDTO(created.id(), "file2.ogg", 0.9f, 1.0f, 3, true, 32, true, "file");
+        SoundFileSourceDTO update = new SoundFileSourceDTO(created.id(), "file2.ogg", 0.9f, 1.0f, 3, true, 32, true, "file", null);
         given()
                 .contentType(ContentType.JSON)
                 .body(update)
@@ -269,7 +269,7 @@ class SoundControllerIntegrationTest {
     @Test
     void testCreateSource_withPitchOutOfRange_returnsBadRequest() {
         // Validation runs before the lookup, so an unknown sound id still answers 400 instead of 404
-        SoundFileSourceDTO requestDTO = new SoundFileSourceDTO(null, "file3.ogg", 1.0f, 2.5f, 1, false, 16, false, "file");
+        SoundFileSourceDTO requestDTO = new SoundFileSourceDTO(null, "file3.ogg", 1.0f, 2.5f, 1, false, 16, false, "file", null);
         given()
                 .contentType(ContentType.JSON)
                 .body(requestDTO)
@@ -281,7 +281,7 @@ class SoundControllerIntegrationTest {
 
     @Test
     void testCreateSource_withZeroWeight_returnsBadRequest() {
-        SoundFileSourceDTO requestDTO = new SoundFileSourceDTO(null, "file4.ogg", 1.0f, 1.0f, 0, false, 16, false, "file");
+        SoundFileSourceDTO requestDTO = new SoundFileSourceDTO(null, "file4.ogg", 1.0f, 1.0f, 0, false, 16, false, "file", null);
         given()
                 .contentType(ContentType.JSON)
                 .body(requestDTO)

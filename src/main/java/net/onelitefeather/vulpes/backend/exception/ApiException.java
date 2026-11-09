@@ -231,6 +231,18 @@ public class ApiException extends RuntimeException {
     }
 
     /**
+     * The asset is still linked to sound sources and cannot be deleted.
+     *
+     * @param sources the number of sound sources linked to the asset
+     * @return the exception to throw
+     */
+    public static ApiException assetInUse(long sources) {
+        return new ApiException(
+                ErrorCode.ASSET_IN_USE,
+                "The asset is played by " + sources + " sound source(s). Unlink or delete them first.");
+    }
+
+    /**
      * The If-Match precondition of an asset replacement does not match the stored content.
      *
      * @param currentEtag the quoted ETag of the stored content, so the client can decide how to continue

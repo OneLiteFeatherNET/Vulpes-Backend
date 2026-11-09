@@ -267,6 +267,7 @@ public record ProjectContentDTO(
      * @param attenuationDistance the attenuation distance
      * @param preload             whether the sound is preloaded
      * @param type                the type of the sound source
+     * @param assetId             the sound asset the source plays, or {@code null}
      */
     @Serdeable
     @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -279,7 +280,8 @@ public record ProjectContentDTO(
             boolean stream,
             int attenuationDistance,
             boolean preload,
-            String type
+            String type,
+            UUID assetId
     ) {
     }
 
@@ -355,6 +357,9 @@ public record ProjectContentDTO(
      * @param sha1          the SHA-1 of the asset content
      * @param width         the width of a texture, or {@code null}
      * @param height        the height of a texture, or {@code null}
+     * @param channels      the number of audio channels of a sound, or {@code null}
+     * @param sampleRate    the sample rate of a sound in Hz, or {@code null}
+     * @param durationMs    the duration of a sound in milliseconds, or {@code null}
      * @param sourceAssetId the id of the asset this asset was derived from, or {@code null}
      * @param revisions     the revisions of the asset, ordered by number
      * @param links         the links of the asset, ordered by target type, target id and role
@@ -373,6 +378,9 @@ public record ProjectContentDTO(
             String sha1,
             Integer width,
             Integer height,
+            Integer channels,
+            Integer sampleRate,
+            Long durationMs,
             UUID sourceAssetId,
             List<AssetRevisionDTO> revisions,
             List<AssetLinkDTO> links

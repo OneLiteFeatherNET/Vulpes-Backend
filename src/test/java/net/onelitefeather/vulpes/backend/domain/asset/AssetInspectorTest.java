@@ -94,4 +94,78 @@ class AssetInspectorTest {
 
         assertEquals(AssetKind.BBMODEL, inspection.kind(), "a .bbmodel upload must be a Blockbench model");
     }
+
+    @Test
+    void monoVorbisIsInspectedAsSoundWithAudioMetadata() {
+        AssetInspector.Inspection inspection =
+                AssetInspector.inspect("wind.ogg", AssetFixtures.oggVorbis(1, 44_100, 110_250));
+
+        assertEquals(AssetKind.SOUND, inspection.kind(), "a mono Ogg Vorbis upload must be a sound");
+        assertEquals(1, inspection.channels(), "the channel count must be read from the header");
+        assertEquals(44_100, inspection.sampleRate(), "the sample rate must be read from the header");
+        assertEquals(2_500L, inspection.durationMs(), "the duration must follow from the last granule position");
+        assertNull(inspection.width(), "a sound must not carry a width");
+    }
+
+    @Test
+    void soundWithoutReadableDurationIsAccepted() {
+        AssetInspector.Inspection inspection =
+                AssetInspector.inspect("wind.ogg", AssetFixtures.oggVorbis(1, 44_100, -1));
+
+        assertEquals(AssetKind.SOUND, inspection.kind(), "a missing duration must not reject the sound");
+        assertNull(inspection.durationMs(), "an unreadable duration must stay empty");
+    }
+
+    @Test
+    void stereoVorbisIsRejectedAsNotMono() {
+        ApiException exception = assertThrows(
+                ApiException.class,
+                () -> AssetInspector.inspect("wind.ogg", AssetFixtures.oggVorbis(2, 44_100, 110_250)),
+                "a stereo sound must not be accepted");
+
+        assertEquals("file", exception.violations().get(0).field(), "the violation must name the file field");
+        assertEquals(
+                "ASSET_SOUND_NOT_MONO", exception.violations().get(0).code(), "the code must be ASSET_SOUND_NOT_MONO");
+    }
+
+    @Test
+    void opusIsRejectedAsInvalidContent() {
+        ApiException exception = assertThrows(
+                ApiException.class,
+                () -> AssetInspector.inspect("wind.ogg", AssetFixtures.oggOpus()),
+                "an Ogg Opus stream is not playable by the client");
+
+        assertEquals(
+                "ASSET_INVALID_CONTENT",
+                exception.violations().get(0).code(),
+                "the code must be ASSET_INVALID_CONTENT");
+    }
+
+    @Test
+    void truncatedOggIsRejectedAsInvalidContent() {
+        byte[] truncated = Arrays.copyOf(AssetFixtures.oggVorbis(1, 44_100, 110_250), 40);
+
+        ApiException exception = assertThrows(
+                ApiException.class,
+                () -> AssetInspector.inspect("wind.ogg", truncated),
+                "a truncated Ogg stream must not be accepted");
+
+        assertEquals(
+                "ASSET_INVALID_CONTENT",
+                exception.violations().get(0).code(),
+                "the code must be ASSET_INVALID_CONTENT");
+    }
+
+    @Test
+    void pngWithOggExtensionIsRejectedAsInvalidContent() {
+        ApiException exception = assertThrows(
+                ApiException.class,
+                () -> AssetInspector.inspect("wind.ogg", AssetFixtures.png(16, 16)),
+                "a PNG renamed to .ogg must not be accepted as a sound");
+
+        assertEquals(
+                "ASSET_INVALID_CONTENT",
+                exception.violations().get(0).code(),
+                "the code must be ASSET_INVALID_CONTENT");
+    }
 }

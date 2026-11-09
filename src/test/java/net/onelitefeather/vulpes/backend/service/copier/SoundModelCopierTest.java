@@ -12,11 +12,13 @@ import net.onelitefeather.vulpes.api.repository.SoundFileSourceRepository;
 import net.onelitefeather.vulpes.api.repository.SoundRepository;
 import net.onelitefeather.vulpes.backend.domain.error.ErrorCode;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundRelation;
+import net.onelitefeather.vulpes.backend.entity.asset.AssetLinkRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -199,6 +201,25 @@ class SoundModelCopierTest {
     private FakeSoundFileSourceRepository soundFileSourceRepository;
     private FakeProjectRepository projectRepository;
     private SoundModelCopier copier;
+
+    /**
+     * A link repository without links. Only the two calls of the copier are answered; links themselves are
+     * covered by {@code SoundAssetLinkIntegrationTest}.
+     */
+    private static AssetLinkRepository noSoundLinks() {
+        return (AssetLinkRepository) Proxy.newProxyInstance(
+                AssetLinkRepository.class.getClassLoader(),
+                new Class<?>[] {AssetLinkRepository.class},
+                (proxy, method, args) -> switch (method.getName()) {
+                    case "findTargetLinks" -> List.of();
+                    case "saveAll" -> {
+                        List<Object> saved = new ArrayList<>();
+                        ((Iterable<?>) args[0]).forEach(saved::add);
+                        yield saved;
+                    }
+                    default -> throw new UnsupportedOperationException(method.getName());
+                });
+    }
     private ProjectEntity projectA;
     private ProjectEntity projectB;
 
@@ -207,7 +228,7 @@ class SoundModelCopierTest {
         soundRepository = new FakeSoundRepository();
         soundFileSourceRepository = new FakeSoundFileSourceRepository();
         projectRepository = new FakeProjectRepository();
-        copier = new SoundModelCopier(soundRepository, soundFileSourceRepository, projectRepository);
+        copier = new SoundModelCopier(soundRepository, soundFileSourceRepository, noSoundLinks(), projectRepository);
 
         projectA = new ProjectEntity(UUID.randomUUID(), "Project A", "project-a", null, null, null, false);
         projectB = new ProjectEntity(UUID.randomUUID(), "Project B", "project-b", null, null, null, false);

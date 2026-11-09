@@ -16,6 +16,9 @@ public final class AssetViolationCode {
     /** The file cannot be decoded, or its JSON is not an object. */
     public static final String INVALID_CONTENT = "ASSET_INVALID_CONTENT";
 
+    /** A sound has more than one channel, so the client would not attenuate it by distance. */
+    public static final String SOUND_NOT_MONO = "ASSET_SOUND_NOT_MONO";
+
     /** The asset key does not match the Minecraft resource location rules. */
     public static final String KEY_INVALID = "ASSET_KEY_INVALID";
 

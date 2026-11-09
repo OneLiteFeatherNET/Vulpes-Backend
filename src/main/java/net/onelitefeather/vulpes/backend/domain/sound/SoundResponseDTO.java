@@ -7,6 +7,7 @@ import net.onelitefeather.vulpes.api.model.sound.SoundFileSource;
 
 import java.time.Instant;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 @Schema(description = "Response DTO for Sound model")
 @Serdeable
@@ -26,9 +27,29 @@ public interface SoundResponseDTO {
             @Schema(description = "Stream") boolean stream,
             @Schema(description = "AttenuationDistance") int attenuationDistance,
             @Schema(description = "preload") boolean preload,
-            @Schema(description = "type") String type
+            @Schema(description = "type") String type,
+            @Schema(description = "Sound asset the source plays, null if it plays a file that is not uploaded")
+            @Nullable UUID assetId
     ) implements SoundResponseDTO {
+
+        /**
+         * Creates the response of a source that plays no uploaded sound.
+         *
+         * @param source the stored source
+         * @return the response body
+         */
         public static SoundFileSourceDTO createDTO(SoundFileSource source) {
+            return createDTO(source, null);
+        }
+
+        /**
+         * Creates the response of a source.
+         *
+         * @param source  the stored source
+         * @param assetId the sound asset the source plays, {@code null} if none
+         * @return the response body
+         */
+        public static SoundFileSourceDTO createDTO(SoundFileSource source, @Nullable UUID assetId) {
             return new SoundFileSourceDTO(
                     source.getId(),
                     source.getName(),
@@ -38,7 +59,8 @@ public interface SoundResponseDTO {
                     source.isStreamable(),
                     source.getAttenuationDistance(),
                     source.isPreloadable(),
-                    source.getType()
+                    source.getType(),
+                    assetId
             );
         }
     }

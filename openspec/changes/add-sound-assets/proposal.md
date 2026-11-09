@@ -17,7 +17,7 @@ This change depends on `add-project-assets` and `add-asset-revisions`, and on a 
 - Deleting a sound asset that a source is linked to is refused with `409 ASSET_IN_USE`. Deleting a source or its sound event removes its link.
 - Copying a sound event keeps the links of its sources within the same project. A copy into another project drops `assetId`; the sources keep their names.
 - The project content export lists the sound links with the other asset links.
-- The upload limit becomes per kind: sounds up to 32 MB, all other kinds stay at 8 MB.
+- Sounds share the upload limit of 8 MB with every other kind. That is more than ten minutes of mono Vorbis at common bitrates.
 
 ## Capabilities
 
@@ -38,8 +38,8 @@ None.
 
 ## Impact
 
-- **`vulpes-model`** (new release, today 3.9.1): `AssetKind.SOUND("audio/ogg")`, `AssetKeySpace.SOUND` with `AssetKeySpace.of(SOUND) == SOUND`, `AssetTargetType.SOUND_SOURCE`, `AssetLinkRole.SOUND`, and nullable `channels`, `sample_rate` and `duration_ms` columns on `ProjectAssetEntity` and `ProjectAssetRevisionEntity`.
-- **Code**: `AssetInspector` (Ogg Vorbis parser), `AssetViolationCode` (`ASSET_SOUND_NOT_MONO`), `AssetPersistence` (size limit per kind, delete check), `AssetLinkRepository` (write and lookup methods), `SoundFileSourceDTO` and `SoundResponseDTO` (`assetId`), `SoundServiceImpl` (link on create and update, unlink on delete), `SoundModelCopier`, `ProjectContentAssembler`, `ErrorCode` (`ASSET_IN_USE`).
+- **`vulpes-model`** (released as 3.10.0): `AssetKind.SOUND("audio/ogg")`, `AssetKeySpace.SOUND` with `AssetKeySpace.of(SOUND) == SOUND`, `AssetTargetType.SOUND_SOURCE`, `AssetLinkRole.SOUND`, and nullable `channels`, `sample_rate` and `duration_ms` columns on `ProjectAssetEntity`. Revisions keep only digest and size, as for textures; a restore reads the audio values from the bytes again.
+- **Code**: `AssetInspector` (Ogg Vorbis parser), `AssetViolationCode` (`ASSET_SOUND_NOT_MONO`), `AssetPersistence` (audio metadata, delete check), `AssetLinkRepository` (write and lookup methods), `SoundFileSourceDTO` and `SoundResponseDTO` (`assetId`), `SoundServiceImpl` (link on create and update, unlink on delete), `SoundModelCopier`, `ProjectContentAssembler`, `ErrorCode` (`ASSET_IN_USE`).
 - **API**: new kind `SOUND` in asset responses; optional `assetId` on sound source requests and responses; asset delete may answer `409`. Existing requests keep working unchanged.
-- **Configuration**: `micronaut.server.multipart.max-file-size` rises to 32 MB, the request limit with it; the 8 MB limit for the other kinds moves into `AssetPersistence`.
+- **Configuration**: none; the multipart limit of 8 MB stays.
 - **Data**: new enum values in `project_asset.kind`, `project_asset.key_space`, `asset_link.target_type` and `asset_link.role`, and three nullable columns. See design for the check constraints.

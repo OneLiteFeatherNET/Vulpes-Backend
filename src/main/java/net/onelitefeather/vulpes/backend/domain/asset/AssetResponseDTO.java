@@ -23,6 +23,9 @@ import org.jspecify.annotations.Nullable;
  * @param sha1            the SHA-1 digest of the content in lowercase hex
  * @param width           the width in pixels, only for textures
  * @param height          the height in pixels, only for textures
+ * @param channels        the number of audio channels, only for sounds
+ * @param sampleRate      the sample rate in Hz, only for sounds
+ * @param durationMs      the duration in milliseconds, only for sounds whose duration could be read
  * @param sourceAssetId   the Blockbench model a texture was extracted from, otherwise {@code null}
  * @param derivedAssetIds the textures extracted from this Blockbench model, otherwise empty
  * @param creationDate    the point in time at which the asset was created
@@ -31,7 +34,7 @@ import org.jspecify.annotations.Nullable;
  * @version 1.0.0
  * @since 3.3.0
  */
-@Schema(name = "ResponseAssetDTO", description = "A project asset: texture, model or Blockbench model.")
+@Schema(name = "ResponseAssetDTO", description = "A project asset: texture, model, Blockbench model or sound.")
 @Serdeable
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record AssetResponseDTO(
@@ -65,6 +68,15 @@ public record AssetResponseDTO(
 
         @Schema(description = "Height in pixels, textures only") @Nullable
         Integer height,
+
+        @Schema(description = "Number of audio channels, sounds only") @Nullable
+        Integer channels,
+
+        @Schema(description = "Sample rate in Hz, sounds only", example = "44100") @Nullable
+        Integer sampleRate,
+
+        @Schema(description = "Duration in milliseconds, sounds only; null if it could not be read") @Nullable
+        Long durationMs,
 
         @Schema(description = "Blockbench model this texture was extracted from") @Nullable
         UUID sourceAssetId,
