@@ -106,26 +106,15 @@ public class AssetPersistence {
         }
         requireTextureKeysAvailable(projectId, textures, Set.of());
 
-        ProjectAssetEntity asset = store(
-                project,
-                key,
-                displayName,
-                upload.fileName(),
-                inspection.kind(),
-                inspection.width(),
-                inspection.height(),
-                upload.content(),
-                null,
-                comment);
+        ProjectAssetEntity asset =
+                store(project, key, displayName, upload.fileName(), inspection, upload.content(), null, comment);
         for (ExtractedTexture texture : textures) {
             store(
                     project,
                     texture.key(),
                     texture.displayName(),
                     texture.fileName(),
-                    AssetKind.TEXTURE,
-                    texture.width(),
-                    texture.height(),
+                    textureInspection(texture),
                     texture.content(),
                     asset,
                     null);
@@ -255,9 +244,7 @@ public class AssetPersistence {
             String key,
             String displayName,
             String fileName,
-            AssetKind kind,
-            @Nullable Integer width,
-            @Nullable Integer height,
+            AssetInspector.Inspection inspection,
             byte[] content,
             @Nullable ProjectAssetEntity sourceAsset,
             @Nullable String comment) {
@@ -265,14 +252,9 @@ public class AssetPersistence {
         asset.setProject(project);
         asset.setKey(key);
         asset.setDisplayName(displayName);
-        asset.setKind(kind);
-        asset.setKeySpace(AssetKeySpace.of(kind));
-        asset.setFileName(fileName);
-        asset.setContentType(kind.contentType());
-        asset.setSize(content.length);
-        asset.setSha1(Sha1Hex.of(content));
-        asset.setWidth(width);
-        asset.setHeight(height);
+        asset.setKind(inspection.kind());
+        asset.setKeySpace(AssetKeySpace.of(inspection.kind()));
+        applyContent(asset, fileName, inspection, content);
         asset.setSourceAsset(sourceAsset);
         ProjectAssetEntity saved = assetRepository.save(asset);
         addRevision(saved, 1, content, comment);
@@ -316,22 +298,36 @@ public class AssetPersistence {
                     texture.key(),
                     texture.displayName(),
                     texture.fileName(),
-                    AssetKind.TEXTURE,
-                    texture.width(),
-                    texture.height(),
+                    textureInspection(texture),
                     texture.content(),
                     asset,
                     null);
         }
+        applyContent(asset, fileName, inspection, content);
+        assetRepository.update(asset);
+        addRevision(asset, number, content, comment);
+        contentSaved.publishEvent(new AssetContentSaved(asset.getId(), asset.getSha1(), number));
+    }
+
+    /**
+     * Sets the metadata of the current content: file name, media type, size, digest, and the values the
+     * inspection read from the bytes.
+     */
+    private static void applyContent(
+            ProjectAssetEntity asset, String fileName, AssetInspector.Inspection inspection, byte[] content) {
         asset.setFileName(fileName);
         asset.setContentType(inspection.kind().contentType());
         asset.setSize(content.length);
         asset.setSha1(Sha1Hex.of(content));
         asset.setWidth(inspection.width());
         asset.setHeight(inspection.height());
-        assetRepository.update(asset);
-        addRevision(asset, number, content, comment);
-        contentSaved.publishEvent(new AssetContentSaved(asset.getId(), asset.getSha1(), number));
+        asset.setChannels(inspection.channels());
+        asset.setSampleRate(inspection.sampleRate());
+        asset.setDurationMs(inspection.durationMs());
+    }
+
+    private static AssetInspector.Inspection textureInspection(ExtractedTexture texture) {
+        return new AssetInspector.Inspection(AssetKind.TEXTURE, texture.width(), texture.height(), null, null, null);
     }
 
     /**

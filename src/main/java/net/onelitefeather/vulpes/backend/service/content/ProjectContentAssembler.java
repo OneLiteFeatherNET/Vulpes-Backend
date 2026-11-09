@@ -237,6 +237,9 @@ public final class ProjectContentAssembler {
                         asset.getSha1(),
                         asset.getWidth(),
                         asset.getHeight(),
+                        asset.getChannels(),
+                        asset.getSampleRate(),
+                        asset.getDurationMs(),
                         asset.getSourceAsset() == null ? null : asset.getSourceAsset().getId(),
                         children(revisions, asset.getId(), revision -> new AssetRevisionDTO(
                                 revision.getId(),
