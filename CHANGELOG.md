@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.7.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.6.0...v3.7.0) (2026-11-09)
+
+
+### Features
+
+* **item:** reject duplicate custom model data per item model ([#282](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/282)) ([e570dd7](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/e570dd78d673623707fee8c51361176bfc144368))
+* **project:** export the complete content of a project in one request ([#286](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/286)) ([6e5dc64](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/6e5dc64cb05b74a2916647594435e75b6693c004))
+* **sound:** upload sound files as project assets and link them to sound sources ([#291](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/291)) ([35534ef](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/35534ef8127215ddc0a6ed21c9070a09805ab7de))
+* **validation:** restrict font lines to the private use area ([#288](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/288)) ([047a4e3](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/047a4e3874706ff2b233b25cb2a1f22982a6a6a5))
+* **validation:** restrict the characters of project and model keys ([#284](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/284)) ([6e25f0e](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/6e25f0e3e95e9e0c253ca66fe7679aa6e1d1958e))
+
+
+### Bug Fixes
+
+* **deps:** update dependency net.onelitefeather:vulpes-model to v3.10.0 ([#290](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/290)) ([56710a1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/56710a1a3ff6804376b09486d611dc602c43759c))
+* **font:** persist the mapper of a font request ([#279](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/279)) ([46ddc68](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/46ddc680b132a3eadea8c0f4c661377cc6cc8522))
+* **sound:** return the preload flag of a sound source ([#281](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/281)) ([4c66631](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/4c6663194baf3da4bac543ae5d55576a600114a8))
+* **validation:** reject strings longer than their column ([#283](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/283)) ([ac53c05](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/ac53c05bd3876b7db155850398058e8d03fbc3de))
+
 ## [3.6.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.5.0...v3.6.0) (2026-11-05)
 
 
