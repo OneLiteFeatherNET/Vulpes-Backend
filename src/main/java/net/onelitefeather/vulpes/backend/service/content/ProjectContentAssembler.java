@@ -17,6 +17,8 @@ import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.api.model.advancement.AdvancementEntity;
 import net.onelitefeather.vulpes.api.model.asset.AssetLinkEntity;
+import net.onelitefeather.vulpes.api.model.asset.AssetLinkRole;
+import net.onelitefeather.vulpes.api.model.asset.AssetTargetType;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetRevisionEntity;
 import net.onelitefeather.vulpes.api.model.dimension.DimensionAttributeEntity;
@@ -144,6 +146,12 @@ public final class ProjectContentAssembler {
         Map<UUID, List<ProjectAssetRevisionEntity>> revisions = group(rows.assetRevisions(),
                 revision -> revision.getAsset().getId(), REVISION_ORDER);
         Map<UUID, List<AssetLinkEntity>> links = group(rows.assetLinks(), link -> link.getAsset().getId(), LINK_ORDER);
+        Map<UUID, UUID> playedSounds = new HashMap<>();
+        for (AssetLinkEntity link : rows.assetLinks()) {
+            if (link.getTargetType() == AssetTargetType.SOUND_SOURCE && link.getRole() == AssetLinkRole.SOUND) {
+                playedSounds.put(link.getTargetId(), link.getAsset().getId());
+            }
+        }
 
         return new ProjectContentDTO(
                 null,
@@ -206,7 +214,8 @@ public final class ProjectContentAssembler {
                                 source.isStreamable(),
                                 source.getAttenuationDistance(),
                                 source.isPreloadable(),
-                                source.getType())))
+                                source.getType(),
+                                playedSounds.get(source.getId()))))
                 ).toList(),
                 sorted(rows.expressionFunctions(), FUNCTION_ORDER).stream().map(function -> new ExpressionFunctionDTO(
                         function.getId(),

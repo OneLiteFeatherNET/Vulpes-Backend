@@ -101,7 +101,7 @@ public class SeedValidator {
                 sound.getKeyName(), sound.getSubTitle(), sound.getComment()));
         sound.getSoundData().forEach(s -> check(problems, where + " source " + s.getName(),
                 new SoundFileSourceDTO(s.getId(), s.getName(), s.getVolume(), s.getPitch(), s.getWeight(),
-                        s.isStreamable(), s.getAttenuationDistance(), s.isPreloadable(), s.getType())));
+                        s.isStreamable(), s.getAttenuationDistance(), s.isPreloadable(), s.getType(), null)));
         fail(problems);
     }
 

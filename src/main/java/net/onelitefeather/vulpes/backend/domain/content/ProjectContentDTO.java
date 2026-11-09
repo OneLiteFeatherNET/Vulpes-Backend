@@ -267,6 +267,7 @@ public record ProjectContentDTO(
      * @param attenuationDistance the attenuation distance
      * @param preload             whether the sound is preloaded
      * @param type                the type of the sound source
+     * @param assetId             the sound asset the source plays, or {@code null}
      */
     @Serdeable
     @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -279,7 +280,8 @@ public record ProjectContentDTO(
             boolean stream,
             int attenuationDistance,
             boolean preload,
-            String type
+            String type,
+            UUID assetId
     ) {
     }
 

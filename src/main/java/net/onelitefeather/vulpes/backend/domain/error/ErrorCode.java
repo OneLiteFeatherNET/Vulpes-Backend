@@ -67,6 +67,12 @@ public enum ErrorCode {
     ASSET_PRECONDITION_FAILED(HttpStatus.PRECONDITION_FAILED, "Asset precondition failed"),
 
     /**
+     * The asset cannot be deleted, because a sound source still plays it. The source has to be unlinked
+     * or deleted first.
+     */
+    ASSET_IN_USE(HttpStatus.CONFLICT, "Asset in use"),
+
+    /**
      * The HTTP method is not supported for the addressed path.
      */
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed"),

@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import net.onelitefeather.vulpes.api.model.asset.AssetKeySpace;
 import net.onelitefeather.vulpes.api.model.asset.AssetKind;
+import net.onelitefeather.vulpes.api.model.asset.AssetLinkRole;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetRevisionEntity;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
@@ -24,6 +25,7 @@ import net.onelitefeather.vulpes.backend.domain.asset.BbModelTextureExtractor;
 import net.onelitefeather.vulpes.backend.domain.asset.BbModelTextureExtractor.ExtractedTexture;
 import net.onelitefeather.vulpes.backend.domain.asset.Sha1Hex;
 import net.onelitefeather.vulpes.backend.domain.error.ProblemDetail;
+import net.onelitefeather.vulpes.backend.entity.asset.AssetLinkRepository;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRepository;
 import net.onelitefeather.vulpes.backend.entity.asset.ProjectAssetRevisionRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
@@ -55,6 +57,7 @@ public class AssetPersistence {
 
     private final ProjectAssetRepository assetRepository;
     private final ProjectAssetRevisionRepository revisionRepository;
+    private final AssetLinkRepository linkRepository;
     private final ProjectRepository projectRepository;
     private final AssetStorage storage;
     private final ApplicationEventPublisher<AssetContentSaved> contentSaved;
@@ -64,6 +67,7 @@ public class AssetPersistence {
      *
      * @param assetRepository    the repository of assets
      * @param revisionRepository the repository of asset revisions
+     * @param linkRepository     the repository of links, which keep a played sound from being deleted
      * @param projectRepository  the repository of projects
      * @param storage            the object storage holding the bytes
      * @param contentSaved       announces a stored content; listeners act after the commit
@@ -72,11 +76,13 @@ public class AssetPersistence {
     public AssetPersistence(
             ProjectAssetRepository assetRepository,
             ProjectAssetRevisionRepository revisionRepository,
+            AssetLinkRepository linkRepository,
             ProjectRepository projectRepository,
             AssetStorage storage,
             ApplicationEventPublisher<AssetContentSaved> contentSaved) {
         this.assetRepository = assetRepository;
         this.revisionRepository = revisionRepository;
+        this.linkRepository = linkRepository;
         this.projectRepository = projectRepository;
         this.storage = storage;
         this.contentSaved = contentSaved;
@@ -209,11 +215,21 @@ public class AssetPersistence {
      *
      * @param projectId the project
      * @param id        the asset
-     * @throws ApiException {@code RESOURCE_NOT_FOUND} if the asset is not in the project
+     * @throws ApiException {@code RESOURCE_NOT_FOUND} if the asset is not in the project, {@code ASSET_IN_USE} if
+     *                      a sound source plays it
      */
     @Transactional
     public void delete(UUID projectId, UUID id) {
         ProjectAssetEntity asset = requireOwnedAsset(projectId, id);
+        long sources = linkRepository.countAssetLinks(id, AssetLinkRole.SOUND);
+        if (sources > 0) {
+            throw ApiException.assetInUse(sources);
+        }
+        removeWithTextures(projectId, asset);
+    }
+
+    private void removeWithTextures(UUID projectId, ProjectAssetEntity asset) {
+        UUID id = asset.getId();
         for (ProjectAssetEntity texture : assetRepository.findBySourceAssetId(id)) {
             removeAsset(projectId, texture);
         }
@@ -221,7 +237,8 @@ public class AssetPersistence {
     }
 
     /**
-     * Deletes all assets of a project. Textures extracted from a model go with the model.
+     * Deletes all assets of a project. Textures extracted from a model go with the model. Links to the assets
+     * are deleted first, so sounds that sound sources play are deleted as well.
      *
      * @param projectId the project
      */
@@ -231,8 +248,10 @@ public class AssetPersistence {
                 assetRepository.findByProjectId(projectId, Pageable.unpaged()).getContent().stream()
                         .filter(asset -> asset.getSourceAsset() == null)
                         .toList();
+        // Deleting every asset of the project also releases the sound sources that play them.
+        linkRepository.deleteProjectLinks(projectId);
         for (ProjectAssetEntity root : roots) {
-            delete(projectId, root.getId());
+            removeWithTextures(projectId, root);
         }
     }
 
