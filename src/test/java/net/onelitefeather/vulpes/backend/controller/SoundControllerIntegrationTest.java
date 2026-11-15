@@ -117,6 +117,41 @@ class SoundControllerIntegrationTest {
     }
 
     @Test
+    void minimumValueAndSourceAreStoredAndReturnedInUpperCase() {
+        String body = """
+                {"uiName": "Rain", "key": "rain-%s", "keyName": "weather.rain", "subTitle": "Rain falls",
+                 "minimumValue": 0.25, "source": "WEATHER"}
+                """.formatted(UUID.randomUUID());
+
+        String id = given().contentType(ContentType.JSON).body(body)
+                .when().post(soundPath(""))
+                .then().statusCode(200)
+                .body("minimumValue", is(0.25f))
+                .body("source", is("WEATHER"))
+                .extract().path("id");
+
+        given()
+        .when()
+                .get(soundPath("/" + id))
+        .then()
+                .statusCode(200)
+                .body("minimumValue", is(0.25f))
+                .body("source", is("WEATHER"));
+    }
+
+    @Test
+    void minimumValueAboveOneIsRejected() {
+        String body = """
+                {"uiName": "Rain", "key": "rain-%s", "keyName": "weather.rain", "subTitle": "Rain falls",
+                 "minimumValue": 1.5, "source": "WEATHER"}
+                """.formatted(UUID.randomUUID());
+
+        given().contentType(ContentType.JSON).body(body)
+                .when().post(soundPath(""))
+                .then().statusCode(400);
+    }
+
+    @Test
     void testGetSoundByIdFound() {
         // create first
         SoundResponseDTO.SoundModelDTO created = given().contentType(ContentType.JSON)
