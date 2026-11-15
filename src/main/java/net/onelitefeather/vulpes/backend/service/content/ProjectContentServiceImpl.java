@@ -1,6 +1,7 @@
 package net.onelitefeather.vulpes.backend.service.content;
 
 import io.micronaut.json.JsonMapper;
+import io.micronaut.transaction.TransactionDefinition;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.util.UUID;
@@ -79,7 +80,9 @@ public class ProjectContentServiceImpl implements ProjectContentService {
      * this concrete method, because the AOP proxy intercepts only there.
      */
     @Override
-    @io.micronaut.transaction.annotation.Transactional(readOnly = true)
+    @io.micronaut.transaction.annotation.Transactional(
+            readOnly = true,
+            propagation = TransactionDefinition.Propagation.REQUIRES_NEW)
     public ProjectContentDTO export(UUID projectId) {
         snapshotTransaction.begin();
         ProjectEntity project = projectRepository.findById(projectId).orElseThrow(ApiException::projectNotFound);

@@ -15,11 +15,14 @@ import jakarta.persistence.EntityManager;
  * project does not configure.
  *
  * <p>PostgreSQL accepts {@code SET TRANSACTION} only before the first query of a transaction, so {@link #begin()}
- * must be the first call inside the transaction.
+ * must be the first call inside the transaction. A pooled connection can carry a transaction that nobody started,
+ * for example when the pool validated it while auto-commit was off; {@link #begin()} therefore rolls that one back
+ * first, so the snapshot starts a fresh transaction.
  */
 @Singleton
 public class SnapshotTransaction {
 
+    private static final String DISCARD_STALE = "ROLLBACK";
     private static final String SET_SNAPSHOT = "SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY";
 
     private final EntityManager entityManager;
@@ -36,7 +39,8 @@ public class SnapshotTransaction {
 
     /**
      * Sets the current transaction to read-only repeatable read. Must run inside a transaction and before any
-     * other statement of that transaction.
+     * other statement of that transaction. Rolls back whatever the connection still has open before, so callers
+     * must not have done work in the same transaction.
      *
      * @throws IllegalStateException if no transaction is active
      */
@@ -44,6 +48,7 @@ public class SnapshotTransaction {
         if (!entityManager.getTransaction().isActive()) {
             throw new IllegalStateException("the snapshot must be taken inside a transaction");
         }
+        entityManager.createNativeQuery(DISCARD_STALE).executeUpdate();
         entityManager.createNativeQuery(SET_SNAPSHOT).executeUpdate();
     }
 }
