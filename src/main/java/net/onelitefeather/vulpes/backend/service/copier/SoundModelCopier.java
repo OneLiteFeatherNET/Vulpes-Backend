@@ -73,7 +73,7 @@ public class SoundModelCopier extends AbstractRelationalModelCopier<SoundEventEn
     @Override
     protected SoundEventEntity copyRoot(SoundEventEntity source, ProjectEntity targetProject, String targetKey, @Nullable String targetName) {
         String resolvedName = (targetName != null && !targetName.isBlank()) ? targetName : source.getUiName();
-        return new SoundEventEntity(
+        SoundEventEntity copy = new SoundEventEntity(
                 null,
                 resolvedName,
                 targetKey,
@@ -88,6 +88,9 @@ public class SoundModelCopier extends AbstractRelationalModelCopier<SoundEventEn
                 List.of(),
                 targetProject
         );
+        copy.setMinimumValue(source.getMinimumValue());
+        copy.setSource(source.getSource());
+        return copy;
     }
 
     @Override

@@ -4,6 +4,7 @@ import io.micronaut.serde.annotation.Serdeable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import net.onelitefeather.vulpes.api.model.sound.SoundEventEntity;
 import net.onelitefeather.vulpes.api.model.sound.SoundFileSource;
+import net.onelitefeather.vulpes.api.model.sound.SoundSource;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -74,6 +75,8 @@ public interface SoundResponseDTO {
      * @param keyName      the key of the sound
      * @param subTitle     the subtitle displayed when the sound is played
      * @param comment      an internal description of the sound event
+     * @param minimumValue the lowest value the sound event accepts, from 0 to 1
+     * @param source       the category the sound event plays in
      * @param projectId    the unique identifier of the project this sound event belongs to
      * @param creationDate     the point in time at which the sound event was created
      * @param modificationDate the point in time at which the sound event was last modified
@@ -90,6 +93,8 @@ public interface SoundResponseDTO {
             @Schema(description = "They key of the sound") String keyName,
             @Schema(description = "The subtitle which is display when the sound is played") String subTitle,
             @Schema(description = "Internal description of the sound event") String comment,
+            @Schema(description = "The lowest value the sound event accepts, from 0 to 1") double minimumValue,
+            @Schema(description = "The category the sound event plays in") SoundSource source,
             @Schema(description = "ID of the project this sound event belongs to") UUID projectId,
             @Schema(description = "The point in time at which the sound event was created") Instant creationDate,
             @Schema(description = "The point in time at which the sound event was last modified") Instant modificationDate
@@ -109,6 +114,8 @@ public interface SoundResponseDTO {
                     event.getKeyName(),
                     event.getSubTitle(),
                     event.getComment(),
+                    event.getMinimumValue(),
+                    event.getSource(),
                     event.getProject().getId(),
                     event.getCreationDate(),
                     event.getModificationDate()

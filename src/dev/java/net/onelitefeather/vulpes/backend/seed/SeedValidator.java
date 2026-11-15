@@ -98,7 +98,8 @@ public class SeedValidator {
         List<String> problems = new ArrayList<>();
         String where = where("sound", sound);
         check(problems, where, new SoundEventDTO(sound.getId(), sound.getUiName(), sound.getKey(),
-                sound.getKeyName(), sound.getSubTitle(), sound.getComment()));
+                sound.getKeyName(), sound.getSubTitle(), sound.getComment(), sound.getMinimumValue(),
+                sound.getSource()));
         sound.getSoundData().forEach(s -> check(problems, where + " source " + s.getName(),
                 new SoundFileSourceDTO(s.getId(), s.getName(), s.getVolume(), s.getPitch(), s.getWeight(),
                         s.isStreamable(), s.getAttenuationDistance(), s.isPreloadable(), s.getType(), null)));

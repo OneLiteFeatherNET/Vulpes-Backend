@@ -17,6 +17,7 @@ import net.onelitefeather.vulpes.api.model.dimension.Skybox;
 import net.onelitefeather.vulpes.api.model.expression.ExpressionFunctionKind;
 import net.onelitefeather.vulpes.api.model.expression.ExpressionVariableType;
 import net.onelitefeather.vulpes.api.model.pack.PackType;
+import net.onelitefeather.vulpes.api.model.sound.SoundSource;
 
 /**
  * The complete content of one project, as served by the project content export.
@@ -239,6 +240,8 @@ public record ProjectContentDTO(
      * @param replace  whether the sound replaces the vanilla sound
      * @param subTitle the subtitle, or {@code null}
      * @param comment  the comment on the sound event, or {@code null}
+     * @param minimumValue the lowest value the sound event accepts, from 0 to 1
+     * @param source   the category the sound event plays in
      * @param sources  the sound sources, ordered by name
      */
     @Serdeable
@@ -251,6 +254,8 @@ public record ProjectContentDTO(
             boolean replace,
             String subTitle,
             String comment,
+            double minimumValue,
+            SoundSource source,
             List<SoundSourceDTO> sources
     ) {
     }
