@@ -205,6 +205,8 @@ public final class ProjectContentAssembler {
                         sound.isReplace(),
                         sound.getSubTitle(),
                         sound.getComment(),
+                        sound.getMinimumValue(),
+                        sound.getSource(),
                         children(soundSources, sound.getId(), source -> new SoundSourceDTO(
                                 source.getId(),
                                 source.getName(),
