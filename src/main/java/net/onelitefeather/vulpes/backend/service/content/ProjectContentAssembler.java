@@ -16,6 +16,7 @@ import net.onelitefeather.vulpes.api.model.AttributeEntity;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.api.model.advancement.AdvancementEntity;
+import net.onelitefeather.vulpes.api.model.blockstate.BlockStateEntity;
 import net.onelitefeather.vulpes.api.model.asset.AssetLinkEntity;
 import net.onelitefeather.vulpes.api.model.asset.AssetLinkRole;
 import net.onelitefeather.vulpes.api.model.asset.AssetTargetType;
@@ -41,6 +42,7 @@ import net.onelitefeather.vulpes.backend.domain.content.ProjectContentDTO.AssetD
 import net.onelitefeather.vulpes.backend.domain.content.ProjectContentDTO.AssetLinkDTO;
 import net.onelitefeather.vulpes.backend.domain.content.ProjectContentDTO.AssetRevisionDTO;
 import net.onelitefeather.vulpes.backend.domain.content.ProjectContentDTO.AttributeDTO;
+import net.onelitefeather.vulpes.backend.domain.content.ProjectContentDTO.BlockStateDTO;
 import net.onelitefeather.vulpes.backend.domain.content.ProjectContentDTO.ComponentDTO;
 import net.onelitefeather.vulpes.backend.domain.content.ProjectContentDTO.DimensionAttributeDTO;
 import net.onelitefeather.vulpes.backend.domain.content.ProjectContentDTO.DimensionDTO;
@@ -112,6 +114,10 @@ public final class ProjectContentAssembler {
     private static final Comparator<PackMetaEntity> PACK_ORDER =
             Comparator.<PackMetaEntity, String>comparing(pack -> name(pack.getPackType()), TEXT)
                     .thenComparing(PackMetaEntity::getId, IDS);
+    private static final Comparator<BlockStateEntity> BLOCK_STATE_ORDER =
+            Comparator.<BlockStateEntity, String>comparing(BlockStateEntity::getKey, TEXT)
+                    .thenComparing(BlockStateEntity::getUiName, TEXT)
+                    .thenComparing(BlockStateEntity::getId, IDS);
 
     private final JsonMapper jsonMapper;
 
@@ -319,6 +325,13 @@ public final class ProjectContentAssembler {
                         pack.getMaxFormatMinor(),
                         pack.getEnabledFeatures().stream().sorted().toList(),
                         pack.getIconAsset() == null ? null : pack.getIconAsset().getId()
+                )).toList(),
+                sorted(rows.blockStates(), BLOCK_STATE_ORDER).stream().map(blockState -> new BlockStateDTO(
+                        blockState.getId(),
+                        blockState.getUiName(),
+                        blockState.getKey(),
+                        blockState.getComment(),
+                        json(blockState.getRules())
                 )).toList()
         );
     }
