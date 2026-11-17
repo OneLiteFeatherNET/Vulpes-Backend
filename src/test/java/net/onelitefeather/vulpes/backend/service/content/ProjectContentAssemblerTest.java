@@ -38,6 +38,7 @@ import net.onelitefeather.vulpes.api.model.font.FontStringEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemComponentEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemEnchantmentEntity;
 import net.onelitefeather.vulpes.api.model.item.ItemLoreEntity;
+import net.onelitefeather.vulpes.api.model.blockstate.BlockStateEntity;
 import net.onelitefeather.vulpes.api.model.pack.PackMetaEntity;
 import net.onelitefeather.vulpes.api.model.pack.PackType;
 import net.onelitefeather.vulpes.api.model.project.ProjectEntity;
@@ -299,6 +300,8 @@ class ProjectContentAssemblerTest {
         assertTrue(content.assets().isEmpty(), "assets must be empty for a project without assets");
         assertNotNull(content.packs(), "packs must be an empty list, not null");
         assertTrue(content.packs().isEmpty(), "packs must be empty for a project without packs");
+        assertNotNull(content.blockStates(), "blockStates must be an empty list, not null");
+        assertTrue(content.blockStates().isEmpty(), "blockStates must be empty for a project without blockstates");
     }
 
     @Test
@@ -331,6 +334,35 @@ class ProjectContentAssemblerTest {
         ProjectContentDTO.PackDTO pack = content.packs().get(0);
         assertEquals(List.of("alpha", "zeta"), pack.enabledFeatures(), "enabled features must be sorted");
         assertEquals(Integer.valueOf(3), pack.maxFormatMinor(), "the maximum minor format must be kept");
+    }
+
+    @Test
+    void blockStatesAreOrderedByKeyThenName() {
+        Rows rows = new Rows();
+        rows.blockStates.add(new BlockStateEntity(id(3), rows.project, "Top", "minecraft:pink_petals", null, "[]"));
+        rows.blockStates.add(new BlockStateEntity(id(2), rows.project, "Stairs", "minecraft:oak_stairs", null, "[]"));
+        rows.blockStates.add(new BlockStateEntity(id(1), rows.project, "Bottom", "minecraft:pink_petals", null, "[]"));
+
+        ProjectContentDTO content = assembler.assemble(rows.build());
+
+        assertEquals(List.of("Stairs", "Bottom", "Top"),
+                content.blockStates().stream().map(ProjectContentDTO.BlockStateDTO::uiName).toList(),
+                "blockstates must be ordered by block key, the contexts of a block by name");
+    }
+
+    @Test
+    void blockStateRulesAreExportedAsJsonArrayInTheirOrder() {
+        Rows rows = new Rows();
+        rows.blockStates.add(new BlockStateEntity(id(1), rows.project, "Petals", "minecraft:pink_petals", null,
+                "[{\"model\":\"minecraft:block/second\"},{\"model\":\"minecraft:block/first\"}]"));
+
+        ProjectContentDTO content = assembler.assemble(rows.build());
+
+        JsonNode rules = content.blockStates().get(0).rules();
+        assertTrue(rules.isArray(), "the stored rules must be exported as a JSON array");
+        assertEquals("minecraft:block/second", rules.get(0).get("model").getStringValue(),
+                "the rules must keep the order they are written to the file");
+        assertEquals("minecraft:block/first", rules.get(1).get("model").getStringValue());
     }
 
     private static Rows sampleRows(boolean reversed) {
@@ -484,6 +516,7 @@ class ProjectContentAssemblerTest {
         final List<DimensionAttributeEntity> dimensionAttributes = new ArrayList<>();
         final List<DimensionTimelineEntity> dimensionTimelines = new ArrayList<>();
         final List<PackMetaEntity> packs = new ArrayList<>();
+        final List<BlockStateEntity> blockStates = new ArrayList<>();
 
         ItemEntity item(long id, String key) {
             ItemEntity item = new ItemEntity();
@@ -554,7 +587,7 @@ class ProjectContentAssemblerTest {
         ProjectContentRows build() {
             return new ProjectContentRows(project, items, itemComponents, itemLore, itemEnchantments, attributes, fonts,
                     fontChars, sounds, soundSources, expressionFunctions, expressions, assets, assetRevisions, assetLinks,
-                    advancements, dimensions, dimensionAttributes, dimensionTimelines, packs);
+                    advancements, dimensions, dimensionAttributes, dimensionTimelines, packs, blockStates);
         }
     }
 }

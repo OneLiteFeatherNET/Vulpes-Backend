@@ -5,6 +5,7 @@ import net.onelitefeather.vulpes.api.model.AttributeEntity;
 import net.onelitefeather.vulpes.api.model.FontEntity;
 import net.onelitefeather.vulpes.api.model.ItemEntity;
 import net.onelitefeather.vulpes.api.model.advancement.AdvancementEntity;
+import net.onelitefeather.vulpes.api.model.blockstate.BlockStateEntity;
 import net.onelitefeather.vulpes.api.model.asset.AssetLinkEntity;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetEntity;
 import net.onelitefeather.vulpes.api.model.asset.ProjectAssetRevisionEntity;
@@ -48,6 +49,7 @@ import net.onelitefeather.vulpes.api.model.sound.SoundFileSource;
  * @param dimensionAttributes    the attributes of all dimension types
  * @param dimensionTimelines     the timelines of all dimension types
  * @param packs                  the pack metadata
+ * @param blockStates            the blockstates
  */
 public record ProjectContentRows(
         ProjectEntity project,
@@ -69,6 +71,7 @@ public record ProjectContentRows(
         List<DimensionTypeEntity> dimensions,
         List<DimensionAttributeEntity> dimensionAttributes,
         List<DimensionTimelineEntity> dimensionTimelines,
-        List<PackMetaEntity> packs
+        List<PackMetaEntity> packs,
+        List<BlockStateEntity> blockStates
 ) {
 }

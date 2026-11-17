@@ -42,6 +42,7 @@ import net.onelitefeather.vulpes.api.model.sound.SoundSource;
  * @param advancements the advancements of the project
  * @param dimensions the dimension types of the project
  * @param packs      the pack metadata of the project
+ * @param blockStates the blockstates of the project
  */
 @Serdeable
 @JsonInclude(JsonInclude.Include.ALWAYS)
@@ -57,7 +58,8 @@ public record ProjectContentDTO(
         List<AssetDTO> assets,
         List<AdvancementDTO> advancements,
         List<DimensionDTO> dimensions,
-        List<PackDTO> packs
+        List<PackDTO> packs,
+        List<BlockStateDTO> blockStates
 ) {
 
     /**
@@ -68,7 +70,7 @@ public record ProjectContentDTO(
      */
     public ProjectContentDTO withRevision(String revision) {
         return new ProjectContentDTO(revision, project, items, attributes, fonts, sounds, expressionFunctions,
-                expressions, assets, advancements, dimensions, packs);
+                expressions, assets, advancements, dimensions, packs, blockStates);
     }
 
     /**
@@ -563,6 +565,27 @@ public record ProjectContentDTO(
             Integer maxFormatMinor,
             List<String> enabledFeatures,
             UUID iconAssetId
+    ) {
+    }
+
+    /**
+     * The rules of one blockstate of the project. A project may hold several blockstates for the same block, the
+     * generator writes the rules of all of them into one {@code multipart} file.
+     *
+     * @param id      the id of the blockstate
+     * @param uiName  the name shown in the UI
+     * @param key     the full key of the block, e.g. {@code minecraft:pink_petals}
+     * @param comment the comment on the blockstate, or {@code null}
+     * @param rules   the rules as a JSON array, in the order they are written to the file
+     */
+    @Serdeable
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    public record BlockStateDTO(
+            UUID id,
+            String uiName,
+            String key,
+            String comment,
+            JsonNode rules
     ) {
     }
 }

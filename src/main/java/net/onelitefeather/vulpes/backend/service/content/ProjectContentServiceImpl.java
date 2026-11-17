@@ -16,6 +16,7 @@ import net.onelitefeather.vulpes.backend.entity.dimension.DimensionContentReposi
 import net.onelitefeather.vulpes.backend.entity.expression.ExpressionContentRepository;
 import net.onelitefeather.vulpes.backend.entity.font.FontContentRepository;
 import net.onelitefeather.vulpes.backend.entity.item.ItemContentRepository;
+import net.onelitefeather.vulpes.backend.entity.blockstate.BlockStateContentRepository;
 import net.onelitefeather.vulpes.backend.entity.pack.PackMetaContentRepository;
 import net.onelitefeather.vulpes.backend.entity.sound.SoundContentRepository;
 import net.onelitefeather.vulpes.backend.exception.ApiException;
@@ -40,6 +41,7 @@ public class ProjectContentServiceImpl implements ProjectContentService {
     private final AdvancementContentRepository advancementRepository;
     private final DimensionContentRepository dimensionRepository;
     private final PackMetaContentRepository packRepository;
+    private final BlockStateContentRepository blockStateRepository;
     private final ProjectContentAssembler assembler;
     private final SnapshotTransaction snapshotTransaction;
 
@@ -56,6 +58,7 @@ public class ProjectContentServiceImpl implements ProjectContentService {
             AdvancementContentRepository advancementRepository,
             DimensionContentRepository dimensionRepository,
             PackMetaContentRepository packRepository,
+            BlockStateContentRepository blockStateRepository,
             JsonMapper jsonMapper,
             SnapshotTransaction snapshotTransaction
     ) {
@@ -70,6 +73,7 @@ public class ProjectContentServiceImpl implements ProjectContentService {
         this.advancementRepository = advancementRepository;
         this.dimensionRepository = dimensionRepository;
         this.packRepository = packRepository;
+        this.blockStateRepository = blockStateRepository;
         this.assembler = new ProjectContentAssembler(jsonMapper);
         this.snapshotTransaction = snapshotTransaction;
     }
@@ -101,6 +105,7 @@ public class ProjectContentServiceImpl implements ProjectContentService {
         var advancements = advancementRepository.findAdvancementsByProjectId(projectId);
         var dimensions = dimensionRepository.findDimensionsByProjectId(projectId);
         var packs = packRepository.findPacksByProjectId(projectId);
+        var blockStates = blockStateRepository.findBlockStatesByProjectId(projectId);
         var itemComponents = itemRepository.findComponentsByProjectId(projectId);
         var itemLore = itemRepository.findLoreByProjectId(projectId);
         var itemEnchantments = itemRepository.findEnchantmentsByProjectId(projectId);
@@ -130,7 +135,8 @@ public class ProjectContentServiceImpl implements ProjectContentService {
                 dimensions,
                 dimensionAttributes,
                 dimensionTimelines,
-                packs
+                packs,
+                blockStates
         );
     }
 }
