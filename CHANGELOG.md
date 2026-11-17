@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.8.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.7.0...v3.8.0) (2026-11-17)
+
+
+### Features
+
+* **blockstate:** add controller and dto handling ([#300](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/300)) ([98aeb27](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/98aeb27fa8bfa131fffff7ee8e8a6abed726bf1c))
+* **sound:** support new fields from the sound model ([#298](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/298)) ([4de7e99](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/4de7e990c6627b2d0339ec68fb42bf326dd68b7d))
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.google.errorprone:error_prone_core to v2.52.0 ([#264](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/264)) ([64531c8](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/64531c866f7afaacea5e81e7873001b236ebe2f8))
+* **deps:** update dependency com.uber.nullaway:nullaway to v0.14.4 ([#299](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/299)) ([a49bca6](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/a49bca61ddbd1eb7593a709272e3289b2516da16))
+* **project:** start the content export in a fresh transaction ([#287](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/287)) ([2323f29](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/2323f2918d56e7ea4dda0ef6dd7934444a590a0d))
+
 ## [3.7.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.6.0...v3.7.0) (2026-11-09)
 
 
