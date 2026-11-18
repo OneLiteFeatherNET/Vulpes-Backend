@@ -1,7 +1,8 @@
 name: SBOM backfill
 
-# Sends the SBOM attached to an existing GitHub release to Dependency-Track.
-# New releases do this in release-please.yml; this covers the ones before.
+# Builds the SBOM of an already released version from its Docker image, attaches
+# it to the GitHub release and sends it to Dependency-Track. New releases do this
+# in release-please.yml; this covers the ones before.
 on:
   workflow_dispatch:
     inputs:
@@ -16,18 +17,30 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   fetch:
-    name: Fetch the release SBOM
+    name: Build the release SBOM
     runs-on: ubuntu-latest
     steps:
-      - name: Download bom.json from the release
+      - name: Generate CycloneDX SBOM
+        uses: aquasecurity/trivy-action@v0.36.0
+        env:
+          TRIVY_USERNAME: ${{ secrets.HARBOR_USERNAME }}
+          TRIVY_PASSWORD: ${{ secrets.HARBOR_PASSWORD }}
+        with:
+          scan-type: image
+          image-ref: ${{ secrets.HARBOR_REGISTRY }}/onelitefeather/vulpes-backend:${{ inputs.version }}
+          format: cyclonedx
+          output: bom.json
+          exit-code: '0'
+
+      - name: Attach SBOM to the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ inputs.version }}
-        run: gh release download "v${VERSION}" --repo "$GITHUB_REPOSITORY" --pattern bom.json
+        run: gh release upload "v${VERSION}" bom.json --clobber --repo "$GITHUB_REPOSITORY"
 
       - name: Keep the SBOM for Dependency-Track
         uses: actions/upload-artifact@v7
