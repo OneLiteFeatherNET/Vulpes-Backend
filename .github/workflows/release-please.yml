@@ -173,3 +173,25 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.release-please.outputs.tag_name }}
         run: gh release upload "$TAG" bom.json --clobber
+
+      - name: Keep the SBOM for Dependency-Track
+        uses: actions/upload-artifact@v7
+        with:
+          name: sbom-release
+          path: bom.json
+          if-no-files-found: error
+          retention-days: 1
+
+  # Its own job, so an unreachable Dependency-Track never fails the release.
+  dependency-track:
+    name: Publish SBOM to Dependency-Track
+    needs: [release-please, sbom]
+    uses: OneLiteFeatherNET/workflows/.github/workflows/sbom-publish.yml@v2.9.1
+    with:
+      project-name: "Vulpes-Backend"
+      project-version: ${{ needs.release-please.outputs.version }}
+      artifact-name: "sbom-release"
+      sbom-path: "bom.json"
+      parent-uuid: "a5b26cf1-d8e0-4815-b727-0a355a2354f6"
+      is-latest: true
+    secrets: inherit
