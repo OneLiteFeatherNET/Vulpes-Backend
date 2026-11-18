@@ -46,7 +46,7 @@ dependencyResolutionManagement {
             version("spotless", "8.11.0")
             version("palantir.java.format", "2.102.0")
             version("errorprone.plugin", "5.2.0")
-            version("error.prone.core", "2.52.0")
+            version("error.prone.core", "2.53.0")
             version("nullaway", "0.14.4")
             version("jspecify", "1.0.1")
             version("archunit", "1.5.1")
