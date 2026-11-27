@@ -7,6 +7,8 @@ import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelDTO;
 import net.onelitefeather.vulpes.backend.domain.attribute.AttributeModelResponseDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemModelDTO;
+import net.onelitefeather.vulpes.backend.domain.item.ItemModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelDTO;
 import net.onelitefeather.vulpes.backend.domain.project.ProjectModelResponseDTO;
 import net.onelitefeather.vulpes.backend.domain.sound.SoundEventDTO;
@@ -35,6 +37,7 @@ class UpdateTimestampIntegrationTest {
 
     private String attributePath;
     private String soundPath;
+    private String itemPath;
 
     @BeforeAll
     void createProject() {
@@ -47,6 +50,7 @@ class UpdateTimestampIntegrationTest {
                 .extract().as(ProjectModelResponseDTO.ProjectModelDTO.class);
         attributePath = "/project/" + project.id() + "/attribute";
         soundPath = "/project/" + project.id() + "/sound";
+        itemPath = "/project/" + project.id() + "/item";
     }
 
     @Test
@@ -102,5 +106,18 @@ class UpdateTimestampIntegrationTest {
 
         assertEquals(created.creationDate(), updated.creationDate());
         assertTrue(updated.modificationDate().isAfter(created.modificationDate()));
+    }
+
+    @Test
+    @DisplayName("an item's create response carries its timestamps")
+    void itemCreate_returnsTimestamps() {
+        ItemModelResponseDTO.ItemModelDTO created = given()
+                .contentType(ContentType.JSON)
+                .body(new ItemModelDTO(null, "Apple", "apple", null, "group"))
+                .post(itemPath)
+                .then().statusCode(200)
+                .extract().as(ItemModelResponseDTO.ItemModelDTO.class);
+        assertNotNull(created.creationDate(), "the create response must carry the creation date");
+        assertNotNull(created.modificationDate(), "the create response must carry the modification date");
     }
 }
