@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.8.1](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.8.0...v3.8.1) (2026-11-27)
+
+
+### Bug Fixes
+
+* **deps:** update dependency com.google.errorprone:error_prone_core to v2.53.0 ([#304](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/304)) ([5e3385e](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/5e3385e86c7c2277cc1937a3b13b33f99b988d1d))
+* **deps:** update dependency org.hibernate.validator:hibernate-validator to v9.2.0.final ([#307](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/307)) ([d5d0d72](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/d5d0d72ea08cc8fb01ad20d9b2db4f89ab46a7f9))
+* **item:** return the timestamps of a created item ([#310](https://github.com/OneLiteFeatherNET/Vulpes-Backend/issues/310)) ([0b0b0fc](https://github.com/OneLiteFeatherNET/Vulpes-Backend/commit/0b0b0fc161db085420206796d1dfea93339bcece))
+
 ## [3.8.0](https://github.com/OneLiteFeatherNET/Vulpes-Backend/compare/v3.7.0...v3.8.0) (2026-11-17)
 
 
