@@ -35,7 +35,7 @@ dependencyResolutionManagement {
             version("micronaut", "5.0.2")
             version("vulpes.model", "3.12.0")
             version("uuid.creator", "6.1.1")
-            version("datafaker", "2.7.0")
+            version("datafaker", "3.0.0")
             version("jetbrains.annotation", "26.1.0")
             version("hibernate.validator", "9.2.0.Final")
             version("jakarta.validation", "3.1.1")
